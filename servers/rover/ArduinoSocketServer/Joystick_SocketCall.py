@@ -1,3 +1,4 @@
+
 from socket import *
 import time
 import pygame
@@ -50,9 +51,9 @@ while(1):
         for i in range( axes ):
             axis = joystick.get_axis( i )
             if i == 1:
-                motor1 = 127 * axis
+                motor1 = -127 * axis
             if i == 0:  
-                motor2 = -127 * axis
+                motor2 = 127 * axis
             
         buttons = joystick.get_numbuttons()
 
@@ -71,5 +72,6 @@ while(1):
         print "sending"
         data = str(motor1) + ',' + str(motor2)
         client_socket.sendto(data, address)
-
+    data = str(0) + ',' + str(0)
+    
 exit(0)
