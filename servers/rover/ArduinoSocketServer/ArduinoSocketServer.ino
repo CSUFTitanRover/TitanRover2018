@@ -10,7 +10,7 @@
 SoftwareSerial SWSerial(NOT_A_PIN, 1);
 Sabertooth ST(128, SWSerial);
 
-
+int packetSize;
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = {
@@ -22,9 +22,12 @@ byte subnet[] = {255,255,255,0};
 
 unsigned int localPort = 5000;      // local port to listen on
 
+char charToIntArray[10];
+int moveMentArray[10];
+
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
-char  ReplyBuffer[] = "acknowledged";       // a string to send back
+//char  ReplyBuffer[] = "acknowledged";       // a string to send back
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
@@ -35,7 +38,10 @@ void setup() {
   // put your setup code here, to run once:
   SWSerial.begin(9600);
   ST.autobaud();
-  
+  //create an initalization function
+  ST.motor(1, 0);
+  ST.motor(2, 0);
+  //Serial.begin(9600);  
   // start the Ethernet and UDP:
   Ethernet.begin(mac, ip, gateway, subnet);
   Udp.begin(localPort);
@@ -44,41 +50,57 @@ void setup() {
 }
 // This loop will be a command loop for each of the arduino processes
 void loop() {
-  int packetSize = Udp.parsePacket();
+  packetSize = Udp.parsePacket();
+  //Serial.println(Udp.remoteIP());
+  //Serial.println(Udp.remotePort());
+  
+  
+  
+  Udp.write(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
   if (packetSize) {
     Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    String datReg(packetBuffer);
-    //Need to get JSON working for this transfer of commands and remove switch
-    switch (str2int(datReg))
-    {
-      case "run": 
-      {
-        for(int power = 0; power < 127; power++){
-          ST.motor(1,power);
-          ST.motor(2,power);
-          delay(20);
-        }
-        for(int power = 127; power > -127; power--){
-          ST.motor(1,power);
-          ST.motor(2,power);
-          delay(20);
-        }
-        for(int power = -127; power < 0; power++){
-          ST.motor(1,power);
-          ST.motor(2,power);
-          delay(20);
-        }
-        break;
+    
+    for(int x,y,n = 0; x < packetSize; x++, y++){
+      charToIntArray[y] = packetBuffer[x];
+      
+      if(charToIntArray[y] == ','){
+        charToIntArray[y] = '\0';
+        moveMentArray[n++] = atoi(charToIntArray);
+        y = -1;
+        memset(charToIntArray,0,sizeof(charToIntArray));
+      }else if(x + 1 == packetSize){
+        charToIntArray[++y] = '\0';
+        moveMentArray[n++] = atoi(charToIntArray);
+        y = -1;
+        memset(charToIntArray,0,sizeof(charToIntArray));
       }
-      case "stop":{
-        ST.motor(1,0);
-        ST.motor(2,0);
-        break;  
-      }
-      case "arm":{
-
-        //whatever
-      }
+      
     }
+  
+      
+    //String datReg(packetBuffer);
+    //Need to get JSON working for this transfer of commands and remove switch
+    for(int x = 0; x < 10; x++){
+      switch (x){
+        case 0: 
+        {
+          ST.drive(moveMentArray[0]);
+          //Serial.println(moveMentArray[0]);
+          break;
+        }
+        case 1:{
+          ST.turn(moveMentArray[1]);
+          //Serial.println(moveMentArray[1]);
+          break;  
+        }
+          //whatever
+      }  
+    }
+  
+  Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+  Udp.write("ready");
+  Udp.endPacket();
+   
   }         
+  memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
 }
