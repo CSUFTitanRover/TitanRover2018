@@ -283,7 +283,7 @@ def checkDsButton():
         datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         dsButton = True
- 
+
 def checkRotate():
     global roverActions
     if roverActions["rotate"]["value"] != 0:
@@ -312,12 +312,12 @@ def main(*argv):
             checkHats(joystick)
             checkButtons(joystick)
             throttleStep()
-	    checkRotate()
+            checkRotate()
             checkPause()
             checkModes()
             setLed()
             #print("Sending Tx2 command")
-            
+
             #re_data = client_socket.recvfrom(512)
             #print(bytes.decode(re_data[0]))  # Debug
             #if bytes.decode(re_data[0]) == "r":
@@ -326,7 +326,7 @@ def main(*argv):
                 outVals = list(map(getZero, actionList))
             else:
                 outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
-            
+
 	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
             # we will also package the values to crunch the bytes down, instead of AF_INET, SOCK_STREAMsending a string
             o = outVals
@@ -342,6 +342,7 @@ def main(*argv):
                     client_socket.sendto(ghzBytePack, address) # string bytes
                   except:
                     print("Couldn't send over Ghz")
+                  '''
                   try:
                     if os.environ['roverType'] == 'base' and hamPiRelaySocket != None:
                       hamPiRelaySocket.sendto(hamBytePack, ('192.168.1.5', 9005))
@@ -353,15 +354,16 @@ def main(*argv):
                       hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)      #check - shouldn't this be UDP
                       hamPiRelaySocket.connect(('192.168.1.5', 9005))
                     except:
-                      pass                    
+                      pass
                     print("Coudn't send over Ham")
+                  '''
                 else:
                     #check -how does this pause the rover???
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
               else:
                 print("The key 'roverType' is missing from the deepstream record: mode")
               print(ghzBytePack)
-              print(hamBytePack)
+              #print(hamBytePack)
               print()
             else:
               print("Not in Manual Mode, MobilityMode: " + ' HAS NOT BEEN SET IN DEEPSTREAM' if mobilityMode == {} else str(mobilityMode))
@@ -408,7 +410,7 @@ def modeChecker():
                   post(mobilityMode, "mode", "192.168.1.2")
                 except:
                   print("could not post the mode over to the rover")
-                  pass          
+                  pass
       except:
         print("Not getting mobility mode from local deepstream")
         pass
