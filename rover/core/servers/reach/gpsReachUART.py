@@ -19,6 +19,8 @@ from subprocess import Popen, PIPE
 import sys
 import re
 
+sleep(10)
+
 device = '/dev/serial/by-id/usb-Silicon_Labs_reach_9000-if00-port0'
 nvidiaIp = "localhost"
 pattern = re.compile('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
@@ -50,14 +52,19 @@ print('listening to socket 9000, and sending/reading to/from UART')
 nmea = ''
 serialData = ''
 
-
 def socketConnection():
     global nmea, ser
+    data = None
     sock.listen(5)
-    connection, client_address = sock.accept()
+    #connection, client_address = sock.accept()
     try:
         while True:
-            data = connection.recv(4096)
+            try:
+              connection, client_address = sock.accept()
+              data = connection.recv(4096)
+            except:
+              pass
+
             if data:
                 print(data)
                 try:
@@ -67,6 +74,7 @@ def socketConnection():
                 if nmea != '':
                     connection.sendall(nmea)
                     nmea = ''
+                data = None
             else:
                 pass
             sleep(0.05)
