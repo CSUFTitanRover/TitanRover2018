@@ -1,11 +1,11 @@
 
 #include <SPI.h>
-#include <AMIS30543.h>
 #include <Servo.h>
 #include <Stepper.h>
 #include <SoftwareSerial.h>
-#include <Sabertooth.h>
-
+#include "AMIS30543\AMIS30543.h"
+//include "Sabertooth\Sabertooth\Sabertooth.h"
+/*
 /////// Const and Variables /////////////
 const int stepsPerRevolution = 200;
 uint8_t val[6];
@@ -70,21 +70,21 @@ uint8_t analogRead_counter = 0;
     bool joint5passedLimit = false;
     const int joint5_LimitDistance_Steps = 1000;
   /////////// Joint 6 /////////////
-    AMIS30543 joint6_stepper;
+    //AMIS30543 joint6_stepper;
     const uint8_t joint6_ss = 44;
     const uint8_t joint6_dir_pin = 42;
     const uint8_t joint6_pulse_pin = 43;
     volatile bool joint6_on = false;
   /////////// Joint 7 /////////////
-    AMIS30543 joint7_stepper;
+    //AMIS30543 joint7_stepper;
     const uint8_t joint7_ss = 48;
     const uint8_t joint7_dir_pin = 46;
     const uint8_t joint7_pulse_pin = 47;
     volatile bool joint7_on = false;
 
 //SoftwareSerial SWSerial(NOT_A_PIN, 18); // tx-1 on arduino mega
-Sabertooth Back(129, Serial1);
-
+//Sabertooth Back(129, Serial1);
+*/
 /////// Taranis Variables start ////////
 unsigned long int startTime,endTime,deltaTime;
 volatile int ppmIN[18],buffer_arr[18],iterator ,global_Array[8];
@@ -99,15 +99,16 @@ void setup() {
   //initialize the counter
     iterator = 0;
   //////// Taranis End   /////////////
-  
+  for(int x = 3; x < 13; x++)
+    pinMode(x, OUTPUT);
   SPI.begin();
-  Serial.begin(9600);
+  //Serial.begin(9600);
   Serial1.begin(9600);
-  Back.autobaud();
+  //Back.autobaud();
 
   delay(5);
-
-  Back.drive(0);
+/*
+  //Back.drive(0);
   Back.turn(0);
   
   joint1_sensorValue = analogRead(joint1_limit_pin);
@@ -130,7 +131,7 @@ void setup() {
   pinMode(joint4_enab_pin, OUTPUT);
   pinMode(joint4_pulse_pin, OUTPUT);
   pinMode(joint4_interrupt_pin, INPUT);
-  attachInterrupt(digitalPinToInterrupt(joint4_interrupt_pin), stopJoint4, FALLING);
+  //attachInterrupt(digitalPinToInterrupt(joint4_interrupt_pin), stopJoint4, FALLING);
   digitalWrite(joint4_enab_pin, LOW);
 
   // Set up Joint5
@@ -138,24 +139,24 @@ void setup() {
   pinMode(joint5_enab_pin, OUTPUT);
   pinMode(joint5_pulse_pin, OUTPUT);
   pinMode(joint5_interrupt_pin, INPUT);
-  attachInterrupt(digitalPinToInterrupt(joint5_interrupt_pin), stopJoint5, FALLING);
+  //attachInterrupt(digitalPinToInterrupt(joint5_interrupt_pin), stopJoint5, FALLING);
   digitalWrite(joint5_enab_pin, LOW);
 
   // Set up the Polulu Stepper motors
-  joint6_stepper.init(joint6_ss);
-  joint6_stepper.resetSettings();
-  joint6_stepper.setCurrentMilliamps(670);
-  joint6_stepper.setStepMode(stepsPerRevolution);
-  joint6_stepper.enableDriver();
+  //joint6_stepper.init(joint6_ss);
+  //joint6_stepper.resetSettings();
+  //joint6_stepper.setCurrentMilliamps(670);
+  //joint6_stepper.setStepMode(stepsPerRevolution);
+  //joint6_stepper.enableDriver();
 
   // Deselect the slave select pin for joint6 to allow joint7 to communicate
   //digitalWrite(joint6_ss, HIGH);
 
-  joint7_stepper.init(joint7_ss);
-  joint7_stepper.resetSettings();
-  joint7_stepper.setCurrentMilliamps(1250);
-  joint7_stepper.setStepMode(stepsPerRevolution);
-  joint7_stepper.enableDriver();
+  //joint7_stepper.init(joint7_ss);
+  //joint7_stepper.resetSettings();
+  //joint7_stepper.setCurrentMilliamps(1250);
+  //joint7_stepper.setStepMode(stepsPerRevolution);
+  //joint7_stepper.enableDriver();
 
   // Set up AssAss
   //AssAss.attach(assass_pwm_pin);
@@ -164,19 +165,96 @@ void setup() {
   // This will set certain masks that allow use to detect the HIGH LOW of a pin faster
   //setPortandBit();
   
-  
+  */
 }
 
 void loop() {
   ////// Taranis Start ///////
   read_Array();
   //For debugging if needed
-  /*for(int b = 0; b < 8; b++){
-    Serial.print(global_Array[[b]);
-    Serial.print("\t");
+  for(int b = 0; b < 8; b++){
+    //Serial.print(global_Array[b]);
+    //Serial.print("\t");
+    if(global_Array[b] > 1600){
+      switch(b){
+        case 0:{
+          digitalWrite(3, HIGH);
+          break;
+        }
+        case 1:{
+          digitalWrite(5, HIGH);
+          break;
+        }
+        case 2:{
+          digitalWrite(7, HIGH);
+          break;
+        }
+        case 3:{
+          digitalWrite(9, HIGH);
+          break;
+        }
+        case 4:{
+          digitalWrite(11, HIGH);
+          break;
+        }
+      }
+    }
+    else if(global_Array[b] < 1400){
+      switch(b){
+        case 0:{
+          digitalWrite(4, HIGH);
+          break;
+        }
+        case 1:{
+          digitalWrite(6, HIGH);
+          break;
+        }
+        case 2:{
+          digitalWrite(8, HIGH);
+          break;
+        }
+        case 3:{
+          digitalWrite(10, HIGH);
+          break;
+        }
+        case 4:{
+          digitalWrite(12, HIGH);
+          break;
+        }
+      }
+    }
+    else {
+      switch(b){
+        case 0:{
+          digitalWrite(3, LOW);
+          digitalWrite(4, LOW);
+          break;
+        }
+        case 1:{
+          digitalWrite(5, LOW);
+          digitalWrite(6, LOW);
+          break;
+        }
+        case 2:{
+          digitalWrite(7, LOW);
+          digitalWrite(8, LOW);
+          break;
+        }
+        case 3:{
+          digitalWrite(9, LOW);
+          digitalWrite(10, LOW);
+          break;
+        }
+        case 4:{
+          digitalWrite(11, LOW);
+          digitalWrite(12, LOW);
+          break;
+        }
+      }
+    }  
   }
   Serial.print("\n");
-  delay(100);*/
+  delay(100);
   ////// Taranis End ///////
   
 }
@@ -214,9 +292,11 @@ void read_me()  {
 //
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 void read_Array(){
-  int iteration, startPoint, ppmGap = 0;
+  int iteration = 0;
+  int startPoint = 0;
+  int ppmGap = 0;
   for( ppmGap = 9; ppmGap > -1; ppmGap-- )
-    if(buffer_arr[startPoint]>5000){
+    if(buffer_arr[ppmGap]>3000){
       startPoint = ppmGap;  //detecting separation space 10000us in that another array                     
       break;
     }
