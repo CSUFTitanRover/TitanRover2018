@@ -27,6 +27,9 @@ It seems even **more** unlikely that there would be a malicious party that would
 ### Ham Radio:
 
   * [RF Basics, RF for Non-RF Engineers](https://goo.gl/fMg5Dk)
+  * [TNCPi2](http://tnc-x.com/TNCPi.htm)
+  * [TNC-x](http://tnc-x.com/)
+  * [DB-5 DIY Connector for TNC-X to Baofeng Radio](http://tnc-x.com/Baofeng.htm)
 
 ### Ax.25 protocol:
   * [AX25-HOWTO.pdf](https://goo.gl/PMm9KV)
