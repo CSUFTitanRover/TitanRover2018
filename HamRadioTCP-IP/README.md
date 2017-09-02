@@ -15,9 +15,9 @@ The purpose of this function is to connect to the Titan Rover via the ax.25 prot
 
 ### Concerns
 
-Since the rules of ham radio explicitly state that radio operators are not allowed to encrypt data over ham radio frequencies, telnet would allow plain text data to be transmitted.  Although this posses potential security threats, it is unlikely that telnet would be compromised considering that in the competition the Titan Rover team will be on a wifi network that would be connected to the Rover (this network would/could be encrypted), so no access to the rover's telnet would be available.
+Since the rules of ham radio explicitly state that radio operators are not allowed to encrypt data over ham radio frequencies, telnet would allow plain text data to be transmitted.  Although this posses potential security threats, it is unlikely that telnet would be compromised considering that in the competition the Titan Rover team will be on a wifi network that would be connected to the Rover (this network would/could be encrypted), so no access to the rover's telnet would be available to a malicious party.
 
-It seems even **more** unlikely that there would be a malicious party that would have a similar setup scanning radio frequencies to pin point the data signal being transferred between TNCs. Not to mention they would have to spoof the call sign of the ax.25 protocol, which would be difficult, and not to mention illegal.  Therefor, I believe that there is no cause for grave concern on the matter of telnet security should the issue be raised among engineers.   
+It seems even **more** unlikely that there would be a malicious party that would have a similar setup scanning radio frequencies to pin point the data signal being transferred between TNCs. Not to mention they would have to spoof the call sign of the ax.25 protocol, which would be difficult, and not to mention illegal.  Therefore, I believe that there is no cause for grave concern on the matter of telnet security should the issue be raised among engineers.   
 
 -----
 
