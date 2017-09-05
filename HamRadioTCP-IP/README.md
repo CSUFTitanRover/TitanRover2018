@@ -35,7 +35,8 @@ Once you run kissattach, and set the two radios to the same frequencies, everyth
   * [RF Basics, RF for Non-RF Engineers](https://goo.gl/fMg5Dk)
   * [TNCPi2](http://tnc-x.com/TNCPi.htm)
   * [TNC-x](http://tnc-x.com/)
-  * [DB-5 DIY Connector for TNC-X to Baofeng Radio](http://tnc-x.com/Baofeng.htm)
+  * [5-Pin Din DIY Connector for TNC-X to Baofeng Radio](http://tnc-x.com/Baofeng.htm)
+    * In the picture at the bottom of the page, you will see a baofeng connector (to the radio) to a DB9 connector. This connects to the TNCPi2 (not the tnc-x) Basically, I've ordered [two handheld mics](https://www.amazon.com/Original-Universal-Handheld-BAOFENG-Speaker-mic/dp/B00CIOA89E/ref=sr_1_2?s=hi&ie=UTF8&qid=1504629968&sr=8-2&keywords=baofeng+mic), chopped off the mic part, and one cable will have a [DB9](https://www.amazon.com/DealMux-Converter-Connector-Adapter-Assembly/dp/B072MTCYKL/ref=sr_1_50?s=hi&ie=UTF8&qid=1504629931&sr=1-50&keywords=db9) on one end and a baofeng radio on the other, and the second cable has a [5-Pin Din](https://www.amazon.com/NEUTRIK-NYS322-CONNECTOR-PLUG-5POS/dp/B003GZRCCK/ref=sr_1_4?ie=UTF8&qid=1504629531&sr=8-4&keywords=5+pin+din) on one end and a baofeng radio on the other.
 
 ### Ax.25 protocol:
   * [AX25-HOWTO.pdf](https://goo.gl/PMm9KV)
