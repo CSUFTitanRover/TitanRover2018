@@ -3,7 +3,7 @@
 > Prepared by Richard Stanley <br>
 > AKA: Audstanley <br>
 > Computer Science Major <br>
-> Outside help from: [Steve Netting](http://www.m0spn.co.uk/), and [Mark Khusid](http://markkhusid.ddns.net/index.html)
+> Outside help from: [Steve Netting](http://www.m0spn.co.uk/), [Mark Khusid](http://markkhusid.ddns.net/index.html) and [Rick Osgood](http://www.richardosgood.com/blog/how-to-setup-a-raspberry-pi-packet-radio-node-with-zork/)
 
 -----
 
