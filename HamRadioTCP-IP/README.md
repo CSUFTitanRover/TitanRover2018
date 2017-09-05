@@ -43,7 +43,7 @@ Once you run kissattach, and set the two radios to the same frequencies, everyth
 ### Videos:
   * [ax.25 ssh by Steve Netting](https://www.youtube.com/watch?v=qdayzRIPEMk)
     * I've reached out to steve, and got his email address. He might be able to help out if there are any caveats along the way. Ont thing steve pointed out, is to disable any auto discovery services (such as samba).  Disabling samba will greatly reduce any unnecessary "noise" that would occur over the ax.25 protocol.
-  * [ax.25 wireshark/packet sniffing by Mark Khusid](https://www.youtube.com/watch?v=zlx9NT9FyGE)
+  * [ax.25 wireshark/packet sniffing by Mark Khusid](https://www.youtube.com/watch?v=_0h3SK5m9vk)
     * I have also reached out to Mark, and he has emailed me back on helping out we have any hangups.  He has been helpgul so far, here is his site [Mark's site](http://markkhusid.ddns.net/index.html)
 
   -----
