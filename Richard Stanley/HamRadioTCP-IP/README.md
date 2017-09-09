@@ -1,6 +1,6 @@
 # HamRadioTCP-IP
 
-> Prepared by Richard Stanley <br>
+> Prepared by Richard Stanley [KM6LZF](https://aprs.fi/#!mt=roadmap&z=11&call=a%2FKM6LZF&timerange=3600&tail=3600)<br>
 > AKA: Audstanley <br>
 > Computer Science Major <br>
 > Outside help from: [Steve Netting](http://www.m0spn.co.uk/), [Mark Khusid](http://markkhusid.ddns.net/index.html) and [Rick Osgood](http://www.richardosgood.com/blog/how-to-setup-a-raspberry-pi-packet-radio-node-with-zork/)
