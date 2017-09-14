@@ -15,7 +15,7 @@ int main(int argc, char *argv[]){
 
     cout << "Starting the 100,000 blink test" << endl;
 
-    jetsonTX1GPIONumber orangeLED = gpio219 ;     // Ouput
+    jetsonTX1GPIONumber orangeLED = gpio398 ;     // Ouput
     gpioExport(orangeLED) ;
     gpioSetDirection(orangeLED,outputPin) ;
 
