@@ -10,3 +10,5 @@ and ideas from Derek Malloy Copyright (c) 2012
 https://github.com/derekmolloy/beaglebone
 
 exampleGPIApp.cpp describes a simple usage case using a tactile button and LED as input and output.
+
+![GPIO](http://ww2.audstanley.com:8081/cpp/Mars/TX2.PNG)
