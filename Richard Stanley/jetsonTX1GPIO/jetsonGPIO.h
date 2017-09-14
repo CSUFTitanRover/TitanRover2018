@@ -74,6 +74,10 @@ enum jetsonGPIONumber {
 	gpio166 = 166     // J3A2 - Pin 58
 }  ;
 
+
+// NOTE FROM RICHARD STANLEY:
+// These pins will need to change.  I've alread changed the last one
+// pin 398... still need to change the others
 enum jetsonTX1GPIONumber {
        gpio36 = 36,      // J21 - Pin 32 - Unused - AO_DMIC_IN_CLK
        gpio37 = 37,      // J21 - Pin 16 - Unused - AO_DMIC_IN_DAT
@@ -82,7 +86,7 @@ enum jetsonTX1GPIONumber {
        gpio184 = 184,    // J21 - Pin 18 - Input  - GPIO16_MDM_WAKE_AP
        gpio186 = 186,    // J21 - Pin 31 - Input  - GPIO9_MOTION_INT
        gpio187 = 187,    // J21 - Pin 37 - Output - GPIO8_ALS_PROX_INT
-       gpio219 = 219,    // J21 - Pin 29 - Output - GPIO19_AUD_RST
+       gpio398 = 398,    // J21 - Pin 29 - Output - GPIO19_AUD_RST
 } ;
 
 
