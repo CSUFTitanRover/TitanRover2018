@@ -93,5 +93,3 @@ int main(int argc, char *argv[]){
     gpioUnexport(pushButton);      // unexport the push button
     return 0;
 }
-
-
