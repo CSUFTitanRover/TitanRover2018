@@ -9,9 +9,9 @@ const sensorsRecord = client.record.getRecord('rover/sensors')
 const diagnosticsRecord = client.record.getRecord('rover/diagnostics')
 
 module.exports = {
-    DEEPSTREAM_ADDRESS_WSS: serverAddress.wss,
-    client,
-    mobilityRecord,
-    sensorsRecord,
-    diagnosticsRecord
+  DEEPSTREAM_ADDRESS_WSS: serverAddress.wss,
+  client,
+  mobilityRecord,
+  sensorsRecord,
+  diagnosticsRecord
 }

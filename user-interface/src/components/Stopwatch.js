@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
 
 export default class Stopwatch extends Component {
-    constructor(props) {
-        super(props)
+  constructor(props) {
+    super(props)
 
-        this.state = { time: 'some time value' }
-    }
+    this.state = { time: 'some time value' }
+  }
 
-    render() {
-        return (
-            // TODO: render a stopwatch time that can be started/stopped/reset
-        )
-    }
+  render() {
+    return (
+      // TODO: render a stopwatch time that can be started/stopped/reset
+      <div>This will be the stopwatch area</div>
+    )
+  }
 }
