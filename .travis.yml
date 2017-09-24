@@ -1,3 +1,13 @@
 dist: trusty
 sudo: true
 language: node_js
+install: true
+before_script:
+  - cd "$TRAVIS_BUILD_DIR/user-interface/"
+  - npm install 
+script:
+  - pwd
+  - npm test
+cache:
+  directories:
+    - "$TRAVIS_BUILD_DIR/user-interface/node_modules"
