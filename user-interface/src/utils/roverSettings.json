@@ -1,0 +1,8 @@
+{
+  "deepstream": {
+    "serverAddress": {
+      "http": "https://013.deepstreamhub.com/http/v1/01a9f866-0431-461b-bd40-f8b0eb2660cd",
+      "wss": "wss://013.deepstreamhub.com?apiKey=01a9f866-0431-461b-bd40-f8b0eb2660cd"
+    }
+  }
+}
