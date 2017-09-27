@@ -10,6 +10,10 @@ import Grid from 'material-ui/Grid';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 
+/**
+ * Stopwatch component 
+ * Keeps track of elapsed mission time.
+ */
 export default class Stopwatch extends Component {
   constructor(props) {
     super(props);
@@ -20,7 +24,7 @@ export default class Stopwatch extends Component {
           accTime: the time accumulated before the timer was paused
           intervalId: the interval driving the stopwatch
     */
-    this.state = {time: 'some time value', startLabel: 'Start', startTime: 0, accTime: 0, intervalId: null};
+    this.state = { time: 'some time value', startLabel: 'Start', startTime: this.props.s || 0, accTime: 0, intervalId: null };
     this.formatTime(); // TODO: format the time 
   }
 
@@ -95,14 +99,14 @@ export default class Stopwatch extends Component {
   render() {
     return (
       <Grid container>
-        <Paper style={{padding: "16px"}}>
+        <Paper style={{ padding: "16px" }}>
           <Grid item container spacing={16} align={'center'} lg={6}>
-            <Grid item style={{width: "300px", padding: "4px"}}>
+            <Grid item style={{ width: "300px", padding: "4px" }}>
               <Typography type="title">Rover Mission Timer</Typography>
             </Grid>
             <Grid item>
-              <Paper style={{width: "200px", padding: "4px"}}><Typography type="subheading">{this.state.time}</Typography>
-            </Paper></Grid>
+              <Paper style={{ width: "200px", padding: "4px" }}><Typography type="subheading">{this.state.time}</Typography>
+              </Paper></Grid>
             <Grid item>
               <Button raised color="primary" onClick={() => this.handleStart()}>
                 {this.state.startLabel}
