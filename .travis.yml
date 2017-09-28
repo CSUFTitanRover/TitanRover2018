@@ -11,3 +11,5 @@ script:
 cache:
   directories:
     - "$TRAVIS_BUILD_DIR/user-interface/node_modules"
+notifications:
+  slack: titanrover:P4c9djaMXyBBxi2DL7BwMYUE
