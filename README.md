@@ -5,9 +5,9 @@
 
 >Mobility 
 ToDo's
-- [ ] - Develop drive control system for Base Station Operations
-- [ ] - Develop drive control for Taranis Operation
-- [ ] - Creates an Autonomous Navigation System, incorporating GNSS and next generation IMU
+- [ ] - Drive Systems
+- [ ] - Autonomous Systems
+- [ ] - Vision Systems
 
 ----
 
