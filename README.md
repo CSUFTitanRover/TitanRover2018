@@ -1,14 +1,26 @@
-# TitanRover2018
+# TitanRover2018 
+----
 
-[![Build Status](https://travis-ci.org/CSUFTitanRover/TitanRover2018.svg?branch=feature%2FUserInterface)](https://travis-ci.org/CSUFTitanRover/TitanRover2018) _(Build Status for User Interface)_
+[![GitHub issues](https://img.shields.io/github/issues/CSUFTitanRover/TitanRover2018.svg)](https://github.com/CSUFTitanRover/TitanRover2018/issues)
 
->User Interface 
-- [ ] - Research software design to apply to a multimonitor environment 
-- [ ] - Develop template interface for displaying task specific information
-- [ ] - Research background communication design for network access to rover onboard systems
-- [ ] - create software for two-way updates of rover systems(Movement, Location, Sensors)
+>Mobility 
+ToDo's
+- [ ] - Drive Systems
+- [ ] - Autonomous Systems
+- [ ] - Vision Systems
 
+----
 
->Base Station
-- [ ] - Research HW needed for Base Assembly
-- [ ] - Submit PO's for HW
+>User Interface and Base Station 
+ToDo's
+- [ ] - Create custom interface for controlling and monitoring rover systems
+- [ ] - Design Mobile Base Station for testing and competition controls
+
+----
+
+>Actuators and Servos
+ToDo's
+- [ ] - Develop and maintains software controls for arm movement
+- [ ] - Designs software system to operate science task automations
+
+----

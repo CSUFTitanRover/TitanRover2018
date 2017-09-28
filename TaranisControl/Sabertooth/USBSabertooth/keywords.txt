@@ -1,0 +1,43 @@
+# Syntax Coloring for the USB Sabertooth Packet Serial Library
+
+# Classes
+USBSabertoothSerial	KEYWORD1
+USBSabertooth	KEYWORD1
+
+# USBSabertoothSerial methods
+port	KEYWORD2
+
+# USBSabertooth methods
+address	KEYWORD2
+command	KEYWORD2
+motor	KEYWORD2
+power	KEYWORD2
+drive	KEYWORD2
+turn	KEYWORD2
+freewheel	KEYWORD2
+shutDown	KEYWORD2
+set	KEYWORD2
+setRamping	KEYWORD2
+setTimeout	KEYWORD2
+keepAlive	KEYWORD2
+get	KEYWORD2
+getBattery	KEYWORD2
+getCurrent	KEYWORD2
+getTemperature	KEYWORD2
+getGetRetryInterval	KEYWORD2
+setGetRetryInterval	KEYWORD2
+getGetTimeout	KEYWORD2
+setGetTimeout	KEYWORD2
+usingCRC	KEYWORD2
+useChecksum	KEYWORD2
+useCRC	KEYWORD2
+
+# Constants
+SabertoothTXPinSerial	LITERAL1
+SyRenTXPinSerial	LITERAL1
+
+SABERTOOTH_DEFAULT_GET_RETRY_INTERVAL	LITERAL1
+SABERTOOTH_DEFAULT_GET_TIMEOUT	LITERAL1
+SABERTOOTH_GET_TIMED_OUT	LITERAL1
+SABERTOOTH_INFINITE_TIMEOUT	LITERAL1
+SABERTOOTH_MAX_VALUE	LITERAL1
