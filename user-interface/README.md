@@ -8,9 +8,19 @@ If you don't have Node installed then follow this guide: [Installing Node.js](In
 
 _You need to have Node installed in order to develop the UI_
 
-Every time when freshly cloning this repo you must install dependencies first!
+### nvm (_skippable if you don't have nvm installed_)
 
-**In your command line**
+If you have `nvm` installed, nvaigate to and open the **user-interface** folder and run the command: `nvm use`
+
+This automatically sets your current node version to the version specified in the `.nvmrc` file found in the root of the project folder. It should set the current node version to `8.5.0`.
+
+### npm (Node Package Manager)
+
+`npm` is a package manager that is installed alongside Node itself. It allows you to install packages as well as manage your packages with ease. 
+
+**Every time when freshly cloning this repo you must install dependencies first!**
+
+In your command line:
 
 1. Install dependencies
 - longhand: `npm install`
