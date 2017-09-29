@@ -1,26 +1,38 @@
 # User Interface | 2018
 
-The User Interface will be written primarily using React for the frontend and Deepstream in the backend to handle all the real-time data updates. This will be a web application that is driven via real-time data and interaction.
+The User Interface will be written primarily using React for the frontend and Deepstream in the backend to handle all the real-time data updates. This will be a web application that is driven via real-time data and user interaction.
 
 ## Getting Started
 
-If you don't have Node installed then follow this guide: [Setting up Node] (url)
+If you don't have Node installed then follow this guide: [Setting up Node] (Installing-Node.md)
+
+_You need to have Node installed in order to develop the UI_
 
 Every time when freshly cloning this repo you must install dependencies first!
 
-longhand: `npm install`
-shorthand: `npm i`
+**In your command line**
 
-Starting the dev server:
-longhand: `npm run start`
-shorthand: `npm start`
+1. Install dependencies
+- longhand: `npm install`
+- shorthand: `npm i`
 
-Running unit tests:
-`npm run test`
+2. Starting the dev server:
+- longhand: `npm run start`
+- shorthand: `npm start`
 
-Building for production:
-`npm run build`
+## Running unit tests
 
+It's always important to write unit tests to double check that the any code we write will work. We use [Jest](https://facebook.github.io/jest/) to run our unit tests.
+
+Run test watcher: 
+- longhand: `npm run test`
+- shorthand: `npm test`
+
+## Building for production:
+
+Running the build command will bundle, transpile, and minify our code as well as generating a **build** folder with all the code bundled up. We would really only use this command at the end when our UI is pretty much finished and ready.
+
+Building our production ready UI: `npm run build`
 
 ----
 
