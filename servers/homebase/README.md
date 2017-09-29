@@ -5,7 +5,7 @@
 
 -----
 
-###dependencies for WebSocketServerJs:
+### Dependencies for WebSocketServerJs:
 
 ```sh
 
