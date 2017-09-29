@@ -5,6 +5,7 @@ export default class TopBar extends Component {
     render() {
         return (
             // TODO: render the Top bar at the top of the UI
+            "Hello TopBar!"
         )
     }
 }
