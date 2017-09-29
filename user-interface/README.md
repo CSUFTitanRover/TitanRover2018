@@ -4,7 +4,7 @@ The User Interface will be written primarily using React for the frontend and De
 
 ## Getting Started
 
-If you don't have Node installed then follow this guide: [Setting up Node] (Installing-Node.md)
+If you don't have Node installed then follow this guide: [Installing Node.js](Installing-Node)
 
 _You need to have Node installed in order to develop the UI_
 
