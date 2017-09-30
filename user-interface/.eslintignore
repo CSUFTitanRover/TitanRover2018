@@ -1,0 +1,10 @@
+# /node_modules/* and /bower_components/* ignored by default
+
+# Ignore built files
+/build/*
+
+# ignore built styleguide files
+/styleguide/*
+
+# ignore the styleguide config file
+styleguide.config.js

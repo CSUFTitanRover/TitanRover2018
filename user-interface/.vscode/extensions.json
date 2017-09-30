@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "EditorConfig.EditorConfig",
+    "Orta.vscode-jest",
+    "dbaeumer.vscode-eslint"
+  ]
+}

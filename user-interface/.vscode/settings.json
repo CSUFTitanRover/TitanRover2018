@@ -1,0 +1,12 @@
+{
+  // The number of spaces a tab is equal to.
+  "editor.tabSize": 2,
+  // Insert spaces when pressing Tab.
+  "editor.insertSpaces": true,
+  // make sure files.autoSave is off to allow eslint.autoFixOnSave to work
+  "files.autoSave": "off",
+  // format code on save
+  "editor.formatOnSave": true,
+  // eslint will fix any erros it can on Save
+  "eslint.autoFixOnSave": true
+}
