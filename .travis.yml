@@ -4,11 +4,11 @@ language: node_js
 install: true
 before_script:
   - echo "Current Directory:"
-  - pwd -P
+  - pwd
   - echo "Changing directories to user-interface folder..."
   - cd "$TRAVIS_BUILD_DIR/user-interface/"
   - echo "Current Directory:"
-  - pwd -P
+  - pwd
   - echo "Installing dependencies..."
   - npm install 
 script:
