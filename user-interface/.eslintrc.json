@@ -33,7 +33,7 @@
     "no-underscore-dangle": "off",
     // disallow inline function binding in JSX
     "react/jsx-no-bind": ["error", {
-      "ignoreRefs": false,
+      "ignoreRefs": true, // except allow inline refs functions
       "allowArrowFunctions": false,
       "allowBind": false
     }]
