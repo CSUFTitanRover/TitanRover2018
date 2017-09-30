@@ -3,6 +3,7 @@
 [![Node v8.5.0](https://img.shields.io/badge/node-v8.5.0-blue.svg
 )]()
 [![Build Status](https://travis-ci.org/CSUFTitanRover/TitanRover2018.svg?branch=feature%2FUserInterface)](https://travis-ci.org/CSUFTitanRover/TitanRover2018)
+[![codecov](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature/UserInterface/graph/badge.svg)](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature%2FUserInterface)
 
 The User Interface will be written primarily using React for the frontend and Deepstream in the backend to handle all the real-time data updates. This will be a web application that is driven via real-time data and user interaction.
 
