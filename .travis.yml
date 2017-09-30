@@ -8,6 +8,8 @@ before_script:
 script:
   - pwd
   - npm test
+after_success:
+  - npm run report-coverage
 cache:
   directories:
     - "$TRAVIS_BUILD_DIR/user-interface/node_modules"
