@@ -3,12 +3,20 @@ sudo: true
 language: node_js
 install: true
 before_script:
+  - echo "Current Directory:"
+  - pwd -P
+  - echo "Changing directories to user-interface folder..."
   - cd "$TRAVIS_BUILD_DIR/user-interface/"
+  - echo "Current Directory:"
+  - pwd -P
+  - echo "Installing dependencies..."
   - npm install 
 script:
-  - pwd
-  - npm test
+  - echo "Running lint:fix before executing unit tests..."
+  - npm run lint:fix-and-test
 after_success:
+  - echo "Successfully linted and ran unit tests!"
+  - echo "Now reporting code coverage to codecov..."
   - npm run report-coverage
 cache:
   directories:
