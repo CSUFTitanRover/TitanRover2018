@@ -13,3 +13,4 @@ if [ "$(node -v)" != "v8.6.0" ]
 else
         echo "You are running the current version of NodeJs";
 fi
+
