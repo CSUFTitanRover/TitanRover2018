@@ -91,6 +91,8 @@ Building our production ready UI: `npm run build`
 
 [Styleguidist](https://github.com/styleguidist/react-styleguidist) is used to develop components in a standalone enviroment separate from the UI itself. It also serves as a way to generate documentation for the components that we have built by hand.
 
+You can take a look at our styleguide here: [current styleguide](./src/styleguide/index.html)
+
 **Important: It's required to develop your components using Styleguidist.**
 
 ### Requirements for Styleguidist:

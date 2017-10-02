@@ -36,6 +36,8 @@
       "ignoreRefs": true, // except allow inline refs functions
       "allowArrowFunctions": false,
       "allowBind": false
-    }]
+    }],
+    // allow using 'any', 'object' & 'array' prop-types
+    "react/forbid-prop-types": "off"
   }
 }
