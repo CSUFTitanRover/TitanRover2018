@@ -37,7 +37,7 @@ ToDo's
 - [ ] - Research way to limit bandwidth of camera streams
 - [ ] - Look into ways to create a panoramic picture (Science task)
 - [ ] - Create software for obstacle avoidance
-- [ ] - Research sonar sensors (obstacle avoidance)
-- [ ] - Research infa-red sensors (obstacle avoidance)
+- [ ] - Research Ultra-Sonic sensors (obstacle avoidance)
+- [ ] - Research Infa-Red sensors (obstacle avoidance)
 ----
 
