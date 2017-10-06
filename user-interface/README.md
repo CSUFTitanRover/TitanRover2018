@@ -3,6 +3,7 @@
 [![Node v8.5.0](https://img.shields.io/badge/node-v8.5.0-blue.svg
 )]()
 [![Build Status](https://travis-ci.org/CSUFTitanRover/TitanRover2018.svg?branch=feature%2FUserInterface)](https://travis-ci.org/CSUFTitanRover/TitanRover2018)
+[![codecov](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature/UserInterface/graph/badge.svg)](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature%2FUserInterface)
 
 The User Interface will be written primarily using React for the frontend and Deepstream in the backend to handle all the real-time data updates. This will be a web application that is driven via real-time data and user interaction.
 
@@ -89,6 +90,8 @@ Building our production ready UI: `npm run build`
 ## Using Styleguidist
 
 [Styleguidist](https://github.com/styleguidist/react-styleguidist) is used to develop components in a standalone enviroment separate from the UI itself. It also serves as a way to generate documentation for the components that we have built by hand.
+
+You can take a look at our styleguide here: [current styleguide](./src/styleguide/index.html)
 
 **Important: It's required to develop your components using Styleguidist.**
 
@@ -192,6 +195,18 @@ A typical workflow for developing the User Interface will look like this.
 5. Do your development work.
 6. Lint & fix your code: `npm run lint:fix`
 
+## Travis CI
+
+We use [Travis CI](https://travis-ci.org/) to continuously test our UI when a commit is pushed to the repo or a pull-request is made.
+This allows us to be able to sleep well at night that if something breaks we will hear about it.
+[Check out our travis build](https://travis-ci.org/CSUFTitanRover/TitanRover2018).
+
+## CodeCov
+
+We use [CodeCov](https://codecov.io/) to monitor our code coverage for the UI. This means knowing at all times how much unit testing we have across our UI project.
+[Check us out on CodeCov](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature%2FUserInterface).
+
+
 ## Configuration Files
 
 You may be wondering what all the `.<config>` files are for so I thought it would be nice to list them here.
@@ -199,7 +214,7 @@ You may be wondering what all the `.<config>` files are for so I thought it woul
 - `.editorconfig` - EditorConfig helps developers define and maintain consistent coding styles between different editors and IDEs. [Learn More](http://editorconfig.org/)
 - `.eslintrc.json` - Configuration file for ESLint that specifies rules, parser options, enviroments, etc. [Learn More](https://eslint.org/docs/user-guide/configuring)
 - `.eslintignore` - This file is like `.gitignore` and specifies a list of files or directories for ESLint to ignore when linting the UI project.
-- `styleguide.config.js` - This is a config file for Styleguidist. Currenty it just specifies how Styleguidist should search for components.
+- `styleguide.config.js` - This is a config file for Styleguidist. Currenty it just specifies how Styleguidist should search for components. [Learn More](https://react-styleguidist.js.org/docs/configuration.html)
 
 
 ## Learn more about ES6 Javascript

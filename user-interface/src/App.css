@@ -1,1 +1,20 @@
-@import '~typeface-roboto';
+@import url('~typeface-roboto');
+@import url("~c3/c3.css");
+@import url('~golden-layout/src/css/goldenlayout-base.css');
+@import url('~golden-layout/src/css/goldenlayout-dark-theme.css');
+
+body {
+  height: 100vh;
+}
+
+.root {
+  height: 100vh;
+}
+
+.lm_root {
+  height: 100vh;
+}
+
+.goldenLayout {
+  height: 100vh;
+}

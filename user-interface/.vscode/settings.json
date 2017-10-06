@@ -8,5 +8,7 @@
   // format code on save
   "editor.formatOnSave": true,
   // eslint will fix any erros it can on Save
-  "eslint.autoFixOnSave": true
+  "eslint.autoFixOnSave": true,
+  // disable json formatter
+  "json.format.enable": false,
 }
