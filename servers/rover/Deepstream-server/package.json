@@ -1,0 +1,11 @@
+{
+  "name": "deeptream-rover-server",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "deepstream.io": "^3.0.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
