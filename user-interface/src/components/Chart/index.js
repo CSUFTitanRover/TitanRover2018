@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 import React, { Component } from 'react';
 
 import Grid from 'material-ui/Grid';
@@ -10,7 +8,7 @@ import Button from 'material-ui/Button';
 import Select from 'material-ui/Select';
 import { MenuItem } from 'material-ui/Menu';
 
-const c3 = require('c3');
+import c3 from 'c3';
 
 const chartTypes = ['line', 'bar', 'spline'];
 
@@ -24,14 +22,9 @@ Add different chart types
 */
 
 export default class Chart extends Component {
-  constructor(props) {
-    super(props);
-
-    // Initialize fields
-    this.state = { active: true, chartType: this.props.chartType || 'line' };
-    this.chart = null;
-    this.dataPoints = 0;
-  }
+  state = { active: true, chartType: this.props.chartType || 'line' }
+  chart = null
+  dataPoints = 0
 
   // Create the C3 chart after mount
   componentDidMount() {
