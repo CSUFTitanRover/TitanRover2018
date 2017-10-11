@@ -1,5 +1,3 @@
-/* eslint-disable */
-
 /* TODO:
 clear interval on unmount
 change interval to requestAnimationFrame?
@@ -12,39 +10,37 @@ import Grid from 'material-ui/Grid';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 
+// Adds leading zeros to a number
+const pad = (number, length, ending) => (`0000${number}`).slice(-length) + ending;
+
 /**
- * Stopwatch component
+ * Stopwatch component 
  * Keeps track of elapsed mission time.
  */
 export default class Stopwatch extends Component {
-  constructor(props) {
-    super(props);
+  /**
+   * state:
+   *  time: displayed time value (string)
+   *  active: whether it is running (boolean)
+   * startTime: when the time was last started/resumed (int)
+   * accTime: how much time has accumulated (int)
+   * intervalId: the interval updating the time
+   */
+  state = { time: '00:00:00.000', active: false }
+  startTime = 0
+  accTime = 0
+  intervalId = null
 
-    /*    time: the display string
-          startLabel: the label for the start button
-          startTime: when the time was last resumed/started
-          accTime: the time accumulated before the timer was paused
-          intervalId: the interval driving the stopwatch
-    */
-    this.state = { time: 'some time value', startLabel: 'Start', startTime: this.props.s || 0, accTime: 0, intervalId: null };
-    this.formatTime(); // TODO: format the time
-  }
-
-  // TODO: Clear interval on unmount!
-  formatTime() {
-    // Create a function to add leading zeros
-    function pad(number, length, ending) {
-      return (`0000${number}`).slice(-length) + ending;
-    }
-
+  // Updates the display
+  formatTime = () => {
     // Get current ms running
     let ms = (new Date()).getTime();
-    if (this.state.startTime === 0) { // Not currently running
+    if (!this.state.active) { // Not currently running
       ms = 0;
     }
 
     // Find total elapsed time and separate it into its components
-    let elapsed = ms - this.state.startTime + this.state.accTime;
+    let elapsed = ms - this.startTime + this.accTime;
     let sec = Math.floor(elapsed / 1000);
     elapsed %= 1000;
     let min = Math.floor(sec / 60);
@@ -58,67 +54,56 @@ export default class Stopwatch extends Component {
     });
   }
 
-  handleStart() {
-    if (this.state.startTime === 0) { // Timer is stopped
-      // Change label to pause, and set current countdown to the time now
-      // Also, start the timer using setInterval
-      this.setState({
-        startLabel: 'Pause',
-        startTime: (new Date()).getTime(),
-        intervalId: setInterval(this.formatTime.bind(this), 17),
-      });
+  // Activate/deactivate the timer when start is pressed
+  handleStart = () => {
+    // Timer is stopped
+    if (!this.state.active) {
+      // Set current countdown to the time now and start the timer
+      this.startTime = (new Date()).getTime();
+      this.intervalId = setInterval(this.formatTime, 17);
     } else {
-      // Find out the elapsed time on the timer
-      const elapsed = (new Date()).getTime() - this.state.startTime + this.state.accTime;
-
-      // Stop the timer
-      clearInterval(this.state.intervalId);
-
-      // Change label to start, and reset the start time
-      this.setState({
-        startLabel: 'Start',
-        startTime: 0,
-        accTime: elapsed,
-        intervalId: null,
-      });
+      // Find out the elapsed time on the timer and stop the interval
+      this.accTime = (new Date()).getTime() - this.startTime + this.accTime;
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      this.startTime = 0;
     }
 
-    this.formatTime();
-  }
+    // Toggle active
+    this.setState({
+      active: !this.state.active,
+    }, this.formatTime);
+  };
 
-  handleClear() {
-    // Reset all states
-    clearInterval(this.state.intervalId);
+  // Clear all states
+  handleClear = () => {
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+    this.accTime = 0;
+    this.startTime = 0;
 
     this.setState({
-      startLabel: 'Start',
-      accTime: 0,
-      startTime: 0,
-      intervalId: null,
+      active: false,
     }, this.formatTime);
   }
 
   render() {
     return (
-      <Grid container>
-        <Paper style={{ padding: '16px' }}>
-          <Grid item container spacing={16} align={'center'} lg={6}>
-            <Grid item style={{ width: '300px', padding: '4px' }}>
-              <Typography type="title">Rover Mission Timer</Typography>
-            </Grid>
-            <Grid item>
-              <Paper style={{ width: '200px', padding: '4px' }}><Typography type="subheading">{this.state.time}</Typography>
-              </Paper></Grid>
-            <Grid item>
-              <Button raised color="primary" onClick={() => this.handleStart()}>
-                {this.state.startLabel}
-              </Button></Grid>
-            <Grid item>
-              <Button raised color="accent" onClick={() => this.handleClear()}>
-                Clear
-              </Button></Grid>
-          </Grid>
-        </Paper>
+      <Grid item container spacing={16} align={'center'} className={'MuiPaper-shadow2-5'} lg={6}>
+        <Grid item style={{ width: '300px', padding: '4px' }}>
+          <Typography type="title">Rover Mission Timer</Typography>
+        </Grid>
+        <Grid item>
+          <Paper style={{ width: '200px', padding: '4px' }}><Typography type="subheading">{this.state.time}</Typography>
+          </Paper></Grid>
+        <Grid item>
+          <Button raised color="primary" onClick={this.handleStart}>
+            {this.state.active ? 'Stop' : 'Start'}
+          </Button></Grid>
+        <Grid item>
+          <Button raised color="accent" onClick={this.handleClear}>
+            Clear
+          </Button></Grid>
       </Grid>
     );
   }
