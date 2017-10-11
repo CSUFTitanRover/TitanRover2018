@@ -9,7 +9,7 @@
 */
 
 #include <SPI.h>
-#include <AMIS30543.h>
+//#include <AMIS30543.h>
 #include <Servo.h>
 #include <Stepper.h>
 
@@ -35,62 +35,62 @@ const int upperLimit = 630;
 const int lowerLimit = 55;
 const int middlePoint = 346;
 volatile bool centerJoint1 = false;
-
-// Joint #2
-Servo joint2;
-const uint8_t joint2_pwm_pin = 4;
-
-// Joint #3
-Servo joint3;
-const uint8_t joint3_pwm_pin = 5;
-
-// Joint #4
-const uint8_t joint4_dir_pin = 32;
-const uint8_t joint4_enab_pin = 35;
-const uint8_t joint4_pulse_pin = 36;
-volatile bool joint4_on = false;
-volatile bool joint4_interrupted = false;
-volatile bool joint4_needsStepOff = false;
-const uint8_t joint4_interrupt_pin = 3;
-unsigned long joint4_TotalSteps = 0;
-uint8_t joint4_bit;
-uint8_t joint4_port;
-const unsigned long joint4_StepsLimit = 7330;
-bool joint4passedLimit = false;
-const int joint4_LimitDistance_Steps = 100;
-
-// Joint #5
-const uint8_t joint5_dir_pin = 38;
-const uint8_t joint5_enab_pin = 39;
-const uint8_t joint5_pulse_pin = 40;
-volatile bool joint5_on = false;
-volatile bool joint5_interrupted = false;
-volatile bool joint5_needsStepOff = false;
-const uint8_t joint5_interrupt_pin = 2;
-unsigned long joint5_TotalSteps = 0;
-uint8_t joint5_bit;
-uint8_t joint5_port;
-const unsigned long joint5_StepsLimit = 50500;
-bool joint5passedLimit = false;
-const int joint5_LimitDistance_Steps = 1000;
-
-// Joint #6
-AMIS30543 joint6_stepper;
-const uint8_t joint6_ss = 44;
-const uint8_t joint6_dir_pin = 42;
-const uint8_t joint6_pulse_pin = 43;
-volatile bool joint6_on = false;
-
-// Joint #7
-AMIS30543 joint7_stepper;
-const uint8_t joint7_ss = 48;
-const uint8_t joint7_dir_pin = 46;
-const uint8_t joint7_pulse_pin = 47;
-volatile bool joint7_on = false;
-
-// AssAss globals
-Servo AssAss;
-const uint8_t assass_pwm_pin = 9;
+//
+//// Joint #2
+//Servo joint2;
+//const uint8_t joint2_pwm_pin = 4;
+//
+//// Joint #3
+//Servo joint3;
+//const uint8_t joint3_pwm_pin = 5;
+//
+//// Joint #4
+//const uint8_t joint4_dir_pin = 32;
+//const uint8_t joint4_enab_pin = 35;
+//const uint8_t joint4_pulse_pin = 36;
+//volatile bool joint4_on = false;
+//volatile bool joint4_interrupted = false;
+//volatile bool joint4_needsStepOff = false;
+//const uint8_t joint4_interrupt_pin = 3;
+//unsigned long joint4_TotalSteps = 0;
+//uint8_t joint4_bit;
+//uint8_t joint4_port;
+//const unsigned long joint4_StepsLimit = 7330;
+//bool joint4passedLimit = false;
+//const int joint4_LimitDistance_Steps = 100;
+//
+//// Joint #5
+//const uint8_t joint5_dir_pin = 38;
+//const uint8_t joint5_enab_pin = 39;
+//const uint8_t joint5_pulse_pin = 40;
+//volatile bool joint5_on = false;
+//volatile bool joint5_interrupted = false;
+//volatile bool joint5_needsStepOff = false;
+//const uint8_t joint5_interrupt_pin = 2;
+//unsigned long joint5_TotalSteps = 0;
+//uint8_t joint5_bit;
+//uint8_t joint5_port;
+//const unsigned long joint5_StepsLimit = 50500;
+//bool joint5passedLimit = false;
+//const int joint5_LimitDistance_Steps = 1000;
+//
+//// Joint #6
+//AMIS30543 joint6_stepper;
+//const uint8_t joint6_ss = 44;
+//const uint8_t joint6_dir_pin = 42;
+//const uint8_t joint6_pulse_pin = 43;
+//volatile bool joint6_on = false;
+//
+//// Joint #7
+//AMIS30543 joint7_stepper;
+//const uint8_t joint7_ss = 48;
+//const uint8_t joint7_dir_pin = 46;
+//const uint8_t joint7_pulse_pin = 47;
+//volatile bool joint7_on = false;
+//
+//// AssAss globals
+//Servo AssAss;
+//const uint8_t assass_pwm_pin = 9;
 
 // Additional Global variables needed
 uint8_t val[6];
@@ -106,7 +106,7 @@ bool Calibrated = false;  // Arm can't be moved until calibrated
 bool debug = false;
 bool ignoreLimit = true;
 uint8_t analogRead_counter = 0;
-*/
+
 
 
 //Sabertooth Communications
@@ -120,6 +120,7 @@ uint8_t analogRead_counter = 0;
 
 SoftwareSerial SWSerial(NOT_A_PIN, 1);
 Sabertooth ST(128, SWSerial);
+Sabertooth ARM(129, SWSerial);
 
 int packetSize;
 // Enter a MAC address and IP address for your controller below.
@@ -151,12 +152,15 @@ void setup() {
   // Software Serial Setup
   SWSerial.begin(9600);
   ST.autobaud();
+  ARM.autobaud();
 
   //****** Move this to seperate function and call it
   //Create an initalization function to reset rover to default state
   // on startup for motors and Arm
   ST.motor(1, 0);
   ST.motor(2, 0);
+  ARM.motor(1, 0);
+  ARM.motor(2, 0);
   
   //Serial.begin(9600);  //For debuging but will not work with SWSerial
   
@@ -165,6 +169,15 @@ void setup() {
   Udp.begin(localPort);
 
   delay(1500); //give a sec to start process
+
+  // Set up Joint1
+  pinMode(joint1_dir_pin, OUTPUT);
+  pinMode(joint1_enab_pin, OUTPUT);
+  pinMode(joint1_pulse_pin, OUTPUT);
+  digitalWrite(joint1_enab_pin, LOW);
+
+
+  
 }
 // This loop will be a command loop for each of the arduino processes
 void loop() {
@@ -179,6 +192,8 @@ void loop() {
   if((unsigned int)(millis() - previousMillis) > interval){
     ST.drive(0);
     ST.turn(0);
+    ARM.motor(1,0);
+    ARM.motor(2,0);
   }
 
   // NOT SURE WHY I INCLUDED THIS AT THE MOMENT
@@ -188,7 +203,7 @@ void loop() {
   if (packetSize) {
     previousMillis = millis();    // Stores current time for check outside of loop
     Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE); //reads the packet 
-
+    //Serial.println(packetBuffer);
     // parse statement for packetBuffer to Control Array
     // x controls buffer place, y controls current char read, 
     //    n controls placement in array 
@@ -229,12 +244,24 @@ void loop() {
           break;  
         }
         //////////////////////////////////// 
-        /*case 2 - 8: // Arm
+        /*case 2 - 8: // Arm*/
+        case 2:{
+          ARM.motor(1,moveMentArray[2]);
+          break;
+        }
+        case 3:{
+          ARM.motor(2,moveMentArray[3]);  
+          break;
+        }
+        case 4:{
+          //setDirectionPin(joint1_dir_pin, moveMentArray[2]);
+          //joint1_on = moveMentArray[3];
+          break;
+        }
 
 
 
-
-        */
+        
         ////////////////////////////////////
 
         ////////////////////////////////////
@@ -254,4 +281,17 @@ void loop() {
   }         
   //clears the buffer to ensure all new values
   memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
+}
+
+// Will switch the pin based on what byte is sent from the pi
+void setDirectionPin(uint8_t pinValue, uint8_t val)
+{
+  if (val == 0x00)
+  {
+    digitalWrite(pinValue, LOW);
+  }
+  else if (val == 0x01)
+  {
+    digitalWrite(pinValue, HIGH);
+  }
 }
