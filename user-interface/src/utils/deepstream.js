@@ -1,17 +1,12 @@
 const deepstream = require('deepstream.io-client-js');
 const roverSettings = require('./roverSettings.json');
 
-const { serverAddress } = roverSettings.deepstream;
+const { URI } = roverSettings.deepstream;
 
-const client = deepstream(serverAddress.wss);
-const mobilityRecord = client.record.getRecord('rover/mobility');
-const sensorsRecord = client.record.getRecord('rover/sensors');
-const diagnosticsRecord = client.record.getRecord('rover/diagnostics');
+const client = deepstream(URI.ws).login();
+
+client.on('error', (error, event, topic) => console.log(error, event, topic));
 
 module.exports = {
-  DEEPSTREAM_ADDRESS_WSS: serverAddress.wss,
   client,
-  mobilityRecord,
-  sensorsRecord,
-  diagnosticsRecord,
 };
