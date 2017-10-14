@@ -1,7 +1,5 @@
 const deepstream = require('deepstream.io-client-js');
-const roverSettings = require('./roverSettings.json');
-
-const { rover } = roverSettings.deepstream;
+const WS_URI = '0.0.0.0:4020';
 let client; // singleton
 
 /**
@@ -12,7 +10,7 @@ function getClient() {
     if (client !== undefined) {
       resolve(client);
     } else {
-      client = deepstream(rover.ws);
+      client = deepstream(WS_URI);
 
       client.on('connectionStateChanged', (connectionState) => {
         console.log('Deepstream Client connectionStateChanged: ', connectionState);
@@ -34,5 +32,5 @@ function getClient() {
 }
 
 module.exports = {
-  getClient,
+  getClient
 };
