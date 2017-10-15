@@ -24,6 +24,7 @@ function getClient() {
 
       client.login({}, (success, data) => {
         if (success) {
+          console.log('Successfully logged in', data);
           resolve(client);
         } else {
           reject('Deepstream Client Login was not successful.');
