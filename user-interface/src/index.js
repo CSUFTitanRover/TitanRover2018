@@ -1,40 +1,27 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import App from './App'
-import registerServiceWorker from './registerServiceWorker'
-// import GoldenLayout from 'golden-layout'
-// import 'golden-layout/src/css/goldenlayout-base.css'
-// import 'golden-layout/src/css/goldenlayout-dark-theme.css'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import appStore from './reducers/';
+import App from './App';
+import registerServiceWorker from './registerServiceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'))
-registerServiceWorker()
+// adding this as a workaround for Golden-Layout to work without ejecting CRA from the project
+window.React = React;
+window.ReactDOM = ReactDOM;
 
-// TODO: finish Golden Layout setup
-// create skeleton layout
-// const glLayout = new GoldenLayout({
-//     content: [{
-//         type: 'row',
-//         content:[{
-//             type:'react-component',
-//             component: 'app-component',
-//             props: { label: 'A' }
-//         },{
-//             type: 'column',
-//             content:[{
-//                 type:'react-component',
-//                 component: 'app-component',
-//                 props: { label: 'B' }
-//             },{
-//                 type:'react-component',
-//                 component: 'app-component',
-//                 props: { label: 'C' }
-//             }]
-//         }]
-//     }]
-// })
+// create store with appStore
+// and add support for google chrome Redux extension
+const store = createStore(
+  appStore,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+);
 
-// // register/associate react component with string id
-// glLayout.registerComponent('app-component', App)
+const AppWithProvider = (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
 
-// //Once all components are registered, call
-// glLayout.init()
+ReactDOM.render(AppWithProvider, document.getElementById('root'));
+registerServiceWorker();
