@@ -1,7 +1,5 @@
-/* eslint-disable */
-
 import React, { Component } from 'react';
-
+import PropTypes from 'prop-types';
 import Grid from 'material-ui/Grid';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
@@ -10,7 +8,7 @@ import Button from 'material-ui/Button';
 import Select from 'material-ui/Select';
 import { MenuItem } from 'material-ui/Menu';
 
-const c3 = require('c3');
+import c3 from 'c3';
 
 const chartTypes = ['line', 'bar', 'spline'];
 
@@ -24,26 +22,16 @@ Add different chart types
 */
 
 export default class Chart extends Component {
-  constructor(props) {
-    super(props);
-
-    // Initialize fields
-    this.state = { active: true, chartType: this.props.chartType || 'line' };
-    this.chart = null;
-    this.dataPoints = 0;
-  }
+  state = { active: true, chartType: this.props.chartType }
 
   // Create the C3 chart after mount
   componentDidMount() {
-    // Format data
-    const data = this._formatData(this.props.data);
-    this.dataPoints += data[0].length - 1;
-
     // Generate the chart
     this.chart = c3.generate({
       bindto: '#titanChart',
       data: {
-        columns: data,
+        json: [this.props.data],
+        keys: { value: ['humidity', 'temperature', 'ec'] },
       },
     });
   }
@@ -55,49 +43,25 @@ export default class Chart extends Component {
       return;
     }
 
-    // Format data, then see how much to scroll by
-    const tempData = this._formatData(newProps.data);
-    this.dataPoints += tempData[0].length - 1;
-    const scrollPos = this.dataPoints - this.props.maxPoints;
-
-    // Add the data and scroll
-    this.chart.flow({ columns: tempData, duration: 500, to: scrollPos });
+    this.scrollPos += 1;
+    this.chart.flow({ json: [newProps.data], keys: { value: ['humidity', 'temperature', 'ec'] }, duration: 500, to: this.scrollPos });
   }
 
-  // Takes the current props and transforms them to the C3 data format
-  _formatData(data) {
-    const sensorData = data[this.props.sensorName];
-    const tempData = {};
-
-    // Iterate through all the data points
-    for (let i = 0; i < sensorData.length; i++) {
-      for (const key in sensorData[i]) {
-        if (!(key in tempData)) {
-          tempData[key] = [];
-        }
-
-        tempData[key].push(sensorData[i][key]);
-      }
-    }
-
-    // Create new chart data
-    const newChartData = [];
-    for (const key in tempData) {
-      newChartData.push([key].concat(tempData[key]));
-    }
-
-    return newChartData;
-  }
+  scrollPos = -this.props.maxPoints;
+  chart = null
+  dataPoints = 0
 
   // Enable/disable real-time data
-  handleClick() {
+  handleClick = () => {
     this.setState({
       active: !this.state.active,
     });
   }
 
   // Change chart type when a different chart is selected
-  handleSelect(type) {
+  handleSelect = (e) => {
+    const type = e.target.value;
+
     this.setState({
       chartType: type,
     });
@@ -129,7 +93,7 @@ export default class Chart extends Component {
             <Grid item>
               <Button
                 raised
-                onClick={() => this.handleClick()}
+                onClick={this.handleClick}
                 color={this.state.active ? 'primary' : 'default'}
               >
                 {this.state.active ? 'Listening' : 'Not listening'}
@@ -138,7 +102,7 @@ export default class Chart extends Component {
 
             {/* Drop down menu */}
             <Grid item>
-              <Select value={this.state.chartType} onChange={e => this.handleSelect(e.target.value)}>
+              <Select value={this.state.chartType} onChange={this.handleSelect}>
                 {chartTypes.map(type =>
                   <MenuItem value={type} key={type}>{type}</MenuItem>,
                 )}
@@ -163,3 +127,16 @@ export default class Chart extends Component {
     );
   }
 }
+
+// Validation
+Chart.propTypes = {
+  chartName: PropTypes.string.isRequired,
+  chartType: PropTypes.string,
+  maxPoints: PropTypes.number.isRequired,
+  data: PropTypes.arrayOf(PropTypes.object),
+};
+
+Chart.defaultProps = {
+  chartType: 'line',
+  data: [{}],
+};
