@@ -12,6 +12,7 @@
 //#include <AMIS30543.h>
 #include <Servo.h>
 #include <Stepper.h>
+//#include <TimerOne.h>
 
 const int stepsPerRevolution = 200;
 // X Axis Mobility
@@ -23,18 +24,19 @@ const int stepsPerRevolution = 200;
   const uint8_t y_pwm_pin = 7;*/
 
 // Joint #1
-const uint8_t joint1_dir_pin = 30;
+const uint8_t joint1_dir_pin = 23;
 const uint8_t joint1_enab_pin = 31;
-const uint8_t joint1_pulse_pin = 29;
-volatile bool joint1_on = false;
-const uint8_t joint1_limit_pin = A0;
-unsigned int joint1_sensorValue;
-uint8_t joint1_bit;
-uint8_t joint1_port;
-const int upperLimit = 630;
-const int lowerLimit = 55;
-const int middlePoint = 346;
-volatile bool centerJoint1 = false;
+const uint8_t joint1_pulse_pin = 11;
+
+//volatile bool joint1_on = false;
+//const uint8_t joint1_limit_pin = A0;
+//unsigned int joint1_sensorValue;
+//uint8_t joint1_bit;
+//uint8_t joint1_port;
+//const int upperLimit = 630;
+//const int lowerLimit = 55;
+//const int middlePoint = 346;
+//volatile bool centerJoint1 = false;
 //
 //// Joint #2
 //Servo joint2;
@@ -60,9 +62,9 @@ volatile bool centerJoint1 = false;
 //const int joint4_LimitDistance_Steps = 100;
 //
 //// Joint #5
-//const uint8_t joint5_dir_pin = 38;
+const uint8_t joint5_dir_pin = 27;
 //const uint8_t joint5_enab_pin = 39;
-//const uint8_t joint5_pulse_pin = 40;
+const uint8_t joint5_pulse_pin = 26;
 //volatile bool joint5_on = false;
 //volatile bool joint5_interrupted = false;
 //volatile bool joint5_needsStepOff = false;
@@ -84,8 +86,8 @@ volatile bool centerJoint1 = false;
 //// Joint #7
 //AMIS30543 joint7_stepper;
 //const uint8_t joint7_ss = 48;
-//const uint8_t joint7_dir_pin = 46;
-//const uint8_t joint7_pulse_pin = 47;
+const uint8_t joint7_dir_pin = 25;
+const uint8_t joint7_pulse_pin = 24;
 //volatile bool joint7_on = false;
 //
 //// AssAss globals
@@ -131,7 +133,8 @@ byte gateway[] = {192,168,1,1};
 byte subnet[] = {255,255,255,0};
 
 // local port to listen on
-unsigned int localPort = 5000;      
+unsigned int localPort = 5000;   
+unsigned int localPortBaseStation = 6000;   
 
 //Storage for Commands and Values 
 char charToIntArray[10];
@@ -167,6 +170,7 @@ void setup() {
   // start the Ethernet and UDP:
   Ethernet.begin(mac, ip, gateway, subnet);
   Udp.begin(localPort);
+  Udp.begin(localPortBaseStation);
 
   delay(1500); //give a sec to start process
 
@@ -175,6 +179,18 @@ void setup() {
   pinMode(joint1_enab_pin, OUTPUT);
   pinMode(joint1_pulse_pin, OUTPUT);
   digitalWrite(joint1_enab_pin, LOW);
+
+  // Set up Joint1
+  pinMode(joint5_dir_pin, OUTPUT);
+  //pinMode(joint5_enab_pin, OUTPUT);
+  pinMode(joint5_pulse_pin, OUTPUT);
+  //digitalWrite(joint5_enab_pin, LOW);
+
+  // Set up Joint1
+  pinMode(joint7_dir_pin, OUTPUT);
+  //pinMode(joint7_enab_pin, OUTPUT);
+  pinMode(joint7_pulse_pin, OUTPUT);
+  //digitalWrite(joint7_enab_pin, LOW);
 
 
   
@@ -228,7 +244,7 @@ void loop() {
     }
 
     // Loop the array and match to case and apply the values
-    for(int x = 0; x < 10; x++){
+    for(int x = 0; x < 5; x++){
       switch (x){
         // drive speed
         case 0: 
@@ -254,18 +270,36 @@ void loop() {
           break;
         }
         case 4:{
-          //setDirectionPin(joint1_dir_pin, moveMentArray[2]);
-          //joint1_on = moveMentArray[3];
+          if(moveMentArray[4]){
+            ST.drive(0);
+            ST.turn(0);
+            Step_Joint(200,joint1_pulse_pin, joint1_dir_pin, moveMentArray[5]);
+          }
           break;
         }
-
-
-
-        
+        case 5:{
+          if(moveMentArray[6]){
+            ST.drive(0);
+            ST.turn(0);
+            Step_Joint(200,joint1_pulse_pin, joint1_dir_pin, moveMentArray[7]);
+          }
+          break;
+        }
+        case 6:{
+          if(moveMentArray[8] or moveMentArray[9]){
+            if(moveMentArray[8]){
+              Step_Joint(100, joint7_pulse_pin, joint7_dir_pin, 0);  
+            }
+            else
+              Step_Joint(100, joint7_pulse_pin, joint7_dir_pin, 1);
+          }
+          break;
+        }
+                
         ////////////////////////////////////
 
         ////////////////////////////////////
-        //case 9:     // reset Command
+        //case 10:     // reset Command
         //
         //  runs the reset function
 
@@ -295,3 +329,13 @@ void setDirectionPin(uint8_t pinValue, uint8_t val)
     digitalWrite(pinValue, HIGH);
   }
 }
+
+void Step_Joint(int step1, int pulse_pin, int dir_pin, int dir ){
+  digitalWrite(dir_pin, dir);
+  for(int x = 0; x < step1; x++){
+    digitalWrite(pulse_pin, HIGH);
+    digitalWrite(pulse_pin, LOW);
+    delay(1);
+  }
+}
+
