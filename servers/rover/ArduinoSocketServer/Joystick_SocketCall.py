@@ -1,4 +1,3 @@
-
 from socket import *
 import time
 import pygame
@@ -16,6 +15,8 @@ client_socket.settimeout(1)
 #Globals for motor output
 global re_data
 re_data = ""
+global data
+data = ""
 global motor2
 motor2 = 0
 global motor1
@@ -80,19 +81,20 @@ while(1):
         for i in range( buttons ):
             button = joystick.get_button( i )
             #print("In Button")
+
             if i == 1:
                 joint5 = button
-            elif i == 3:
+            elif i == 3 and joint5 == 0:
                 joint5 = -button
 
             if i == 0:
                 joint6 = button
-            elif i == 2:
+            elif i == 2 and joint6 == 0:
                 joint6 = -button    
 
             if i == 4:
                 joint7 = button
-            elif i == 5:
+            elif i == 5 and joint7 == 0:
                 joint7 = -button
             
 
@@ -101,7 +103,7 @@ while(1):
      #       print("In Hat")
             if hat[0] != 0:
                 joint1 = hat[0]
-            else
+            else:
                 joint1 = 0
             
             
@@ -112,11 +114,11 @@ while(1):
             print "sending"
             data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
             client_socket.sendto(data, address)
+            print data
             #print("In try")
     except:
         pass
     #print("After Try/Catch")
-    print data
-    data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
-    
+    #data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
+    #joint1 = joint5 = joint6 = joint7 = 0
 exit(0)
