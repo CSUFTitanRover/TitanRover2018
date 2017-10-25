@@ -192,7 +192,15 @@ void setup() {
   pinMode(joint7_pulse_pin, OUTPUT);
   //digitalWrite(joint7_enab_pin, LOW);
 
-
+//LED TEST CODE
+  pinMode(39,OUTPUT);
+  pinMode(41,OUTPUT);
+  pinMode(43,OUTPUT);
+  pinMode(45,OUTPUT);
+  pinMode(47,OUTPUT);
+  pinMode(49,OUTPUT);
+  pinMode(51,OUTPUT);
+  pinMode(53,OUTPUT);
   
 }
 // This loop will be a command loop for each of the arduino processes
@@ -269,37 +277,86 @@ void loop() {
           ARM.motor(2,moveMentArray[3]);  
           break;
         }
-        case 4:{
-          if(moveMentArray[4]){
-            ST.drive(0);
-            ST.turn(0);
-            Step_Joint(200,joint1_pulse_pin, joint1_dir_pin, moveMentArray[5]);
-          }
-          break;
-        }
-        case 5:{
-          if(moveMentArray[6]){
-            ST.drive(0);
-            ST.turn(0);
-            Step_Joint(200,joint1_pulse_pin, joint1_dir_pin, moveMentArray[7]);
-          }
-          break;
-        }
-        case 6:{
-          if(moveMentArray[8] or moveMentArray[9]){
-            if(moveMentArray[8]){
-              Step_Joint(100, joint7_pulse_pin, joint7_dir_pin, 0);  
+        case 4:{  //Joint 4
+          if(moveMentArray[4] == -1 || moveMentArray[4] == 1){
+            //digitalWrite(joint1_pulse_pin,HIGH);
+            if(moveMentArray[4] == 1){
+              //digitalWrite(joint1_dir_pin,HIGH);
+              digitalWrite(39,HIGH);
             }
-            else
-              Step_Joint(100, joint7_pulse_pin, joint7_dir_pin, 1);
+            else{
+              //digitalWrite(joint1_dir_pin,LOW);
+              digitalWrite(41,HIGH);
+            }
+          }
+          else{
+            //digitalWrite(joint1_pulse_pin,LOW);
+            digitalWrite(39,LOW);
+            digitalWrite(41,LOW);
           }
           break;
         }
-                
+        case 5:{  //Joint 5
+          if(moveMentArray[5] == -1 || moveMentArray[5] == 1){
+            //digitalWrite(joint1_pulse_pin,HIGH);
+            if(moveMentArray[5] == 1){
+              //digitalWrite(joint1_dir_pin,HIGH);
+              digitalWrite(43,HIGH);
+            }
+            else{
+              //digitalWrite(joint1_dir_pin,LOW);
+              digitalWrite(45,HIGH);
+            }
+          }
+          else{
+            //digitalWrite(joint1_pulse_pin,LOW);
+            digitalWrite(43,LOW);
+            digitalWrite(45,LOW);
+          }
+          break;
+        }
+        case 6:{  //Joint 6
+          if(moveMentArray[6] == -1 || moveMentArray[6] == 1){
+            //digitalWrite(joint1_pulse_pin,HIGH);
+            if(moveMentArray[6] == 1){
+              //digitalWrite(joint1_dir_pin,HIGH);
+              digitalWrite(47,HIGH);
+            }
+            else{
+              //digitalWrite(joint1_dir_pin,LOW);
+              digitalWrite(49,HIGH);
+            }
+          }
+          else{
+            //digitalWrite(joint1_pulse_pin,LOW);
+            digitalWrite(47,LOW);
+            digitalWrite(49,LOW);
+          }
+          break;
+        }
+        case 7:{  //Joint 7
+          if(moveMentArray[7] == -1 || moveMentArray[7] == 1){
+            //digitalWrite(joint1_pulse_pin,HIGH);
+            if(moveMentArray[7] == 1){
+              //digitalWrite(joint1_dir_pin,HIGH);
+              digitalWrite(51,HIGH);
+            }
+            else{
+              //digitalWrite(joint1_dir_pin,LOW);
+              digitalWrite(53,HIGH);
+            }
+          }
+          else{
+            //digitalWrite(joint1_pulse_pin,LOW);
+            digitalWrite(51,LOW);
+            digitalWrite(53,LOW);
+          }
+          break;
+        }
         ////////////////////////////////////
 
         ////////////////////////////////////
-        //case 10:     // reset Command
+        //case 7:     // reset Command
         //
         //  runs the reset function
 
@@ -331,6 +388,8 @@ void setDirectionPin(uint8_t pinValue, uint8_t val)
 }
 
 void Step_Joint(int step1, int pulse_pin, int dir_pin, int dir ){
+  ST.drive(0);
+  ST.turn(0);
   digitalWrite(dir_pin, dir);
   for(int x = 0; x < step1; x++){
     digitalWrite(pulse_pin, HIGH);
