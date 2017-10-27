@@ -1,0 +1,43 @@
+{
+  "parser": "babel-eslint",
+  "extends": "airbnb",
+  "env": {
+    "browser": true,
+    "jest": true,
+    "es6": true
+  },
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true,
+      "impliedStrict": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "rules": {
+    // allow JSX inside .js & .jsx files
+    "react/jsx-filename-extension": ["error", {
+      "extensions": [".js", ".jsx"]
+    }],
+    // allow react components to just render & return JSX
+    "react/prefer-stateless-function": "off",
+    // warn if you are reassigning an object property
+    // of an object passed as a function param
+    "no-param-reassign": "warn",
+    // allow mixed operators in a single line e.g. 5+4/3-2
+    "no-mixed-operators": "off",
+    // warn when camelcase rule is being violated
+    // allowing this to happen due to 3rd party libraries not following the camelcase convention
+    "camelcase": "warn",
+    // allow _underscore naming convention
+    "no-underscore-dangle": "off",
+    // disallow inline function binding in JSX
+    "react/jsx-no-bind": ["error", {
+      "ignoreRefs": true, // except allow inline refs functions
+      "allowArrowFunctions": false,
+      "allowBind": false
+    }],
+    // allow using 'any', 'object' & 'array' prop-types
+    "react/forbid-prop-types": "off"
+  }
+}
