@@ -1,0 +1,15 @@
+{
+  "name": "science",
+  "version": "1.0.0",
+  "description": "Fake data emitters and receivers for sensors",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michael Negrete",
+  "license": "ISC",
+  "dependencies": {
+    "deepstream.io-client-js": "^2.3.0"
+  }
+}

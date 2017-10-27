@@ -8,13 +8,10 @@
 
 >Drive
 ToDo's
-- [ ] - Develop drive control system for Base Station Operations
-- [ ] - Develop drive control for Taranis Operation
-- [ ] - Research hardware design for motor access
-- [ ] - Interface hardware to communicate with Sabertooth
-- [ ] - TEST TEST TEST TEST then TEST some more
-- [ ] - Enable control to be received from both Autonomous and Joystick 
-- [ ] - Turn motors off if wireless signal is lost
+- [ ] - Drive Systems
+- [ ] - Autonomous Systems
+- [ ] - Vision Systems
+
 ----
 
 >Autonomous 
@@ -32,12 +29,7 @@ ToDo's
 
 >Vision
 ToDo's
-- [ ] - Research hardware to interface with NVidia Visionworks
-- [ ] - Research Nvidia Visionworks software
-- [ ] - Research way to limit bandwidth of camera streams
-- [ ] - Look into ways to create a panoramic picture (Science task)
-- [ ] - Create software for obstacle avoidance
-- [ ] - Research Ultra-Sonic sensors (obstacle avoidance)
-- [ ] - Research Infa-Red sensors (obstacle avoidance)
-----
+- [ ] - Develop and maintains software controls for arm movement
+- [ ] - Designs software system to operate science task automations
 
+----

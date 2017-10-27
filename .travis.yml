@@ -1,0 +1,25 @@
+dist: trusty
+sudo: true
+language: node_js
+install: true
+before_script:
+  - echo "Current Directory:"
+  - pwd
+  - echo "Changing directories to user-interface folder..."
+  - cd "$TRAVIS_BUILD_DIR/user-interface/"
+  - echo "Current Directory:"
+  - pwd
+  - echo "Installing dependencies..."
+  - npm install 
+script:
+  - echo "Running lint:fix before executing unit tests..."
+  - npm run lint:fix-and-test
+after_success:
+  - echo "Successfully linted and ran unit tests!"
+  - echo "Now reporting code coverage to codecov..."
+  - npm run report-coverage
+cache:
+  directories:
+    - "$TRAVIS_BUILD_DIR/user-interface/node_modules"
+notifications:
+  slack: titanrover:P4c9djaMXyBBxi2DL7BwMYUE
