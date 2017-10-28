@@ -31,7 +31,7 @@ We currently have the following projects baking in the oven:
 - Mobility
 - Science
 
-You are more than welcome, and in fact, are encouraged to try to contribute to more than 1 project. The more you help with differnt projects,
+You are more than welcome, and in fact, are encouraged to try to contribute to more than 1 project. The more you help with different projects,
 the more you come to learn about the entire rover system. 
 
 We have a _projects page*_ where you can read more about our system: https://github.com/CSUFTitanRover/TitanRover2018/projects
