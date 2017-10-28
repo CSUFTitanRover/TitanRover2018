@@ -4,19 +4,14 @@
 [![GitHub issues](https://img.shields.io/github/issues/CSUFTitanRover/TitanRover2018.svg)](https://github.com/CSUFTitanRover/TitanRover2018/issues)
 [![Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](https://titanrover2018.readthedocs.io/en/latest/)
 
->Mobility 
-----
-
->Drive
-ToDo's
-- [ ] - Drive Systems
-- [ ] - Autonomous Systems
-- [ ] - Vision Systems
+## Mobility ToDo's
+- [ ] - Develop drive control system for Base Station Operations
+- [ ] - Develop drive control for Taranis Operation
+- [ ] - Creates an Autonomous Navigation System, incorporating GNSS and next generation IMU
 
 ----
 
->Autonomous 
-ToDo's
+## Autonomous ToDo's
 - [ ] - Research IMU
 - [ ] - Adapt Magnimeter and Gyroscope delta change for accurate turning
 - [ ] - Create IMU software to run as background process as Unix socket
@@ -28,8 +23,7 @@ ToDo's
 - [ ] - Enable Runt/Rover to move between 4 waypoints with obstacles autonomously
 ----
 
->Vision
-ToDo's
+## Vision ToDo's
 - [ ] - Develop and maintains software controls for arm movement
 - [ ] - Designs software system to operate science task automations
 
