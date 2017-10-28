@@ -65,6 +65,36 @@ Simple Example: `feature/UserInterface-rethinkDB-24`
 
 Multiple Issues Example: `feature/UserInterface-components-14-17-23`
 
+### Creating a Feature Branch
+
+If you need to create a feature branch then always remember to branch off from your base project branch. For example, if
+I need to create a feature branch under the User Interface project then I will branch off from the User Interface branch.
+
+```
+master
+  \
+    - User Interface
+        \
+          - feature/UserInterface-Layout-19
+```
+
+## Git Layout
+
+Our layout for the git structure looks like so:
+```
+├───master
+   ├───UserInterface
+   ├───MobileApp
+   ├───ProcessManager
+   ├───Autonomy
+   ├───ComputerVision
+   ├───Mobility
+   ├───Science
+   ├───docs
+   ├───schematics
+
+```
+
 ## Typical Workflow
 
 A typical day in development land looks like so:
