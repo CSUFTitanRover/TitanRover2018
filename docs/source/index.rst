@@ -9,7 +9,7 @@ Welcome to Titan Rover's documentation!
 Titan Rover is a collaboration of multi-disciplinary students who gather together to 
 research, design, manufacture, and test a Mars Exploration Rover (MER) on behalf of
 Cal State Fullerton at the University Rover Challenge (URC). The rover is built from
-the ground up using in-house materials and is completely designed by team members of Titan Rover
+the ground up using in-house materials and is completely designed by team members of Titan Rover.
 
 .. toctree::
   :maxdepth: 2
