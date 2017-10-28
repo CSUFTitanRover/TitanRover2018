@@ -8,8 +8,8 @@ Welcome to Titan Rover 2018's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
+    user-interface
 
 
 Indices and tables

@@ -20,6 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "prebuild": "lint",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom --coverage",
     "eject": "react-scripts eject",
@@ -27,7 +28,6 @@
     "styleguide:build": "styleguidist build",
     "lint": "./node_modules/.bin/eslint .",
     "lint:fix": "./node_modules/.bin/eslint . --fix",
-    "lint:fix-and-test": "npm run lint:fix && npm test",
     "report-coverage": "codecov --token=fc200a62-2cb4-4cd6-a15d-9f5f41d6189d"
   },
   "devDependencies": {

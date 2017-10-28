@@ -33,3 +33,7 @@ ToDo's
 - [ ] - Designs software system to operate science task automations
 
 ----
+
+## Developing and Contributing
+
+We love getting new members to help contribute to our project but more importantly getting you onboard of how we do things around here. To help with getting you comfortable to our Git layout and workflow, head over to our [Contributing Guide](CONTRIBUTING.md).
