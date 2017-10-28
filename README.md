@@ -1,5 +1,4 @@
 # TitanRover2018 
-----
 
 [![GitHub issues](https://img.shields.io/github/issues/CSUFTitanRover/TitanRover2018.svg)](https://github.com/CSUFTitanRover/TitanRover2018/issues)
 [![Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](https://titanrover2018.readthedocs.io/en/latest/)
@@ -9,7 +8,6 @@
 - [ ] - Develop drive control for Taranis Operation
 - [ ] - Creates an Autonomous Navigation System, incorporating GNSS and next generation IMU
 
-----
 
 ## Autonomous ToDo's
 - [ ] - Research IMU
@@ -21,13 +19,11 @@
 - [ ] - Enable access of GNSS and IMU by UI
 - [ ] - Enable Runt/Rover to move between 4 waypoints with no obstacles autonomously
 - [ ] - Enable Runt/Rover to move between 4 waypoints with obstacles autonomously
-----
 
 ## Vision ToDo's
 - [ ] - Develop and maintains software controls for arm movement
 - [ ] - Designs software system to operate science task automations
 
-----
 
 ## Developing and Contributing
 
