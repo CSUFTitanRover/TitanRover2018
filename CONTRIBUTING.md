@@ -30,6 +30,7 @@ We currently have the following projects baking in the oven:
 - ComputerVision
 - Mobility
 - Science
+- NvidiaTX2
 
 You are more than welcome, and in fact, are encouraged to try to contribute to more than 1 project. The more you help with different projects,
 the more you come to learn about the entire rover system. 
@@ -67,8 +68,7 @@ Multiple Issues Example: `feature/UserInterface-components-14-17-23`
 
 ### Creating a Feature Branch
 
-If you need to create a feature branch then always remember to branch off from your base project branch. For example, if
-I need to create a feature branch under the User Interface project then I will branch off from the User Interface branch.
+If you need to create a feature branch then always remember to branch off from your base project branch. For example, if I need to create a feature branch under the User Interface project then I will branch off from the User Interface branch.
 
 ```
 master
@@ -90,10 +90,32 @@ Our layout for the git structure looks like so:
    ├───ComputerVision
    ├───Mobility
    ├───Science
+   ├───NvidiaTX2
    ├───docs
    ├───schematics
-
 ```
+
+## Git GUI
+
+If you are not a fan of using Git in your CLI, you can always use a GUI to interact with Git.
+Here are a number of good Git GUIs that are free:
+
+- https://www.gitkraken.com/
+- https://www.sourcetreeapp.com/
+- https://www.syntevo.com/smartgit/
+
+
+## GitHub Labels
+
+We have a number of labels that can be applied to any GitHub Issues created and thought it would be helpful to
+go over them. You can view our labels here: https://github.com/CSUFTitanRover/TitanRover2018/labels
+
+Priority tags - define how urgent it is an issue needs to be completed
+  - There should only be 1 priority tag per issue
+Status tags - define what the status is for an issue
+  - There should only be 1 status tag per issue
+Default tags - these tags help describe what the issue is or wants
+  - There can be any number of tags per issue
 
 ## Typical Workflow
 
