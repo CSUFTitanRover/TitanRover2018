@@ -28,3 +28,8 @@ If you need to build the docs directly you can use the make file provided in the
 On Linux: `make html`
 
 On Windows: `.\make.bat html`
+
+## readthedocs
+
+We are using [readthedocs](https://readthedocs.org/) to automatically build and host our docs whenever someone pushes to our GitHub repo.
+This ensures our docs are always up to date. 
