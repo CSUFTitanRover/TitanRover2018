@@ -1,15 +1,21 @@
-.. Titan Rover 2018 documentation master file, created by
-   sphinx-quickstart on Wed Sep 20 17:34:31 2017.
+.. Titan Rover documentation master file, created by
+   sphinx-quickstart on Fri Oct 27 22:13:09 2017.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Titan Rover 2018's documentation!
-============================================
+Welcome to Titan Rover's documentation!
+=======================================
+
+Titan Rover is a collaboration of multi-disciplinary students who gather together to 
+research, design, manufacture, and test a Mars Exploration Rover (MER) on behalf of
+Cal State Fullerton at the University Rover Challenge (URC). The rover is built from
+the ground up using in-house materials and is completely designed by team members of Titan Rover
 
 .. toctree::
-   :maxdepth: 2
-
-    user-interface
+  :maxdepth: 2
+  :caption: Contents:
+  
+  user-interface
 
 
 Indices and tables
