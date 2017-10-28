@@ -1,9 +1,11 @@
 # User Interface | 2018
 
-[![Node v8.5.0](https://img.shields.io/badge/node-v8.5.0-blue.svg
+[![Node v8.5.0](https://img.shields.io/badge/node-v8.8.1-blue.svg
 )]()
 [![Build Status](https://travis-ci.org/CSUFTitanRover/TitanRover2018.svg?branch=feature%2FUserInterface)](https://travis-ci.org/CSUFTitanRover/TitanRover2018)
 [![codecov](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature/UserInterface/graph/badge.svg)](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature%2FUserInterface)
+[![User Interface](https://img.shields.io/badge/netlify-user_interface-39AFBC.svg)](https://userinterface2018.netlify.com/)
+[![Styleguide](https://img.shields.io/badge/netlify-styleguide-39AFBC.svg)](https://userinterface2018-styleguide.netlify.com/)
 
 The User Interface will be written primarily using React for the frontend and Deepstream in the backend to handle all the real-time data updates. This will be a web application that is driven via real-time data and user interaction.
 
@@ -17,7 +19,7 @@ _You need to have Node installed in order to develop the UI_
 
 If you have `nvm` installed, navigate to and open the **user-interface** folder and run the command: `nvm use`
 
-This automatically sets your current node version to the version specified in the `.nvmrc` file found in the root of the project folder. It should set the current node version to `8.5.0`.
+This automatically sets your current node version to the version specified in the `.nvmrc` file found in the root of the project folder. It should set the current node version to `8.8.1`.
 
 ### npm (Node Package Manager)
 
@@ -206,6 +208,14 @@ This allows us to be able to sleep well at night that if something breaks we wil
 We use [CodeCov](https://codecov.io/) to monitor our code coverage for the UI. This means knowing at all times how much unit testing we have across our UI project.
 [Check us out on CodeCov](https://codecov.io/gh/CSUFTitanRover/TitanRover2018/branch/feature%2FUserInterface).
 
+## Netlify
+
+We use [Netlify](https://www.netlify.com/) to build and update our User Interface and Styleguide webpage on every push and pull-request. This means whenever accessing
+the webpages they are the latest version. This way you can stay up to date with the progress of how both pages are looking.
+
+Check out our User Interface: https://userinterface2018.netlify.com/
+
+Check out our Styleguide: https://userinterface2018-styleguide.netlify.com/
 
 ## Configuration Files
 
