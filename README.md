@@ -2,6 +2,7 @@
 ----
 
 [![GitHub issues](https://img.shields.io/github/issues/CSUFTitanRover/TitanRover2018.svg)](https://github.com/CSUFTitanRover/TitanRover2018/issues)
+[![Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](https://titanrover2018.readthedocs.io/en/latest/)
 
 >Mobility 
 ----
@@ -36,4 +37,4 @@ ToDo's
 
 ## Developing and Contributing
 
-We love getting new members to help contribute to our project but more importantly getting you onboard of how we do things around here. To help with getting you comfortable to our Git layout and workflow, head over to our [Contributing Guide](CONTRIBUTING.md).
+We love getting new members to help contribute to our project however you must learn how we do things around here before you get started. To help with getting you comfortable to our Git layout and workflow, head over to our [Contributing Guide](CONTRIBUTING.md).
