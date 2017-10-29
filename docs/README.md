@@ -1,8 +1,9 @@
 # Titan Rover 2018 Docs
 
-[![Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](https://titanrover2018.readthedocs.io/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/titanrover2018/badge/?version=docs)](http://titanrover2018.readthedocs.io/en/latest/?badge=docs)
 
-Online readthedocs: https://titanrover2018.readthedocs.io/en/latest/
+
+Online readthedocs: https://titanrover2018.readthedocs.io/en/docs/
 
 This year's documentation will be generated using [Sphinx](http://www.sphinx-doc.org/en/stable/). 
 Sphinx uses [reStructuredText](http://www.sphinx-doc.org/en/stable/rest.html) as its markup language, and many of its strengths come from the power and straightforwardness of reStructuredText and its parsing and translating suite, the Docutils. Sphinx supports parsing python files and auto generating documents based of docstrings. 
