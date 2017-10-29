@@ -3,6 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+
 Welcome to Titan Rover's documentation!
 =======================================
 
@@ -16,6 +17,8 @@ the ground up using in-house materials and is completely designed by team member
   :caption: Contents:
   
   user-interface
+  contributing_link
+  
 
 
 Indices and tables
