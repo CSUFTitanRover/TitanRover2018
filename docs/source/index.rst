@@ -16,8 +16,8 @@ the ground up using in-house materials and is completely designed by team member
   :maxdepth: 2
   :caption: Contents:
   
-  user-interface
-  contributing_link
+  contributing.rst
+  user-interface/index.rst
   
 
 
