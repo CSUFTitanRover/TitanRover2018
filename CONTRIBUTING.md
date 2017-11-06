@@ -111,10 +111,15 @@ We have a number of labels that can be applied to any GitHub Issues created and 
 go over them. You can view our labels here: https://github.com/CSUFTitanRover/TitanRover2018/labels
 
 Priority tags - define how urgent it is an issue needs to be completed
+
   - There should only be 1 priority tag per issue
+
 Status tags - define what the status is for an issue
+
   - There should only be 1 status tag per issue
+
 Default tags - these tags help describe what the issue is or wants
+
   - There can be any number of tags per issue
 
 ## Typical Workflow
