@@ -1,0 +1,12 @@
+[Unit]
+Description=Reach Sub System
+
+[Service]
+ExecStart=/etc/systemd/system/reach_USB_OTG.sh
+Restart=always
+RestartSec=10
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

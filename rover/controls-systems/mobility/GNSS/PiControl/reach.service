@@ -1,0 +1,10 @@
+[Unit]
+Description=Reach Sub System
+
+[Service]
+ExecStart=/etc/systemd/system/reach_USB_OTG.sh
+User=pi
+Group=pi
+
+[Install]
+WantedBy=multi-user.target
