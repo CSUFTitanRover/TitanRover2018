@@ -5,6 +5,7 @@ import Drawer from 'material-ui/Drawer';
 import List from 'material-ui/List';
 import Divider from 'material-ui/Divider';
 import Typography from 'material-ui/Typography';
+import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft';
 import LayoutMenuList from '../../components/LayoutMenuList/';
@@ -17,12 +18,12 @@ const propTypes = {
   /** current active state of left menu */
   leftMenuActive: PropTypes.bool.isRequired,
   /** A string of class names to apply to the LeftMenu for styling concerns. */
-  classNames: PropTypes.string.isRequired,
+  drawerPaperClassNames: PropTypes.string,
 };
 
 const defaultProps = {
   leftMenuActive: false,
-  classNames: '',
+  drawerPaperClassNames: '',
 };
 
 const mapStateToProps = state => ({ leftMenuActive: state.leftMenuActive });
@@ -48,23 +49,31 @@ const styles = {
  */
 class LeftMenu extends Component {
   render() {
-    const { leftMenuActive, handleOnClick, classNames } = this.props;
+    const { leftMenuActive, handleOnClick, drawerPaperClassNames } = this.props;
 
     return (
-      <Drawer type="persistent" open={leftMenuActive} className={classNames}>
+      <Drawer
+        type="persistent"
+        open={leftMenuActive}
+        classes={{
+          paper: drawerPaperClassNames,
+        }}
+      >
         <div style={styles.drawerHeader}>
           <Typography type="headline">Titan Rover</Typography>
-          <IconButton onClick={handleOnClick}>
-            <ChevronLeftIcon />
-          </IconButton>
+          <Tooltip title="Close Menu" placement="bottom">
+            <IconButton onClick={handleOnClick}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </Tooltip>
         </div>
         <Divider light />
         <List>
-          <LayoutMenuList open={false} />
+          <LayoutMenuList />
           <Divider />
           <ComponentMenuList />
         </List>
-      </Drawer >
+      </Drawer>
     );
   }
 }
