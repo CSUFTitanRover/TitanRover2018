@@ -1,10 +1,12 @@
+/* eslint-disable react/no-multi-comp */
+
 import React, { Component } from 'react';
 
 const deepstream = require('deepstream.io-client-js');
 const roverSettings = require('./roverSettings.json');
 
 const { rover } = roverSettings.deepstream;
-const clients = {}; // singleton
+const clients = {}; // singleton list of clients for each server URL
 
 /**
  * Returns a Promise that resolves a deepstream client object.
@@ -120,6 +122,51 @@ export function withDeepstreamState(WrappedComponent, recordName, states) {
       // Use a ref to have access to the state object, and pass through all props
       return (
         <WrappedComponent {...this.props} ref={(comp) => { this.wrapped = comp; }} />
+      );
+    }
+  };
+}
+
+/**
+ * Wraps a higher-order component around the passed component that
+ * connects to a deepstream record and listens for changes in selected
+ * prop objects.
+ *
+ * WrappedComponent: the inner component
+ * recordName: The deepstream record name
+ */
+export function withDeepstreamProps(WrappedComponent, recordName) {
+  return class DeepStreamWrapper extends Component {
+    constructor(props) {
+      super(props);
+
+      this.state = { passedProps: {} };
+
+      // Get the deepstream client, then get the record
+      getClient().then((result) => {
+        this.client = result;
+        this.record = this.client.record.getRecord(recordName);
+        this.record.subscribe(this.handleDataChange, true);
+      });
+    }
+
+    componentWillUnmount() {
+      // Discard the subscribe event
+      this.record.discard();
+    }
+
+    client = null;
+    record = null;
+    wrapped = null;
+
+    handleDataChange = (data) => {
+      this.setState({ passedProps: data });
+    }
+
+    render() {
+      // Use a ref to have access to the state object, and pass through all props
+      return (
+        <WrappedComponent {...this.state.passedProps} {...this.props} />
       );
     }
   };

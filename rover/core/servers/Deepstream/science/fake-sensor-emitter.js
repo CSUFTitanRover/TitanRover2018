@@ -22,7 +22,7 @@ async function start() {
       timestamp
     };
 
-    client.event.emit('science/decagon-5TE', JSON.stringify(payload));
+    client.record.getRecord('science/decagon-5TE').set({ data: [payload] });
   }, 1000);
 }
 
