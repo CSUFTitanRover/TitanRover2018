@@ -17,7 +17,7 @@ import pygame
 import RPi.GPIO as GPIO
 
 # WAIT FOR STUFF
-time.sleep(15)
+time.sleep(5)
 
 #LED Signals for status 
 GPIO.setmode(GPIO.BCM)
@@ -57,6 +57,8 @@ global pauseQuitInterval
 pauseQuitInterval = 0
 global pauseFull
 pauseFull = False
+global modeWhenPaused
+modeWhenPaused = ""
 
 # Global variable for motor throttle
 global motor_mult
@@ -89,13 +91,35 @@ def stop():
             joint1 = joint5 = joint6 = joint7 = 0
             client_socket.sendto(data, address)
             print("Sent Stop Command")
-            GPIO.output(redLed,GPIO.HIGH)
-            GPIO.output(greenLed,GPIO.LOW)
-            GPIO.output(blueLed,GPIO.LOW)
+            #GPIO.output(redLed,GPIO.HIGH)
+            #GPIO.output(greenLed,GPIO.LOW)
+            #GPIO.output(blueLed,GPIO.LOW)
     except:
         print("Failed to send Stop Command")
         pass
     return;
+
+def changeLedColor():
+    if mode == "both":
+        #LED Color = Green
+        GPIO.output(greenLed,GPIO.HIGH)
+        GPIO.output(redLed,GPIO.LOW)
+        GPIO.output(blueLed,GPIO.LOW)
+    elif mode == "mobility":
+        #LED Color = Blue
+        GPIO.output(greenLed, GPIO.LOW)
+        GPIO.output(redLed, GPIO.LOW)
+        GPIO.output(blueLed, GPIO.HIGH)
+    elif mode == "arm":
+        #LED Color = Purple
+        GPIO.output(greenLed, GPIO.LOW)
+        GPIO.output(redLed,GPIO.HIGH)
+        GPIO.output(blueLed,GPIO.HIGH)
+    elif mode == "pause":
+        #LED Color = Red
+        GPIO.output(redLed,GPIO.HIGH)
+        GPIO.output(greenLed,GPIO.LOW)
+        GPIO.output(blueLed,GPIO.LOW)
 
 GPIO.output(greenLed,GPIO.HIGH)
 GPIO.output(redLed,GPIO.LOW)
@@ -180,22 +204,35 @@ while(1):
                     #if button == 1:
                     motor_mult = motor_mult + .1
                     print(motor_mult)
+
         # Script timed quit command
-            if i == 8 and button == 1:
+            if i == 9 and button == 1:
                 if pauseQuitInterval == 0:
                     pauseQuitInterval = datetime.now()
                 elif (datetime.now() - pauseQuitInterval).seconds > 3:
-                    GPIO.output(greenLed,GPIO.LOW)
-                    GPIO.output(redLed,GPIO.LOW)
-                    GPIO.output(blueLed,GPIO.LOW)
-                    pygame.quit()
-                    exit()
+                    if mode != "pause":
+                        print("Pausing Controls")
+                        modeWhenPaused = mode
+                        mode = "pause"
+                        pauseQuitInterval = 0
+                        stop()
+                        changeLedColor()
+                    elif mode == "pause":
+                        print("Resuming Controls")
+                        mode = modeWhenPaused
+                        modeWhenPaused = ""
+                        pauseQuitInterval = 0
+                        changeLedColor()
+            elif i == 9 and button == 0 and pauseQuitInterval !=0:
+                print("Reseting Pause Interval")
+                pauseQuitInterval = 0
+                
             #This button switches between different Modes
             #Green = Arm and Mobility
             #Blue = Mobility
-            #Yellow = Arm
+            #Purple = Arm
             #Red = None (Paused)
-            if i == 9 and button == 1:
+            if i == 8 and button == 1:
                 #print(pauseInterval)
                 if pauseInterval == 0:
                     pauseInterval = datetime.now()
@@ -205,35 +242,22 @@ while(1):
                         mode = "mobility"
                         pauseInterval = 0
                         #LED color = Blue
-                        GPIO.output(greenLed, GPIO.LOW)
-                        GPIO.output(redLed,GPIO.LOW)
-                        GPIO.output(blueLed,GPIO.HIGH)
-                        
+                        changeLedColor()
                 elif mode == "mobility":
                     if (datetime.now() - pauseInterval).seconds > 3:
                         print("Switcching to ARM ONLY mode")
                         mode = "arm"
                         pauseInterval = 0
-                        #LED Color = Yellow?
-                        GPIO.output(greenLed, GPIO.HIGH)
-                        GPIO.output(redLed,GPIO.HIGH)
-                        GPIO.output(blueLed,GPIO.LOW)
+                        #LED Color = Purple
+                        changeLedColor()
                 elif mode == "arm":
-                    if (datetime.now() - pauseInterval).seconds > 3:
-                        print("Pausing Controls")
-                        mode = "pause"
-                        pauseInterval = 0
-                        stop()
-                        #LED Color = RED
-                elif mode == "pause":
                     if (datetime.now() - pauseInterval).seconds > 3:
                         print("Switching to BOTH mode")
                         mode = "both"
                         pauseInterval = 0
-                        GPIO.output(greenLed, GPIO.HIGH)
-                        GPIO.output(redLed,GPIO.LOW)
-                        GPIO.output(blueLed,GPIO.LOW)
-            elif i == 9 and button == 0 and pauseInterval != 0:
+                        #LED Color = Green
+                        changeLedColor()
+            elif i == 8 and button == 0 and pauseInterval != 0:
                 print("reseting Pause Interval")
                 pauseInterval = 0
         if mode == "arm" or mode == "both": 
