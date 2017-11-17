@@ -49,7 +49,10 @@ class GoldenLayout extends Component {
     layout.registerComponent('Counter', Counter);
     layout.init();
 
-    window.addEventListener('resize', () => layout.updateSize());
+    window.addEventListener('resize', () => {
+      layout.updateSize();
+    });
+
     this.props.handleAddGoldenLayoutToStore(layout);
   }
 

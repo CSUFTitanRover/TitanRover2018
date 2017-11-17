@@ -4,7 +4,6 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import appStore from './reducers/';
 import App from './App';
-import registerServiceWorker from './registerServiceWorker';
 
 // adding this as a workaround for Golden-Layout to work without ejecting CRA from the project
 window.React = React;
@@ -24,4 +23,3 @@ const AppWithProvider = (
 );
 
 ReactDOM.render(AppWithProvider, document.getElementById('root'));
-registerServiceWorker();

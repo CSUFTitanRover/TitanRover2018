@@ -32,7 +32,7 @@ class LayoutMenuList extends Component {
   state = { open: this.props.open };
 
   handleSubmenuClick = () => {
-    this.setState({ open: !this.state.open });
+    this.setState(prevState => ({ open: !prevState.open }));
   };
 
   render() {

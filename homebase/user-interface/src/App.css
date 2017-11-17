@@ -3,18 +3,8 @@
 @import url('~golden-layout/src/css/goldenlayout-base.css');
 @import url('~golden-layout/src/css/goldenlayout-dark-theme.css');
 
-body {
-  height: 100vh;
-}
-
-.root {
-  height: 100vh;
-}
-
-.lm_root {
-  height: 100vh;
-}
-
-.goldenLayout {
-  height: 100vh;
+/* Set a size so that golden layout can display */
+.goldenLayout, .lm_root {
+  height: calc(100vh - 65px) !important;
+  width: 100%;
 }

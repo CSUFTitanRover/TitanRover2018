@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
+import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
 import Typography from 'material-ui/Typography';
@@ -38,15 +39,17 @@ class TopBar extends Component {
   render() {
     const { leftMenuActive, handleOnClick, classNames } = this.props;
     const iconStyle = {
-      display: leftMenuActive ? 'none' : 'flex',
+      visibility: leftMenuActive ? 'hidden' : 'visible',
     };
 
     return (
       <AppBar position="static" className={classNames}>
         <Toolbar>
-          <IconButton color="contrast" aria-label="Menu" onClick={handleOnClick} style={iconStyle}>
-            <MenuIcon />
-          </IconButton>
+          <Tooltip title="Open Menu" placement="bottom">
+            <IconButton color="contrast" aria-label="Menu" onClick={handleOnClick} style={iconStyle} >
+              <MenuIcon />
+            </IconButton>
+          </Tooltip>
           <Typography type="title" color="inherit" >
             Mission Elapsed Time
           </Typography>
