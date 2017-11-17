@@ -49,11 +49,6 @@ class GoldenLayout extends Component {
     layout.registerComponent('Counter', Counter);
     layout.init();
 
-    // debuggin purposes
-    window.GL = GL;
-    window.layout = layout;
-    window.glnode = this.node;
-
     window.addEventListener('resize', () => {
       layout.updateSize();
     });

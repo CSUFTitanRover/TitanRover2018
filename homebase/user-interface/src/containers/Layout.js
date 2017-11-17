@@ -36,7 +36,7 @@ const styles = theme => ({
   },
   topBarShift: {
     marginLeft: drawerWidth,
-    width: 'calc(100%)',
+    width: '100%',
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
