@@ -1,3 +1,4 @@
+
 Background
 ==========
 
@@ -16,4 +17,3 @@ rover to the UI will not hurt the application. The user interface must also upda
 display data in real-time. The maximum delay between new data packets being recieved in the UI should be less than 15ms. If
 the delay time is longer than 15ms then user experience will degrade. The user interface must be customizable by the user so that
 they can configure the layout of the UI in a way that is meaningful to them.
-
