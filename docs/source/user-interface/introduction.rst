@@ -1,6 +1,8 @@
+Introduction
+============
 
 Background
-==========
+----------
 
 In the years prior to the 2016 Titan Rover project, the UI was very bare bones and did not require a lot of intricate features.
 However, starting with the 2016 Titan Rover project and due to the increasing dificulties of the URC guidelines, the 
@@ -10,7 +12,7 @@ considered were `React.js <https://reactjs.org/>`_ and `Angular.js <https://angu
 it was decided to move forward with React because at the time Angular was going through some breaking changes to the main library. 
 
 Abstract
-========
+--------
 
 The user interface must be designed to be a soft real-time system. Meaning, losing some data packets being streamed from the
 rover to the UI will not hurt the application. The user interface must also update as new data is received in order to 

@@ -16,8 +16,9 @@ the ground up using in-house materials and is completely designed by team member
   :maxdepth: 2
   :caption: Contents:
   
-  contributing.rst
-  user-interface/index.rst
+  contributing
+  user-interface/index
+  deepstream/index
   
 
 
