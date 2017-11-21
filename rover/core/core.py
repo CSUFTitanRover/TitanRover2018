@@ -5,6 +5,8 @@ import socket
 import time
 import logging
 import subprocess
+
+version = "0.0.1"
  
 def Main():
     t = time.strftime("%m%d%Y-%H%M%S")
@@ -25,10 +27,10 @@ def Main():
             if not d:
                     break
             logging.warning("from connected  user: " + str(d))
-             
-            d = str(d).upper()
-            logging.warning("sending: " + str(d))
-            conn.send(d.encode())
+            if d == "getVersion": 
+                d = str(version)
+                logging.warning("sending: " + str(d))
+                conn.send(d.encode())
              
     conn.close()
 
