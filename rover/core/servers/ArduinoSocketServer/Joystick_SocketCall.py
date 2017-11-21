@@ -70,6 +70,9 @@ global arm1
 arm1 = 0
 global arm2
 arm2 = 0
+global joint1
+joint1 = 0
+# note : add new join numbers // 4, 5a, and 5b
 global joint5
 joint5 = 0
 global joint6
@@ -271,7 +274,7 @@ def checkButtons(currentJoystick):
             pauseInterval = 0
                 
 def checkHats(currentJoystick):
-    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint5, joint6, joint7, mode
+    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint1, joint5, joint6, joint7, mode
     hats = currentJoystick.get_numhats()
 
     if mode == "arm" or mode == "both": 
