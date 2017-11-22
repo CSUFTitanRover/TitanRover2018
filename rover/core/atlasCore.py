@@ -5,12 +5,12 @@ import socket
 import time
 import sys
 
-version = "0.1.1" 
+version = "1.0.0" 
 
 localCommands = dict([
-    ("help", "Lists all of the interactive core commands"),
-    ("connect", "Attempts to connect to atlas core"),
-    ("restart", "Restarts the active connection to atlas core"),
+    ("help", "lists all of the interactive core commands"),
+    ("connect", "attempts to connect to atlas core"),
+    ("restart", "restarts the active connection to atlas core"),
     ("quit", "quits the atlasCore terminal program")
 ])
 
@@ -91,6 +91,7 @@ def Main():
         elif m == "quit":
             if isConnected:
                 s.close()
+                isConnected = False
             break
         elif m in coreCommands:
             if isConnected:

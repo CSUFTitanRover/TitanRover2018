@@ -7,17 +7,29 @@ import logging
 import subprocess
 
 version = "0.0.1"
+
+modeFiles = dict([
+    ("manual" , "\process-managers\manualProcessManager.py"),
+    ("remote" , "\process-managers\\remoteProcessManager.py"), #requires escape
+    ("autonomous" , "\process-managers\\autonomousProcessManager.py"), #requires escape
+    ("science" , "\process-managers\scienceProcessManager.py")
+])
  
 def Main():
     t = time.strftime("%m%d%Y-%H%M%S")
     logging.basicConfig(filename='debug\coreDump_' + t + '.log',level=logging.DEBUG)
     logging.info('Started log at ' + t)
 
+    command = ""
     host = "127.0.0.1"
     port = 5000
      
     s = socket.socket()
     s.bind((host,port))
+    logging.info("Bound socket to the host: " + host + ", on port: " + port)
+
+    while command != "restart":
+    
      
     s.listen(1)
     conn, addr = s.accept()
