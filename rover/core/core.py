@@ -31,7 +31,10 @@ def Main():
                 d = str(version)
                 logging.warning("sending: " + str(d))
                 conn.send(d.encode())
-             
+            else:
+                d = str(d).upper()
+                logging.warning("sending: " + str(d))
+                conn.send(d.encode())
     conn.close()
 
     t = time.strftime("%m%d%Y-%H%M%S")

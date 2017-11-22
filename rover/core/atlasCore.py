@@ -22,7 +22,8 @@ coreCommands = dict([
     ("setModeManual" , "sets the core's mode to Manual(Default)"),
     ("setModeDefault" , "sets the core's mode to Manual(Default)"),
     ("resetCurrent" , "resets the core, returning to it's current mode on reboot"),
-    ("resetCore" , "resets the core, returning it to default")
+    ("resetCore" , "resets the core, returning it to default"),
+    ("getVersion", "gets the core's version number")
 ])
 
 def Main():
@@ -35,8 +36,14 @@ def Main():
 
     print("Welcome to atlasCore version " + version + ", please enter a command...\n")
     while m != "quit":
+        if isConnected:
+            print("You are connected to the core, you may use core commands\n")
+
         for key, value in localCommands.items():
-            print(key + " - " + value)
+            if isConnected and key != "connect":
+                print(key + " - " + value)
+            elif isConnected == False:
+                print(key + " - " + value)
 
         m = input(" -> ")
         print("")
@@ -50,6 +57,17 @@ def Main():
                 try:
                     s.connect((host, port))
                     isConnected = True
+                    m = "getVersion"
+                    s.send(m.encode())
+                    d = s.recv(1024).decode()
+                    print("Connection to core established... took " + str(count) + " times\n")
+                    count = 0
+                    
+                    if d == version:
+                        print('Versions match: ' + d + "\n")
+                    else:
+                        print('Version mismatch!\n atlasCore version: ' + version + "\n core version: " + d + "\n Some core commands may not work\n")
+
                 except socket.error:
                     print("Connection not established... " + str(count) + " times")
                     time.sleep(.5)
@@ -62,49 +80,29 @@ def Main():
                             print("exiting...")
 
                     count += 1
+                
+        elif m == "restart":
+            if isConnected:
+                s.close()
+                isConnected = False
+                print("Restarting the connection...")
+            else:
+                print("No connection to restart!")
+        elif m == "quit":
+            if isConnected:
+                s.close()
+            break
+        elif m in coreCommands:
+            if isConnected:
+                s.send(m.encode())
+                d = s.recv(1024).decode()
 
-                if isConnected == True: 
-                    print("Connection to core established... took " + str(count) + " times\n")
-                    count = 0
-
-                    m = "getVersion"
-                    s.send(m.encode())
-                    d = s.recv(1024).decode()
-                    if d == version:
-                        print('Versions match: ' + d + "\n")
-                    else:
-                        print('Version mismatch!\n atlasCore version: ' + version + "\n core version: " + d + "\n Some core commands may not work\n")
-
-                    for key, value in localCommands.items():
-                        if key != "connect":
-                            print(key + " - " + value) 
-
-                    while m != "restart" and m != "quit":
-                        m = input(" -> ")
-                        try:
-                            if m.lower() == "restart":
-                                s.close()
-                                isConnected = False
-                                print("Restarting the connection...")
-                                
-                            elif m.lower() == "quit":
-                                s.close()
-                                break
-
-                            elif m.lower() == "help":
-                                for key, value in coreCommands.items():
-                                    print(key + ' - ' + value)
-
-                            elif m in coreCommands:
-                                s.send(m.encode())
-                                d = s.recv(1024).decode()
-
-                                print('Command executed: ' + d)
-
-                            else:
-                                print('Invalid input, type "Help" for a list of commands')
-                        except KeyError : 
-                            print('Invalid input, try again...')
+                print('Command executed: ' + d + "\n")
+            else:
+                print("Valid command but no connection established, please use \"connect\" command first...")
+        else:
+            print('Invalid input, type "Help" for a list of commands')
+           
 
 if __name__ == '__main__':
     Main()
