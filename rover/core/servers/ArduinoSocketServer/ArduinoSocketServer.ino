@@ -24,9 +24,21 @@ const int stepsPerRevolution = 200;
   const uint8_t y_pwm_pin = 7;*/
 
 // Joint #1
-const uint8_t joint1_dir_pin = 23;
+const uint8_t joint1_pulse_pin = 2;
+const uint8_t joint1_dir_pin = 6;
 const uint8_t joint1_enab_pin = 31;
-const uint8_t joint1_pulse_pin = 11;
+
+// Joint 4
+const uint8_t joint4_pulse_pin = 3;
+const uint8_t joint4_dir_pin = 7;
+
+// Joint 5a
+const uint8_t joint5a_pulse_pin = 4;
+const uint8_t joint5a_dir_pin = 8;
+
+// Joint 5b
+const uint8_t joint5b_pulse_pin = 5;
+const uint8_t joint5b_dir_pin = 9;
 
 //volatile bool joint1_on = false;
 //const uint8_t joint1_limit_pin = A0;
@@ -277,79 +289,79 @@ void loop() {
           ARM.motor(2,moveMentArray[3]);  
           break;
         }
-        case 4:{  //Joint 4
+        case 4:{  //Joint 1
           if(moveMentArray[4] == -1 || moveMentArray[4] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint1_pulse_pin,HIGH);
             if(moveMentArray[4] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(39,HIGH);
+              digitalWrite(joint1_dir_pin,HIGH);
+              //digitalWrite(39,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(41,HIGH);
+              digitalWrite(joint1_dir_pin,LOW);
+              //digitalWrite(41,HIGH);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(39,LOW);
-            digitalWrite(41,LOW);
+            digitalWrite(joint1_pulse_pin,LOW);
+            //digitalWrite(39,LOW);
+            //digitalWrite(41,LOW);
           }
           break;
         }
-        case 5:{  //Joint 5
+        case 5:{  //Joint 4
           if(moveMentArray[5] == -1 || moveMentArray[5] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint4_pulse_pin,HIGH);
             if(moveMentArray[5] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(43,HIGH);
+              digitalWrite(joint4_dir_pin,HIGH);
+              //digitalWrite(43,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(45,HIGH);
+              digitalWrite(joint4_dir_pin,LOW);
+              //digitalWrite(45,HIGH);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(43,LOW);
-            digitalWrite(45,LOW);
+            digitalWrite(joint4_pulse_pin,LOW);
+            //digitalWrite(43,LOW);
+            //digitalWrite(45,LOW);
           }
           break;
         }
-        case 6:{  //Joint 6
+        case 6:{  //Joint 5a
           if(moveMentArray[6] == -1 || moveMentArray[6] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint5a_pulse_pin,HIGH);
             if(moveMentArray[6] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(47,HIGH);
+              digitalWrite(joint5a_dir_pin,HIGH);
+              //digitalWrite(47,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(49,HIGH);
+              digitalWrite(joint5a_dir_pin,LOW);
+              //digitalWrite(49,HIGH);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(47,LOW);
-            digitalWrite(49,LOW);
+            digitalWrite(joint5a_pulse_pin,LOW);
+            //digitalWrite(47,LOW);
+            //digitalWrite(49,LOW);
           }
           break;
         }
-        case 7:{  //Joint 7
+        case 7:{  //Joint 5b
           if(moveMentArray[7] == -1 || moveMentArray[7] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint5b_pulse_pin,HIGH);
             if(moveMentArray[7] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(51,HIGH);
+              digitalWrite(joint5b_dir_pin,HIGH);
+              //digitalWrite(51,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(53,HIGH);
+              digitalWrite(joint5b_dir_pin,LOW);
+              //digitalWrite(53,HIGH);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(51,LOW);
-            digitalWrite(53,LOW);
+            digitalWrite(joint5b_pulse_pin,LOW);
+            //digitalWrite(51,LOW);
+            //digitalWrite(53,LOW);
           }
           break;
         }
