@@ -109,11 +109,19 @@ plugins:
   #   options:
   #     serverLocation: 'localhost:11211'
   #
+  # mongodb settings are managed in the javascript file
   # storage:
-  #   name: rethinkdb
-  #   options:
-  #     host: localhost
-  #     port: 28015
+    # name: mongodb
+    # options:
+      # connectionString: ${MONGODB_CONNECTION_STRING}
+      # optional database name, defaults to `deepstream`
+      # database: 'someDb'
+      # optional table name for records without a splitChar
+      # defaults to deepstream_records
+      # defaultTable: 'someTable'
+      # optional character that's used as part of the
+      # record names to split it into a tabel and an id part
+      # splitChar: '/'
 
 # Storage options
 # a RegExp that matches recordNames. If it matches, the record's data won't be stored in the db
