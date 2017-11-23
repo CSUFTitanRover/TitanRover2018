@@ -1,9 +1,9 @@
-const { getClient } = require('./deepstream')
+const { getClient } = require('./deepstream');
 
 function getRandomIntInclusive(min, max) {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min + 1)) + min //The maximum is inclusive and the minimum is inclusive
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
 }
 
 async function start() {
@@ -22,7 +22,7 @@ async function start() {
       timestamp
     };
 
-    client.event.emit('science/decagon-5TE', JSON.stringify(payload));
+    client.record.setData('decagon-5TE', payload);
   }, 1000);
 }
 
