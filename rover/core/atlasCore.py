@@ -10,7 +10,7 @@ version = "1.0.0"
 localCommands = dict([
     ("help", "lists all of the interactive core commands"),
     ("connect", "attempts to connect to atlas core"),
-    ("restart", "restarts the active connection to atlas core"),
+    ("restartCore", "restart the core"),
     ("quit", "quits the atlasCore terminal program")
 ])
 
@@ -32,13 +32,11 @@ def Main():
     port = 5000
     count = 0 #counter int to keep track of how many 
     m = "" #message recieved back from the server
-    s = socket.socket() #socket object
 
     print("Welcome to atlasCore version " + version + ", please enter a command...\n")
     while m != "quit":
         if isConnected:
             print("You are connected to the core, you may use core commands\n")
-
         for key, value in localCommands.items():
             if isConnected and key != "connect":
                 print(key + " - " + value)
@@ -53,6 +51,8 @@ def Main():
                 print(key + ' - ' + value)
 
         elif m == "connect":
+            if isConnected == False:
+                s = socket.socket() #socket object
             while isConnected == False:        
                 try:
                     s.connect((host, port))
@@ -81,13 +81,14 @@ def Main():
 
                     count += 1
                 
-        elif m == "restart":
+        elif m == "restartCore":
             if isConnected:
+                s.send(m.encode())
                 s.close()
                 isConnected = False
-                print("Restarting the connection...")
+                print("restarting the core...")
             else:
-                print("No connection to restart!")
+                print("Not connected to core, cannot restart!")
         elif m == "quit":
             if isConnected:
                 s.close()

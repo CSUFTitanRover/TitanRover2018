@@ -1,8 +1,8 @@
 import logging
-
+import time
 def Main():
     t = time.strftime("%m%d%Y-%H%M%S")
-    logging.basicConfig(filename='debug\\coreDump_' + t + '.log',level=logging.DEBUG)
+    logging.basicConfig(filename='debug/manualDump_' + t + '.log',filemode = 'w', level=logging.DEBUG)
     logging.info('Started log at ' + t)
 
     t = time.strftime("%m%d%Y-%H%M%S")
