@@ -22,17 +22,23 @@ broker allows you to treat data and events from a language agnostic standpoint.
 
 Data Store
 ----------
-Deepstream offers a in-cache data store that can hold all types of data. 
+Deepstream offers a `in-cache data store <https://deepstreamhub.com/tutorials/guides/records/>`_ that can hold all types of data.
+
+- Numbers (Integers/Doubles)
+- Strings
+- Objects
+- Lists
 
 Pub/Sub
 -------
-Deepstream offers the ability of a publish and subscribe event system. Clients can publish data through the deepstream
-system and any clients subscribed can receive that data. 
+Deepstream offers the ability of a `publish and subscribe event pattern <https://deepstreamhub.com/tutorials/guides/events/>`_.
+Clients can publish data through the deepstream system and any clients subscribed can receive that data. 
 
 RPC
 ---
-Deepstream offeres remote procedural call (RPC) which are equivalent to a request-response pattern. 
+Deepstream offeres `remote procedural call (RPC) <https://deepstreamhub.com/tutorials/guides/remote-procedure-calls/>`_
+which are equivalent to a request-response pattern. 
 
 Data-Sync
 ---------
-Deepstream offeres data-syncing when items are updated in your data store.
+Deepstream offeres data-syncing when items/records are updated in your data store.
