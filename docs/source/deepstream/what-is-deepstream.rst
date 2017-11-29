@@ -36,9 +36,9 @@ Clients can publish data through the deepstream system and any clients subscribe
 
 RPC
 ---
-Deepstream offeres `remote procedural call (RPC) <https://deepstreamhub.com/tutorials/guides/remote-procedure-calls/>`_
+Deepstream offers `remote procedural call (RPC) <https://deepstreamhub.com/tutorials/guides/remote-procedure-calls/>`_
 which are equivalent to a request-response pattern. 
 
 Data-Sync
 ---------
-Deepstream offeres data-syncing when items/records are updated in your data store.
+Deepstream offers data-syncing when items/records are updated in your data store.
