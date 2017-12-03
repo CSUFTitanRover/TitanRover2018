@@ -9,107 +9,25 @@
 */
 
 #include <SPI.h>
-//#include <AMIS30543.h>
-#include <Servo.h>
-#include <Stepper.h>
-//#include <TimerOne.h>
-
-const int stepsPerRevolution = 200;
-// X Axis Mobility
-/*Servo x_mobility;
-  const uint8_t x_pwm_pin = 6;
-
-  // Y Axis Mobility
-  Servo y_mobility;
-  const uint8_t y_pwm_pin = 7;*/
+//#include <Servo.h>
+//#include <Stepper.h>
 
 // Joint #1
-const uint8_t joint1_dir_pin = 23;
+const uint8_t joint1_pulse_pin = 2;
+const uint8_t joint1_dir_pin = 6;
 const uint8_t joint1_enab_pin = 31;
-const uint8_t joint1_pulse_pin = 11;
 
-//volatile bool joint1_on = false;
-//const uint8_t joint1_limit_pin = A0;
-//unsigned int joint1_sensorValue;
-//uint8_t joint1_bit;
-//uint8_t joint1_port;
-//const int upperLimit = 630;
-//const int lowerLimit = 55;
-//const int middlePoint = 346;
-//volatile bool centerJoint1 = false;
-//
-//// Joint #2
-//Servo joint2;
-//const uint8_t joint2_pwm_pin = 4;
-//
-//// Joint #3
-//Servo joint3;
-//const uint8_t joint3_pwm_pin = 5;
-//
-//// Joint #4
-//const uint8_t joint4_dir_pin = 32;
-//const uint8_t joint4_enab_pin = 35;
-//const uint8_t joint4_pulse_pin = 36;
-//volatile bool joint4_on = false;
-//volatile bool joint4_interrupted = false;
-//volatile bool joint4_needsStepOff = false;
-//const uint8_t joint4_interrupt_pin = 3;
-//unsigned long joint4_TotalSteps = 0;
-//uint8_t joint4_bit;
-//uint8_t joint4_port;
-//const unsigned long joint4_StepsLimit = 7330;
-//bool joint4passedLimit = false;
-//const int joint4_LimitDistance_Steps = 100;
-//
-//// Joint #5
-const uint8_t joint5_dir_pin = 27;
-//const uint8_t joint5_enab_pin = 39;
-const uint8_t joint5_pulse_pin = 26;
-//volatile bool joint5_on = false;
-//volatile bool joint5_interrupted = false;
-//volatile bool joint5_needsStepOff = false;
-//const uint8_t joint5_interrupt_pin = 2;
-//unsigned long joint5_TotalSteps = 0;
-//uint8_t joint5_bit;
-//uint8_t joint5_port;
-//const unsigned long joint5_StepsLimit = 50500;
-//bool joint5passedLimit = false;
-//const int joint5_LimitDistance_Steps = 1000;
-//
-//// Joint #6
-//AMIS30543 joint6_stepper;
-//const uint8_t joint6_ss = 44;
-//const uint8_t joint6_dir_pin = 42;
-//const uint8_t joint6_pulse_pin = 43;
-//volatile bool joint6_on = false;
-//
-//// Joint #7
-//AMIS30543 joint7_stepper;
-//const uint8_t joint7_ss = 48;
-const uint8_t joint7_dir_pin = 25;
-const uint8_t joint7_pulse_pin = 24;
-//volatile bool joint7_on = false;
-//
-//// AssAss globals
-//Servo AssAss;
-//const uint8_t assass_pwm_pin = 9;
+// Joint 4
+const uint8_t joint4_pulse_pin = 3;
+const uint8_t joint4_dir_pin = 7;
 
-// Additional Global variables needed
-uint8_t val[6];
-int i;
-int delayVal = 1;
-uint16_t pwmVal;
-const int interruptDelay = 350;
-const int ignoreDelay = 250;
-static unsigned long ignore_time = 0;
-static unsigned long last_interrupt_time = 0;
+// Joint 5a
+const uint8_t joint5a_pulse_pin = 4;
+const uint8_t joint5a_dir_pin = 8;
 
-bool Calibrated = false;  // Arm can't be moved until calibrated
-bool debug = false;
-bool ignoreLimit = true;
-uint8_t analogRead_counter = 0;
-
-
+// Joint 5b
+const uint8_t joint5b_pulse_pin = 5;
+const uint8_t joint5b_dir_pin = 9;
 
 //Sabertooth Communications
 #include <SoftwareSerial.h>
@@ -180,27 +98,19 @@ void setup() {
   pinMode(joint1_pulse_pin, OUTPUT);
   digitalWrite(joint1_enab_pin, LOW);
 
-  // Set up Joint1
-  pinMode(joint5_dir_pin, OUTPUT);
-  //pinMode(joint5_enab_pin, OUTPUT);
-  pinMode(joint5_pulse_pin, OUTPUT);
-  //digitalWrite(joint5_enab_pin, LOW);
-
-  // Set up Joint1
-  pinMode(joint7_dir_pin, OUTPUT);
-  //pinMode(joint7_enab_pin, OUTPUT);
-  pinMode(joint7_pulse_pin, OUTPUT);
-  //digitalWrite(joint7_enab_pin, LOW);
-
-//LED TEST CODE
-  pinMode(39,OUTPUT);
-  pinMode(41,OUTPUT);
-  pinMode(43,OUTPUT);
-  pinMode(45,OUTPUT);
-  pinMode(47,OUTPUT);
-  pinMode(49,OUTPUT);
-  pinMode(51,OUTPUT);
-  pinMode(53,OUTPUT);
+  // Set up Joint4
+  pinMode(joint4_dir_pin, OUTPUT);
+  pinMode(joint4_pulse_pin, OUTPUT);
+  digitalWrite(joint4_dir_pin, LOW);
+  digitalWrite(joint4_pulse_pin, LOW);
+  
+  // Set up Joint5a
+  pinMode(joint5a_dir_pin, OUTPUT);
+  pinMode(joint5a_pulse_pin, OUTPUT);
+  
+  // Set up Joint5b
+  pinMode(joint5b_dir_pin, OUTPUT);
+  pinMode(joint5b_pulse_pin, OUTPUT);
   
 }
 // This loop will be a command loop for each of the arduino processes
@@ -226,8 +136,7 @@ void loop() {
   //Restricts the access to only when receiving network comm
   if (packetSize) {
     previousMillis = millis();    // Stores current time for check outside of loop
-    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE); //reads the packet 
-    //Serial.println(packetBuffer);
+    Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE); //reads the packet
     // parse statement for packetBuffer to Control Array
     // x controls buffer place, y controls current char read, 
     //    n controls placement in array 
@@ -250,9 +159,8 @@ void loop() {
         memset(charToIntArray,0,sizeof(charToIntArray));  // clear mem
       }
     }
-
     // Loop the array and match to case and apply the values
-    for(int x = 0; x < 5; x++){
+    for(int x = 0; x < 8; x++){
       switch (x){
         // drive speed
         case 0: 
@@ -277,79 +185,67 @@ void loop() {
           ARM.motor(2,moveMentArray[3]);  
           break;
         }
-        case 4:{  //Joint 4
+        case 4:{  //Joint 1
           if(moveMentArray[4] == -1 || moveMentArray[4] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint1_pulse_pin,HIGH);
             if(moveMentArray[4] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(39,HIGH);
+              digitalWrite(joint1_dir_pin,HIGH);
+              //digitalWrite(39,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(41,HIGH);
+              digitalWrite(joint1_dir_pin,LOW);
+              //digitalWrite(41,HIGH);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(39,LOW);
-            digitalWrite(41,LOW);
+            digitalWrite(joint1_pulse_pin,LOW);
+            //digitalWrite(39,LOW);
+            //digitalWrite(41,LOW);
           }
           break;
         }
-        case 5:{  //Joint 5
+        case 5:{  //Joint 4
           if(moveMentArray[5] == -1 || moveMentArray[5] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint4_pulse_pin,HIGH);
             if(moveMentArray[5] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(43,HIGH);
+              digitalWrite(joint4_dir_pin,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(45,HIGH);
+              digitalWrite(joint4_dir_pin,LOW);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(43,LOW);
-            digitalWrite(45,LOW);
+            digitalWrite(joint4_pulse_pin,LOW);
           }
           break;
         }
-        case 6:{  //Joint 6
+        case 6:{  //Joint 5a
           if(moveMentArray[6] == -1 || moveMentArray[6] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint5a_pulse_pin,HIGH);
             if(moveMentArray[6] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(47,HIGH);
+              digitalWrite(joint5a_dir_pin,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(49,HIGH);
+              digitalWrite(joint5a_dir_pin,LOW);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(47,LOW);
-            digitalWrite(49,LOW);
+            digitalWrite(joint5a_pulse_pin,LOW);
           }
           break;
         }
-        case 7:{  //Joint 7
+        case 7:{  //Joint 5b
           if(moveMentArray[7] == -1 || moveMentArray[7] == 1){
-            //digitalWrite(joint1_pulse_pin,HIGH);
+            digitalWrite(joint5b_pulse_pin,HIGH);
             if(moveMentArray[7] == 1){
-              //digitalWrite(joint1_dir_pin,HIGH);
-              digitalWrite(51,HIGH);
+              digitalWrite(joint5b_dir_pin,HIGH);
             }
             else{
-              //digitalWrite(joint1_dir_pin,LOW);
-              digitalWrite(53,HIGH);
+              digitalWrite(joint5b_dir_pin,LOW);
             }
           }
           else{
-            //digitalWrite(joint1_pulse_pin,LOW);
-            digitalWrite(51,LOW);
-            digitalWrite(53,LOW);
+            digitalWrite(joint5b_pulse_pin,LOW);
           }
           break;
         }
@@ -367,7 +263,7 @@ void loop() {
 
     //Sends the ready command asking for next transmittion
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write("ready");  //Change this to const array = ready
+    Udp.write('r');  //Change this to const array = ready
     Udp.endPacket();
   }         
   //clears the buffer to ensure all new values

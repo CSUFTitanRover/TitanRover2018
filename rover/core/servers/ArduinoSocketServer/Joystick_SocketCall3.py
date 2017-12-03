@@ -17,7 +17,7 @@ import pygame
 import RPi.GPIO as GPIO
 
 # WAIT FOR STUFF
-time.sleep(5)
+#time.sleep(5)
 
 #LED Signals for status 
 GPIO.setmode(GPIO.BCM)
@@ -40,10 +40,8 @@ client_socket = socket(AF_INET, SOCK_DGRAM)
 #client_socket.settimeout(.5)
 
 # Globals variables for data transmittion
-global re_data
-re_data = ""
 global data
-data = ""
+data = "0,0,0,0,0,0,0,0,0,0"
 
 # Globals for motor output
 global motor2
@@ -84,7 +82,7 @@ global mode
 mode = "both"
 
 # Initialize the connection to Arduino
-client_socket.sendto('0,0', address)
+client_socket.sendto(bytes(data, 'utf-8'), address)
 
 def stop():
     try:
@@ -93,7 +91,7 @@ def stop():
         if re_data == "ready":
             data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
             joint1 = joint5 = joint6 = joint7 = 0
-            client_socket.sendto(data, address)
+            client_socket.sendto(bytes(data, 'utf-8'), address)
             print("Sent Stop Command")
     except:
         print("Failed to send Stop Command")
@@ -291,9 +289,9 @@ while(1):
     for event in pygame.event.get(): # User did something
         # Possible joystick actions: JOYAXISMOTION JOYBALLMOTION JOYBUTTONDOWN JOYBUTTONUP JOYHATMOTION
         if event.type == pygame.JOYBUTTONDOWN:
-            print "Joystick button pressed."
+            print ("Joystick button pressed.")
         if event.type == pygame.JOYBUTTONUP:
-            print "Joystick button released."
+            print ("Joystick button released.")
     
     # Get count of joysticks
     joystick_count = pygame.joystick.get_count()
@@ -313,10 +311,9 @@ while(1):
         checkJoystickMovement(joystick)
         checkButtons(joystick)
         checkHats(joystick)
-        
+    
     #  Command to Arduino
     if mode != 'pause':
-        print 'Sending Command to Arduino'
         try:
             if mode == 'both':
                 data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
@@ -326,17 +323,18 @@ while(1):
                 data = str(motor1) + ',' + str(motor2) + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0'
             elif mode == 'pause':
                 data = '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0'
-            print (data)
-            re_data, addr = client_socket.recvfrom(2048)
-            print (re_data)
+            re_data = client_socket.recvfrom(512)
+            #print(bytes.decode(re_data[0]))   #debugging command
             
-            if re_data == "ready":
-                #data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
-                client_socket.sendto(data, address)
+            if bytes.decode(re_data[0]) == 'r':
+                #print('received the packet')       #debugging command
+                data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
+                client_socket.sendto(bytes(data,'utf-8'), address)
                 print (data)
         except:
-            print 'Failed'
+            print ('Failed')
             pass
     # Safety catch to force new values or shutdown old ones
     data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
     joint1 = joint5 = joint6 = joint7 = motor1 = motor2 = arm1 = arm2   = 0
+    
