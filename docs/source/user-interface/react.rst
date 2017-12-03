@@ -15,15 +15,6 @@ get you started:
 #. `React-js-in-design-patterns <http://krasimirtsonev.com/blog/article/react-js-in-design-patterns>`_
 #. `Creating a react application <https://egghead.io/lessons/react-bootstrap-a-react-application-through-the-cli-with-create-react-app>`_ (create a free account to access more videos in the series)
 
-create-react-app
-----------------
-
-We used `create-react-app <https://github.com/facebookincubator/create-react-app>`_ to bootstrap the 
-development process of our react application. create-react-app is a command-line (CLI) tool that generates
-a project and hides away all the configuration process necessary for development. This means, we can focus
-just on coding the react app instead of having to configure the project beforehand. You **do not** need to
-install the create-react-app CLI tool as the user interface project folder has everything already set up.
-
 npm commands
 ------------
 
@@ -42,5 +33,11 @@ The following npm commands aren't for typical use when developing the UI:
 * ``npm run report-coverage`` - reports code coverage to `codecov <https://codecov.io>`_
 * ``npm run eject`` - ejects the project from the create-react-app configuration **DO NOT USE THIS UNLESS DIRECTED TO**
 
+create-react-app
+----------------
 
-
+We used `create-react-app <https://github.com/facebookincubator/create-react-app>`_ to bootstrap the 
+development process of our react application. create-react-app is a command-line (CLI) tool that generates
+a project and hides away all the configuration process necessary for development. This means, we can focus
+just on coding the react app instead of having to configure the project beforehand. You **do not** need to
+install the create-react-app CLI tool as the user interface project folder has everything already set up.

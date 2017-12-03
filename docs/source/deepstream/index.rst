@@ -10,3 +10,4 @@ server that syncs realtime data between browsers, smartphones, backends and the 
 
   what-is-deepstream
   use-case
+  how-we-can-use-deepstream

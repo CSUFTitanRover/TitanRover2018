@@ -3,7 +3,7 @@ What Is Deepstream
 
 There are similarities that can be drawn between Deepstream and other products like Firebase, Redis, etc.
 Deepstream supports concepts like pub/sub, rpcs, and data-syncing. 
-It can be considered that Deepstream acts as a message broker, however, this 
+It can be considered that Deepstream acts as a message broker with a data store, however, this 
 `blog post <https://deepstreamhub.com/blog/realtime-framework-overview/>`_ explains the comparisons in
 much more detail. 
 
@@ -16,7 +16,7 @@ Figure 1 illustrates this configuration.
 
 **Figure 1. A message broker mediating the collaboration between participating applications**
 
-Expanding on the idea of Deepstream acting as a message broker, with this in mind, one can develop a product with
+Expanding on the idea of Deepstream acting as a message broker with a data store, with this in mind, one can develop a product with
 multiple moving parts written in different programming languages and still have things working together. A message
 broker allows you to treat data and events from a language agnostic standpoint.
 
