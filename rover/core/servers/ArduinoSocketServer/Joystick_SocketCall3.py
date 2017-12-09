@@ -40,8 +40,10 @@ client_socket = socket(AF_INET, SOCK_DGRAM)
 #client_socket.settimeout(.5)
 
 # Globals variables for data transmittion
+global re_data
+re_data = ''
 global data
-data = "0,0,0,0,0,0,0,0,0,0"
+data = '0,0,0,0,0,0,0,0,0,0'
 
 # Globals for motor output
 global motor2
@@ -53,6 +55,8 @@ pauseInterval = 0
 global pauseQuitInterval
 pauseQuitInterval = 0
 global pauseFull
+global throttleInterval
+throttleInterval = 0
 pauseFull = False
 global modeWhenPaused
 modeWhenPaused = ""
@@ -79,7 +83,7 @@ global joint7
 joint7 = 0
 
 global mode
-mode = "both"
+mode = 'both'
 
 # Initialize the connection to Arduino
 client_socket.sendto(bytes(data, 'utf-8'), address)
@@ -88,7 +92,7 @@ def stop():
     try:
         re_data, addr = client_socket.recvfrom(2048)
         
-        if re_data == "ready":
+        if re_data == 'r':
             data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
             joint1 = joint5 = joint6 = joint7 = 0
             client_socket.sendto(bytes(data, 'utf-8'), address)
@@ -106,22 +110,22 @@ def stop():
 #   Input: NONE
 #   Output: NONE
 def changeLedColor():
-    if mode == "both":
+    if mode == 'both':
         #LED Color = Green
         GPIO.output(greenLed,GPIO.HIGH)
         GPIO.output(redLed,GPIO.LOW)
         GPIO.output(blueLed,GPIO.LOW)
-    elif mode == "mobility":
+    elif mode == 'mobility':
         #LED Color = Blue
         GPIO.output(greenLed, GPIO.LOW)
         GPIO.output(redLed, GPIO.LOW)
         GPIO.output(blueLed, GPIO.HIGH)
-    elif mode == "arm":
+    elif mode == 'arm':
         #LED Color = Purple
         GPIO.output(greenLed, GPIO.LOW)
         GPIO.output(redLed,GPIO.HIGH)
         GPIO.output(blueLed,GPIO.HIGH)
-    elif mode == "pause":
+    elif mode == 'pause':
         #LED Color = Red
         GPIO.output(redLed,GPIO.HIGH)
         GPIO.output(greenLed,GPIO.LOW)
@@ -139,16 +143,19 @@ def checkJoystickMovement(currentJoystick):
     # Check for axes usage
     for i in range( axes ):
         axis = joystick.get_axis( i )
-        if mode == "mobility" or mode == "both":
+        if mode == 'mobility' or mode == 'both':
             if i == 1:
                 motor1 = -int(127 * axis * motor_mult)
             if i == 0:  
                 motor2 = int(127 * axis * motor_mult)
-        if mode == "arm" or mode == "both":
+        if mode == 'arm' or mode == 'both':
             if i == 2:  
                 arm1 = int(127 * axis)
             if i == 3:  
                 arm2 = int(127 * axis)
+                #Current Joystick Hardware Error right thumbstick not centered after moved. (Logitech Rumble)
+                #if arm2 > -30 and arm2 < 0:
+				#	arm2 = 0
                     
 #   This function takes in a joystick and cycles through all of the buttons to see if any are pushed.
 #   If any are pushed it sets the corresponding command to the rover.
@@ -168,7 +175,7 @@ def checkJoystickMovement(currentJoystick):
 #   Note: These button numbers are as they are on the controller.
 #   In the for loop the buttons go from 0-9 not 1-10
 def checkButtons(currentJoystick):
-    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint5, joint6, joint7, mode, modeWhenPaused
+    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint5, joint6, joint7, mode, modeWhenPaused, throttleInterval
     #Get the number of buttons on the joystick
     buttons = currentJoystick.get_numbuttons()
 
@@ -182,7 +189,7 @@ def checkButtons(currentJoystick):
         button = joystick.get_button( i )
 
         #If arm is active set joint values
-        if mode == "both" or mode == "arm":
+        if mode == 'both' or mode == 'arm':
             # Joint commands
             if i == 1:
                 joint5 = button
@@ -200,35 +207,55 @@ def checkButtons(currentJoystick):
                 joint7 = -button
                 
         # If mobility is active change multiplier if buttons are pushed
-        if mode == "both" or mode == "mobility":
+        #if mode == "both" or mode == "mobility":
+			 ##Motor Multiplier Commands
+			#if ((i == 6 or i == 7) and button == 1):
+				#if (throttleInterval == 0 and i == 6 and motor_mult > 0.31):
+					#throttleInterval = datetime.now()
+					#motor_mult = motor_mult - .1
+				#elif (throttleInterval == 0 and i == 7 and motor_mult < 0.9):
+					#throttleInterval = datetime.now()
+					#motor_mult = motor_mult + .1
+				#elif (datetime.now() - throttleInterval).seconds > .05:
+					#throttleInterval = 0
+				
+        if mode == 'both' or mode == 'mobility':
             # Motor Multiplier Commands
             if i == 6 and button == 1 and motor_mult > 0.31:
-                motor_mult = motor_mult - .1
-                print(motor_mult)
-                
-            if i == 7 and button == 1 and motor_mult < .9:
-                motor_mult = motor_mult + .1
-                print(motor_mult)
+				#print(motor_mult)
+                if throttleInterval == 0:
+                    throttleInterval = datetime.now()
+                    motor_mult = motor_mult - .1
+                elif (datetime.now() - throttleInterval).seconds > .05:
+                    throttleInterval = 0
+            if i == 7 and button == 1 and motor_mult < 0.9:
+				#print(motor_mult)
+                if throttleInterval == 0:
+                    throttleInterval = datetime.now()
+                    motor_mult = motor_mult + .1
+                elif (datetime.now() - throttleInterval).seconds > .05:
+                    throttleInterval = 0			
 
         # If Pause button is held down for atleast 3 seconds pause/unpause 
         if i == 9 and button == 1:
             if pauseQuitInterval == 0:
                 pauseQuitInterval = datetime.now()
             elif (datetime.now() - pauseQuitInterval).seconds > 3:
-                if mode != "pause":
+                if mode != 'pause':
                     print("Pausing Controls")
 
                     #Keeps mode when paused so we can return to the same mode
                     modeWhenPaused = mode
-                    mode = "pause"
+                    mode = 'pause'
                     pauseQuitInterval = 0
                     stop()
                     #changeLedColor()
-                elif mode == "pause":
+                elif mode == 'pause':
                     print("Resuming Controls")
                     mode = modeWhenPaused
-                    modeWhenPaused = ""
+                    modeWhenPaused = ''
                     pauseQuitInterval = 0
+                    client_socket.sendto(b'0,0,0,0,0,0,0,0,0,0', address)
                     #changeLedColor()
         elif i == 9 and button == 0 and pauseQuitInterval !=0:
             print("Reseting Pause Interval")
@@ -243,27 +270,27 @@ def checkButtons(currentJoystick):
             #print(pauseInterval)
             if pauseInterval == 0:
                 pauseInterval = datetime.now()
-            elif mode == "both":
+            elif mode == 'both':
                 if (datetime.now() - pauseInterval).seconds > 3:
                     print("Switching to MOBILITY ONLY mode")
-                    mode = "mobility"
+                    mode = 'mobility'
                     #stop()
                     pauseInterval = 0
                     #LED color = Blue
                     #changeLedColor()
-            elif mode == "mobility":
+            elif mode == 'mobility':
                 if (datetime.now() - pauseInterval).seconds > 3:
                     print("Switcching to ARM ONLY mode")
                     #stop()
-                    mode = "arm"
+                    mode = 'arm'
                     pauseInterval = 0
                     #LED Color = Purple
                     #changeLedColor()
-            elif mode == "arm":
+            elif mode == 'arm':
                 if (datetime.now() - pauseInterval).seconds > 3:
                     print("Switching to BOTH mode")
                     #stop()
-                    mode = "both"
+                    mode = 'both'
                     pauseInterval = 0
                     #LED Color = Green
                     #changeLedColor()
@@ -275,7 +302,7 @@ def checkHats(currentJoystick):
     global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint1, joint5, joint6, joint7, mode
     hats = currentJoystick.get_numhats()
 
-    if mode == "arm" or mode == "both": 
+    if mode == 'arm' or mode == 'both': 
         for i in range( hats ):
             hat = joystick.get_hat( i )
             if hat[0] != 0:
@@ -311,9 +338,11 @@ while(1):
         checkJoystickMovement(joystick)
         checkButtons(joystick)
         checkHats(joystick)
-    
+        print(motor_mult)
     #  Command to Arduino
     if mode != 'pause':
+        print ('Sending Command to Arduino')
+        print(mode)
         try:
             if mode == 'both':
                 data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
@@ -323,13 +352,13 @@ while(1):
                 data = str(motor1) + ',' + str(motor2) + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0'
             elif mode == 'pause':
                 data = '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0'
-            re_data = client_socket.recvfrom(512)
-            #print(bytes.decode(re_data[0]))   #debugging command
-            
+            print('Before Packet if')
+            re_data = client_socket.recvfrom(2048)
+            print('After Packet if')
             if bytes.decode(re_data[0]) == 'r':
-                #print('received the packet')       #debugging command
+                print('received the packet')
                 data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
-                client_socket.sendto(bytes(data,'utf-8'), address)
+                client_socket.sendto(bytes(data, 'utf-8'), address)
                 print (data)
         except:
             print ('Failed')
