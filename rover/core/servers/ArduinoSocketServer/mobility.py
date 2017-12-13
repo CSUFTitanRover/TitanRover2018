@@ -15,7 +15,7 @@ from datetime import datetime
 import time
 import pygame
 import RPi.GPIO as GPIO
-
+import numpy as np
 # WAIT FOR STUFF
 # time.sleep(5)
 
@@ -76,12 +76,13 @@ roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to s
 roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
 roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0} # Added to support "throttle"  
 
-controlString = open("sony.txt").read().replace('\n', '').replace('\r', '')
+controlString = open("controls2.txt").read().replace('\n', '').replace('\r', '')
 controls = eval(controlString)
 modeNames = list(sorted(controls.keys()))
 mode = modeNames[modeNum]  # mode 0 = both, mode 1 = mobility, mode 2 = arm
 
 # Initialize connection to Arduino
+data = (0,0,0,0,0,0,0,0,0,0)
 client_socket.sendto(bytes(data, "utf-8"), address)
 
 # Helper funcs for rate multipliers
@@ -116,8 +117,8 @@ def throttleStep():
 def computeSpeed(key):
     val = roverActions[key]
     throttleValue = rateMultipliers[val["rate"]]()  # Get current rate multiplier (-1 to +1)
-    calcThrot = 0.5 + throttleValue / 2.0  # Compress throttle value to 0-1 range
-    return specialMultipliers[val["special"]] * calcThrot * val["direction"] * val["value"]
+    calcThrot = np.interp(throttleValue, [-1 , 1], [0, 1]) # Interpolate value
+    return int(specialMultipliers[val["special"]] * calcThrot * val["direction"] * val["value"])
 
 ''' This function changes the color of the LED on the Pi, based off of the current mode the rover is in
     Green meaning BOTH Mobility and Arm are active
