@@ -1,7 +1,7 @@
 # TitanRover2018 
 
 [![GitHub issues](https://img.shields.io/github/issues/CSUFTitanRover/TitanRover2018.svg)](https://github.com/CSUFTitanRover/TitanRover2018/issues)
-[![Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](https://titanrover2018.readthedocs.io/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/titanrover2018/badge/?version=docs)](http://titanrover2018.readthedocs.io/en/latest/?badge=docs)
 
 ## Mobility ToDo's
 - [ ] - Develop drive control system for Base Station Operations
@@ -31,4 +31,4 @@ We love getting new members to help contribute to our project however you must l
 
 ## Documentation
 
-Check out our docs: https://titanrover2018.readthedocs.io/en/latest/
+Check out our docs: https://titanrover2018.readthedocs.io/en/docs/
