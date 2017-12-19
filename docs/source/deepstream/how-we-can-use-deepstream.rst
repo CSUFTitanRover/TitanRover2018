@@ -7,4 +7,7 @@ must be able to have a network connection, however, this can be remedied by addi
 
 Here's an example configuration of a potential system layout:
 
-[system layout image]
+.. image:: ../img/System-Layout-With-Deepstream-Example.png
+
+Again, this is just an example configuration but the main point still sticks that we can use Deepstream to
+make it easier to have direct updates across the entire system.
