@@ -1,0 +1,49 @@
+"""This module provides function calls to deepstream as an easier way to interact with the server.
+
+.. module:: Deepstream Python Wrapper
+.. moduleauthor:: Michael Negrete
+"""
+
+import asyncio
+import aiohttp
+import json
+
+deepstream_endpoint = '0.0.0.0:4020'
+
+
+async def emit_event(event_name, data=None):
+    """Sends an event to be emitted with passed in data.
+
+    Sends an event to deepstream that is emitted to other clients. 
+    Data can be left empty and this will still emit an event to Deepstream.
+
+    :param event_name: Required Event Name
+    :param data: Optional data that can be any supported type of data
+    :type event_name: string
+    :type data: int, float, dictionary, string, list...
+
+    :Example:
+
+    >>> import py_deepstream
+    >>> emit_event('mission_complete', True)
+
+    :raises ValueError: When event_name is empty or is not a string
+    """
+
+    # check if event_name is empty or is not a string
+    if not event_name or isinstance(event_name, str) == False:
+        raise ValueError
+
+    payload = {
+        'topic': 'event',
+        'action': 'emit',
+        'eventName': event_name,
+        'data': data
+    }
+
+    json_payload = json.dumps(payload, default=lambda o: o.__dict__)
+
+    async with aiohttp.ClientSession() as client:
+        client.post(deepstream_endpoint, json_payload)
+
+loop = asyncio.get_event_loop()
