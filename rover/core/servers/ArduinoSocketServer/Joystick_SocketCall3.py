@@ -17,7 +17,7 @@ import pygame
 import RPi.GPIO as GPIO
 
 # WAIT FOR STUFF
-#time.sleep(5)
+time.sleep(5)
 
 #LED Signals for status 
 GPIO.setmode(GPIO.BCM)
@@ -74,13 +74,12 @@ global arm2
 arm2 = 0
 global joint1
 joint1 = 0
-# note : add new join numbers // 4, 5a, and 5b
-global joint5
-joint5 = 0
-global joint6
-joint6 = 0
-global joint7
-joint7 = 0
+global joint4
+joint4 = 0
+global joint5a
+joint5a = 0
+global joint5b
+joint5b = 0
 
 global mode
 mode = 'both'
@@ -94,7 +93,7 @@ def stop():
         
         if re_data == 'r':
             data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
-            joint1 = joint5 = joint6 = joint7 = 0
+            joint1 = joint4 = joint5a = joint5b = 0
             client_socket.sendto(bytes(data, 'utf-8'), address)
             print("Sent Stop Command")
     except:
@@ -137,7 +136,7 @@ def changeLedColor():
 #   Input: Joystick
 #   Output: None
 def checkJoystickMovement(currentJoystick):
-    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint5, joint6, joint7, mode
+    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint4, joint5a, joint5b, mode
     axes = currentJoystick.get_numaxes()
 
     # Check for axes usage
@@ -175,7 +174,7 @@ def checkJoystickMovement(currentJoystick):
 #   Note: These button numbers are as they are on the controller.
 #   In the for loop the buttons go from 0-9 not 1-10
 def checkButtons(currentJoystick):
-    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint5, joint6, joint7, mode, modeWhenPaused, throttleInterval
+    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint4, joint5a, joint5b, mode, modeWhenPaused, throttleInterval
     #Get the number of buttons on the joystick
     buttons = currentJoystick.get_numbuttons()
 
@@ -192,19 +191,19 @@ def checkButtons(currentJoystick):
         if mode == 'both' or mode == 'arm':
             # Joint commands
             if i == 1:
-                joint5 = button
-            elif i == 3 and joint5 == 0:
-                joint5 = -button
+                joint4 = button
+            elif i == 3 and joint4 == 0:
+                joint4 = -button
 
             if i == 0:
-                joint6 = button
-            elif i == 2 and joint6 == 0:
-                joint6 = -button    
+                joint5a = button
+            elif i == 2 and joint5a == 0:
+                joint5a = -button    
 
             if i == 4:
-                joint7 = button
-            elif i == 5 and joint7 == 0:
-                joint7 = -button
+                joint5b = button
+            elif i == 5 and joint5b == 0:
+                joint5b = -button
                 
         # If mobility is active change multiplier if buttons are pushed
         #if mode == "both" or mode == "mobility":
@@ -299,7 +298,7 @@ def checkButtons(currentJoystick):
             pauseInterval = 0
                 
 def checkHats(currentJoystick):
-    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint1, joint5, joint6, joint7, mode
+    global motor1, motor2, pauseInterval, pauseQuitInterval, modeWhenPause, motor_mult, arm1, arm2, joint1, joint4, joint5a, joint5b, mode
     hats = currentJoystick.get_numhats()
 
     if mode == 'arm' or mode == 'both': 
@@ -340,30 +339,33 @@ while(1):
         checkHats(joystick)
         print(motor_mult)
     #  Command to Arduino
-    if mode != 'pause':
-        print ('Sending Command to Arduino')
-        print(mode)
-        try:
-            if mode == 'both':
-                data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
-            elif mode == 'arm':
-                data = '0' + ',' + '0' + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
-            elif mode == 'mobility':
-                data = str(motor1) + ',' + str(motor2) + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0'
-            elif mode == 'pause':
-                data = '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0'
-            print('Before Packet if')
-            re_data = client_socket.recvfrom(2048)
-            print('After Packet if')
-            if bytes.decode(re_data[0]) == 'r':
-                print('received the packet')
-                data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint5) + ',' + str(joint6) + ',' + str(joint7) + ',' + '0' + ',' + '0'
-                client_socket.sendto(bytes(data, 'utf-8'), address)
-                print (data)
-        except:
-            print ('Failed')
-            pass
-    # Safety catch to force new values or shutdown old ones
-    data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
-    joint1 = joint5 = joint6 = joint7 = motor1 = motor2 = arm1 = arm2   = 0
     
+    print ('Sending Command to Arduino')
+    print(mode)
+    #Depending on mode set values for Drivers/Motors we arent using to their values or 0
+    if mode == 'both':
+        data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint4) + ',' + str(joint5a) + ',' + str(joint5b) + ',' + '0' + ',' + '0'
+    elif mode == 'arm':
+        data = '0' + ',' + '0' + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint4) + ',' + str(joint5a) + ',' + str(joint5b) + ',' + '0' + ',' + '2'
+    elif mode == 'mobility':
+        data = str(motor1) + ',' + str(motor2) + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '1'
+    elif mode == 'pause':
+        data = '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '3'
+    print(data)
+    #try:
+    re_data = client_socket.recvfrom(2048)
+    #except:
+    #    print ('Failed')
+    #    pass
+    #If Arduino is ready then send data
+    if bytes.decode(re_data[0]) == 'r':
+        print('received the packet')
+        #data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint4) + ',' + str(joint5a) + ',' + str(joint5b) + ',' + '0' + ',' + '0'
+        client_socket.sendto(bytes(data, 'utf-8'), address)
+        print (data)
+    
+print("End of While")
+# Safety catch to force new values or shutdown old ones
+data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
+joint1 = joint4 = joint5a = joint5b = motor1 = motor2 = arm1 = arm2   = 0
+	
