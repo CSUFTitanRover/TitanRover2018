@@ -29,6 +29,12 @@ const uint8_t joint5a_dir_pin = 8;
 const uint8_t joint5b_pulse_pin = 5;
 const uint8_t joint5b_dir_pin = 9;
 
+
+//Color Pins
+int redPin = 24;
+int bluePin = 26;
+int greenPin = 22;
+
 //Sabertooth Communications
 #include <SoftwareSerial.h>
 #include "Sabertooth.h"
@@ -69,6 +75,26 @@ EthernetUDP Udp;
 unsigned long interval = 500;
 unsigned long previousMillis=0;
 
+void setTheEthernetConnection() {
+  Ethernet.begin(mac, ip, gateway, subnet);
+  Udp.begin(localPort);
+  Udp.begin(localPortBaseStation);
+  ledBlink(50);
+}
+
+void ledBlink(unsigned int blinkSpeed) {
+  for(unsigned int i = 0; i < 15; ++i) {
+    digitalWrite(redPin, LOW);       
+    digitalWrite(bluePin, LOW);
+    digitalWrite(greenPin, LOW); 
+    delay(blinkSpeed);
+    digitalWrite(redPin, HIGH);       
+    digitalWrite(bluePin, LOW);
+    digitalWrite(greenPin, LOW); 
+    delay(blinkSpeed);
+  }
+}
+
 void setup() {
   // Software Serial Setup
   SWSerial.begin(9600);
@@ -86,12 +112,12 @@ void setup() {
   //Serial.begin(9600);  //For debuging but will not work with SWSerial
   
   // start the Ethernet and UDP:
+  //setTheEthernetConnection();
   Ethernet.begin(mac, ip, gateway, subnet);
   Udp.begin(localPort);
   Udp.begin(localPortBaseStation);
-
-  delay(1500); //give a sec to start process
-
+  delay(1500);
+  
   // Set up Joint1
   pinMode(joint1_dir_pin, OUTPUT);
   pinMode(joint1_enab_pin, OUTPUT);
@@ -111,13 +137,25 @@ void setup() {
   // Set up Joint5b
   pinMode(joint5b_dir_pin, OUTPUT);
   pinMode(joint5b_pulse_pin, OUTPUT);
+
+
+  // setup the output pins for each color LED
+  pinMode(redPin, OUTPUT);  
+  pinMode(bluePin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
   
 }
+
 // This loop will be a command loop for each of the arduino processes
 void loop() {
   //Receives the Array of Commands and Values
   packetSize = Udp.parsePacket();
   
+  //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+  //Udp.write('r');  //Change this to const array = ready
+  //Udp.endPacket();
+
+  //memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
   //debug
   //Serial.println(Udp.remoteIP());
   //Serial.println(Udp.remotePort());
@@ -128,6 +166,11 @@ void loop() {
     ST.turn(0);
     ARM.motor(1,0);
     ARM.motor(2,0);
+    ledBlink(100);
+    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    Udp.write('r');  //Change this to const array = ready
+    Udp.endPacket();
+    //setTheEthernetConnection();
   }
 
   // NOT SURE WHY I INCLUDED THIS AT THE MOMENT
@@ -160,7 +203,7 @@ void loop() {
       }
     }
     // Loop the array and match to case and apply the values
-    for(int x = 0; x < 8; x++){
+    for(int x = 0; x < 10; x++){
       switch (x){
         // drive speed
         case 0: 
@@ -249,6 +292,21 @@ void loop() {
           }
           break;
         }
+        case 9:
+              {                
+                //Switch on the LEDs as per the array input number 9
+                switchLEDs(moveMentArray[9]);
+
+                Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+                Udp.write('r');  //Change this to const array = ready
+                Udp.endPacket();
+
+                memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
+                                
+                break;
+              }
+
+        
         ////////////////////////////////////
 
         ////////////////////////////////////
@@ -261,14 +319,17 @@ void loop() {
       }  
     }
 
+    
+
     //Sends the ready command asking for next transmittion
-    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write('r');  //Change this to const array = ready
-    Udp.endPacket();
+    //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    //Udp.write('r');  //Change this to const array = ready
+    //Udp.endPacket();
   }         
   //clears the buffer to ensure all new values
   memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
 }
+
 
 // Will switch the pin based on what byte is sent from the pi
 void setDirectionPin(uint8_t pinValue, uint8_t val)
@@ -294,3 +355,40 @@ void Step_Joint(int step1, int pulse_pin, int dir_pin, int dir ){
   }
 }
 
+
+
+//takes color code as input, and lights the corresponding LED
+void switchLEDs(int colorCode) {
+  switch(colorCode)
+  {
+    case 0:
+            //Green
+            digitalWrite(greenPin, HIGH);
+            digitalWrite(bluePin, LOW);
+            digitalWrite(redPin, LOW);            
+            
+            break;
+    case 1:
+            //Blue
+            digitalWrite(bluePin, HIGH);
+            digitalWrite(redPin, LOW);            
+            digitalWrite(greenPin, LOW);
+            
+            break;
+    case 2:
+            //Purple
+            digitalWrite(redPin, HIGH);
+            digitalWrite(bluePin, HIGH);
+            digitalWrite(greenPin, LOW);
+            
+            break;  
+
+    case 3:
+            //Red
+            digitalWrite(redPin, HIGH);       
+            digitalWrite(bluePin, LOW);
+            digitalWrite(greenPin, LOW);            
+            
+            break;
+  }  
+}
