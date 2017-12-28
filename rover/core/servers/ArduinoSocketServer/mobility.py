@@ -19,7 +19,7 @@ import numpy as np
 import sys
 
 # System setup wait
-#time.sleep(5)
+time.sleep(5)
 
 # Arduino address and connection info
 address = ("192.168.1.177", 5000)
@@ -80,7 +80,7 @@ def setRoverActions():
 setRoverActions()  # Initiate roverActions to enter loop
 
 # Initialize connection to Arduino
-client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,0", "utf-8"), address)
+client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -103,8 +103,8 @@ def startUp(argv):
     setLed()
 
 def stop():
-    global paused
-    paused = True
+    print("No joysticks - exiting")
+    sys.exit()
 
 # Helper funcs for rate multipliers. Funcs take zero, one, or more arguments as needed
 def getZero(*arg):
@@ -163,6 +163,7 @@ def checkPause():
         datetime.now() - roverActions["pause"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["pause"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         paused = not paused
+        setLed()
 
 def checkModes():
     global modeNum, mode, roverActions
@@ -172,7 +173,7 @@ def checkModes():
     if (roverActions["mode"]["held"] and not roverActions["mode"]["value"]):  # Button held, but now released
         roverActions["mode"]["held"] = False
     if (roverActions["mode"]["held"] and roverActions["mode"]["value"] and (datetime.now() - roverActions["mode"][
-        "lastpress"]).seconds >= actionTime):  # Button held for required time
+        "lastpress"]).seconds >= actionTime and not paused):  # Button held for required time
         roverActions["mode"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         modeNum += 1
         if modeNum >= len(modeNames):
@@ -257,12 +258,11 @@ def main(*argv):
                 re_data = client_socket.recvfrom(512)
                 #print(bytes.decode(re_data[0]))  # Debug
                 if bytes.decode(re_data[0]) == "r":
-                    #print("Received packet")  # Debug
-                    # Output string determined by actionList[] order
+                        #print("Received packet")  # Debug
                     if (paused):
                         outVals = list(map(getZero, actionList))
                     else:
-                        outVals = list(map(computeSpeed, actionList))
+                        outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
                     outVals = list(map(str, outVals))
                     outString = ",".join(outVals)
                     client_socket.sendto(bytes(outString,"utf-8"), address)
