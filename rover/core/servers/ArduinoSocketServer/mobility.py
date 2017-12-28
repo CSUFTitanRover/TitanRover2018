@@ -241,6 +241,7 @@ def main(*argv):
         pygame.joystick.Joystick(i).init()
 
     while (1):
+        setLed()
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
