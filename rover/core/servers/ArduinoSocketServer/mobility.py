@@ -179,7 +179,7 @@ def checkModes():
         if modeNum >= len(modeNames):
             modeNum = 0
         mode = modeNames[modeNum]
-    	setRoverActions()  # Clear all inputs
+        setRoverActions()  # Clear all inputs
         roverActions["mode"]["set"] = modeNum
         roverActions["ledMode"]["value"] = controls[mode]["ledCode"]
         setLed()
