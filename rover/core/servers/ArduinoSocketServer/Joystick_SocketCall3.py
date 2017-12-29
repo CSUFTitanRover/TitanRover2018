@@ -43,7 +43,7 @@ client_socket = socket(AF_INET, SOCK_DGRAM)
 global re_data
 re_data = ''
 global data
-data = '0,0,0,0,0,0,0,0,0,0'
+data = '0,0,0,0,0,0,0,0,0,1'
 
 # Globals for motor output
 global motor2
@@ -152,9 +152,6 @@ def checkJoystickMovement(currentJoystick):
                 arm1 = int(127 * axis)
             if i == 3:  
                 arm2 = int(127 * axis)
-                #Current Joystick Hardware Error right thumbstick not centered after moved. (Logitech Rumble)
-                #if arm2 > -30 and arm2 < 0:
-				#	arm2 = 0
                     
 #   This function takes in a joystick and cycles through all of the buttons to see if any are pushed.
 #   If any are pushed it sets the corresponding command to the rover.
@@ -254,7 +251,12 @@ def checkButtons(currentJoystick):
                     mode = modeWhenPaused
                     modeWhenPaused = ''
                     pauseQuitInterval = 0
-                    client_socket.sendto(b'0,0,0,0,0,0,0,0,0,0', address)
+                    if mode == 'both':
+                        client_socket.sendto(b'0,0,0,0,0,0,0,0,0,1', address)
+                    elif mode == 'mobility':
+                        client_socket.sendto(b'0,0,0,0,0,0,0,0,0,2', address)
+                    elif mode == 'arm':
+                        client_socket.sendto(b'0,0,0,0,0,0,0,0,0,3', address)
                     #changeLedColor()
         elif i == 9 and button == 0 and pauseQuitInterval !=0:
             print("Reseting Pause Interval")
@@ -344,13 +346,13 @@ while(1):
     print(mode)
     #Depending on mode set values for Drivers/Motors we arent using to their values or 0
     if mode == 'both':
-        data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint4) + ',' + str(joint5a) + ',' + str(joint5b) + ',' + '0' + ',' + '0'
+        data = str(motor1) + ',' + str(motor2) + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint4) + ',' + str(joint5a) + ',' + str(joint5b) + ',' + '0' + ',' + '1'
     elif mode == 'arm':
-        data = '0' + ',' + '0' + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint4) + ',' + str(joint5a) + ',' + str(joint5b) + ',' + '0' + ',' + '2'
+        data = '0' + ',' + '0' + ',' + str(arm1) + ',' + str(arm2) + ',' + str(joint1) + ',' + str(joint4) + ',' + str(joint5a) + ',' + str(joint5b) + ',' + '0' + ',' + '3'
     elif mode == 'mobility':
-        data = str(motor1) + ',' + str(motor2) + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '1'
+        data = str(motor1) + ',' + str(motor2) + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '2'
     elif mode == 'pause':
-        data = '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '3'
+        data = '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0' + ',' + '0'
     print(data)
     #try:
     re_data = client_socket.recvfrom(2048)
@@ -368,4 +370,3 @@ print("End of While")
 # Safety catch to force new values or shutdown old ones
 data = str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0) + ',' + str(0)
 joint1 = joint4 = joint5a = joint5b = motor1 = motor2 = arm1 = arm2   = 0
-	

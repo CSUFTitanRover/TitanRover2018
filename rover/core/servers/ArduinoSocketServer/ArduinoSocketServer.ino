@@ -362,33 +362,33 @@ void switchLEDs(int colorCode) {
   switch(colorCode)
   {
     case 0:
-            //Green
-            digitalWrite(greenPin, HIGH);
-            digitalWrite(bluePin, LOW);
-            digitalWrite(redPin, LOW);            
-            
-            break;
+        //Red
+        digitalWrite(redPin, HIGH);       
+        digitalWrite(bluePin, LOW);
+        digitalWrite(greenPin, LOW);            
+        
+        break;            
     case 1:
-            //Blue
-            digitalWrite(bluePin, HIGH);
-            digitalWrite(redPin, LOW);            
-            digitalWrite(greenPin, LOW);
-            
-            break;
+        //Green
+        digitalWrite(greenPin, HIGH);
+        digitalWrite(bluePin, LOW);
+        digitalWrite(redPin, LOW);            
+        
+        break;    
     case 2:
-            //Purple
-            digitalWrite(redPin, HIGH);
-            digitalWrite(bluePin, HIGH);
-            digitalWrite(greenPin, LOW);
+        //Blue
+        digitalWrite(bluePin, HIGH);
+        digitalWrite(redPin, LOW);            
+        digitalWrite(greenPin, LOW);
             
-            break;  
-
+        break;
+            
     case 3:
-            //Red
-            digitalWrite(redPin, HIGH);       
-            digitalWrite(bluePin, LOW);
-            digitalWrite(greenPin, LOW);            
+        //Purple
+        digitalWrite(redPin, HIGH);
+        digitalWrite(bluePin, HIGH);
+        digitalWrite(greenPin, LOW);
             
-            break;
+        break;  
   }  
 }

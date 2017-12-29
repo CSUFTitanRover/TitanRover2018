@@ -80,7 +80,7 @@ def setRoverActions():
 setRoverActions()  # Initiate roverActions to enter loop
 
 # Initialize connection to Arduino
-client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,0", "utf-8"), address)
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -103,8 +103,8 @@ def startUp(argv):
     setLed()
 
 def stop():
-    print("No joysticks - exiting")
-    sys.exit()
+    global paused
+    paused = True
 
 # Helper funcs for rate multipliers. Funcs take zero, one, or more arguments as needed
 def getZero(*arg):
@@ -148,7 +148,7 @@ def setLed():
         myLeds = pausedLEDs
     else:
         myLeds = controls[mode]["leds"]
-    GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
+	GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
     GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
     GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
 
@@ -163,7 +163,7 @@ def checkPause():
         datetime.now() - roverActions["pause"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["pause"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         paused = not paused
-        setLed()
+        #setLed()
 
 def checkModes():
     global modeNum, mode, roverActions
@@ -182,7 +182,7 @@ def checkModes():
         setRoverActions()  # Clear all inputs
         roverActions["mode"]["set"] = modeNum
         roverActions["ledMode"]["value"] = controls[mode]["ledCode"]
-        setLed()
+        #setLed()
 
 def checkButtons():
     global roverActions
@@ -241,7 +241,7 @@ def main(*argv):
         pygame.joystick.Joystick(i).init()
 
     while (1):
-        setLed()
+        #setLed()
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
@@ -254,6 +254,7 @@ def main(*argv):
             throttleStep()
             checkPause()
             checkModes()
+            setLed()
             print("Sending Arduino command")
             try:
                 re_data = client_socket.recvfrom(512)
