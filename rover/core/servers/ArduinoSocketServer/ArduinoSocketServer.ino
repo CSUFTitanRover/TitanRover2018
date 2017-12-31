@@ -292,7 +292,6 @@ void loop() {
               {                
                 //Switch on the LEDs as per the array input number 9
                 switchLEDs(moveMentArray[9]);
-
                 Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
                 //consider instead of 'r' and 'r 1' and 1 is logging message for all OK functions
                 Udp.write('r');  //Change this to const array = ready
