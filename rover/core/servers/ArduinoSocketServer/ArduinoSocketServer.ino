@@ -70,6 +70,7 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
+EthernetUDPBase Udp_Base;  //customize communication===========================================
 
 // Protection from loss of communication using millis()
 unsigned long interval = 500;
@@ -78,19 +79,18 @@ unsigned long previousMillis=0;
 void setTheEthernetConnection() {
   Ethernet.begin(mac, ip, gateway, subnet);
   Udp.begin(localPort);
-  Udp.begin(localPortBaseStation);
+  Udp.begin(localPortBaseStation);  //Do we need this???  Should this customize communication==========================
   ledBlink(50);
 }
 
+// This function is used to blink the LED RED when lose of network occures
 void ledBlink(unsigned int blinkSpeed) {
+  digitalWrite(bluePin, LOW);
+  digitalWrite(greenPin, LOW); 
   for(unsigned int i = 0; i < 15; ++i) {
     digitalWrite(redPin, LOW);       
-    digitalWrite(bluePin, LOW);
-    digitalWrite(greenPin, LOW); 
     delay(blinkSpeed);
     digitalWrite(redPin, HIGH);       
-    digitalWrite(bluePin, LOW);
-    digitalWrite(greenPin, LOW); 
     delay(blinkSpeed);
   }
 }
@@ -233,17 +233,13 @@ void loop() {
             digitalWrite(joint1_pulse_pin,HIGH);
             if(moveMentArray[4] == 1){
               digitalWrite(joint1_dir_pin,HIGH);
-              //digitalWrite(39,HIGH);
             }
             else{
               digitalWrite(joint1_dir_pin,LOW);
-              //digitalWrite(41,HIGH);
             }
           }
           else{
             digitalWrite(joint1_pulse_pin,LOW);
-            //digitalWrite(39,LOW);
-            //digitalWrite(41,LOW);
           }
           break;
         }
@@ -298,6 +294,7 @@ void loop() {
                 switchLEDs(moveMentArray[9]);
 
                 Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+                //consider instead of 'r' and 'r 1' and 1 is logging message for all OK functions
                 Udp.write('r');  //Change this to const array = ready
                 Udp.endPacket();
 
