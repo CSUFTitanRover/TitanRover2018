@@ -70,10 +70,30 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
+EthernetUDPBase Udp_Base;  //customize communication===========================================
 
 // Protection from loss of communication using millis()
 unsigned long interval = 500;
 unsigned long previousMillis=0;
+
+void setTheEthernetConnection() {
+  Ethernet.begin(mac, ip, gateway, subnet);
+  Udp.begin(localPort);
+  Udp.begin(localPortBaseStation);  //Do we need this???  Should this customize communication==========================
+  ledBlink(50);
+}
+
+// This function is used to blink the LED RED when lose of network occures
+void ledBlink(unsigned int blinkSpeed) {
+  digitalWrite(bluePin, LOW);
+  digitalWrite(greenPin, LOW); 
+  for(unsigned int i = 0; i < 15; ++i) {
+    digitalWrite(redPin, LOW);       
+    delay(blinkSpeed);
+    digitalWrite(redPin, HIGH);       
+    delay(blinkSpeed);
+  }
+}
 
 void setup() {
   // Software Serial Setup
@@ -92,12 +112,12 @@ void setup() {
   //Serial.begin(9600);  //For debuging but will not work with SWSerial
   
   // start the Ethernet and UDP:
+  //setTheEthernetConnection();
   Ethernet.begin(mac, ip, gateway, subnet);
   Udp.begin(localPort);
   Udp.begin(localPortBaseStation);
-
-  delay(1500); //give a sec to start process
-
+  delay(1500);
+  
   // Set up Joint1
   pinMode(joint1_dir_pin, OUTPUT);
   pinMode(joint1_enab_pin, OUTPUT);
@@ -125,11 +145,17 @@ void setup() {
   pinMode(greenPin, OUTPUT);
   
 }
+
 // This loop will be a command loop for each of the arduino processes
 void loop() {
   //Receives the Array of Commands and Values
   packetSize = Udp.parsePacket();
   
+  //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+  //Udp.write('r');  //Change this to const array = ready
+  //Udp.endPacket();
+
+  //memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
   //debug
   //Serial.println(Udp.remoteIP());
   //Serial.println(Udp.remotePort());
@@ -140,6 +166,11 @@ void loop() {
     ST.turn(0);
     ARM.motor(1,0);
     ARM.motor(2,0);
+    ledBlink(100);
+    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    Udp.write('r');  //Change this to const array = ready
+    Udp.endPacket();
+    //setTheEthernetConnection();
   }
 
   // NOT SURE WHY I INCLUDED THIS AT THE MOMENT
@@ -202,17 +233,13 @@ void loop() {
             digitalWrite(joint1_pulse_pin,HIGH);
             if(moveMentArray[4] == 1){
               digitalWrite(joint1_dir_pin,HIGH);
-              //digitalWrite(39,HIGH);
             }
             else{
               digitalWrite(joint1_dir_pin,LOW);
-              //digitalWrite(41,HIGH);
             }
           }
           else{
             digitalWrite(joint1_pulse_pin,LOW);
-            //digitalWrite(39,LOW);
-            //digitalWrite(41,LOW);
           }
           break;
         }
@@ -265,9 +292,8 @@ void loop() {
               {                
                 //Switch on the LEDs as per the array input number 9
                 switchLEDs(moveMentArray[9]);
-
-                
                 Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+                //consider instead of 'r' and 'r 1' and 1 is logging message for all OK functions
                 Udp.write('r');  //Change this to const array = ready
                 Udp.endPacket();
 
@@ -292,13 +318,14 @@ void loop() {
     
 
     //Sends the ready command asking for next transmittion
-    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    Udp.write('r');  //Change this to const array = ready
-    Udp.endPacket();
+    //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    //Udp.write('r');  //Change this to const array = ready
+    //Udp.endPacket();
   }         
   //clears the buffer to ensure all new values
   memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
 }
+
 
 // Will switch the pin based on what byte is sent from the pi
 void setDirectionPin(uint8_t pinValue, uint8_t val)
@@ -331,42 +358,33 @@ void switchLEDs(int colorCode) {
   switch(colorCode)
   {
     case 0:
-            //Green
-            
-            digitalWrite(greenPin, HIGH);
-
-            digitalWrite(bluePin, LOW);
-            digitalWrite(redPin, LOW);            
-            
-            break;
+        //Red
+        digitalWrite(redPin, HIGH);       
+        digitalWrite(bluePin, LOW);
+        digitalWrite(greenPin, LOW);            
+        
+        break;            
     case 1:
-            //Blue
-           
-            digitalWrite(bluePin, HIGH);
-            
-            digitalWrite(redPin, LOW);            
-            digitalWrite(greenPin, LOW);
-            
-            break;
+        //Green
+        digitalWrite(greenPin, HIGH);
+        digitalWrite(bluePin, LOW);
+        digitalWrite(redPin, LOW);            
+        
+        break;    
     case 2:
-            //Purple
+        //Blue
+        digitalWrite(bluePin, HIGH);
+        digitalWrite(redPin, LOW);            
+        digitalWrite(greenPin, LOW);
             
-            digitalWrite(redPin, HIGH);
-            digitalWrite(bluePin, HIGH);
+        break;
             
-            digitalWrite(greenPin, LOW);
-            
-            break;  
-
     case 3:
-            //Red
+        //Purple
+        digitalWrite(redPin, HIGH);
+        digitalWrite(bluePin, HIGH);
+        digitalWrite(greenPin, LOW);
             
-            digitalWrite(redPin, HIGH);  
-                      
-            digitalWrite(bluePin, LOW);
-            digitalWrite(greenPin, LOW);            
-            
-            break;
+        break;  
   }  
 }
-
