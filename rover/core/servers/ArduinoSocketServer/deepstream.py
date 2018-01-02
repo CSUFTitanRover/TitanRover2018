@@ -6,7 +6,7 @@
 import requests
 import json
 
-roverIp = "10.42.0.1"   # This ip will change periodically, 
+roverIp = "localhost"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
 def get(recordName):
