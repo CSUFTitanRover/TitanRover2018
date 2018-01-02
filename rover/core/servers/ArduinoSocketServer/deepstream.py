@@ -46,9 +46,9 @@ def post(obj, recordName):
             recordName: the name of the record that you want to post to
     '''
     if type(recordName) is not str:
-        raise "Your first argument needs to be a string when setting data to deepstream"
+        raise "Your second argument needs to be a string when setting data to deepstream"
     if type(obj) is not dict:
-        raise "Your second argument needs to be a dict setting data to deepstream"
+        raise "Your first argument needs to be a dict setting data to deepstream"
     payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/" + recordName, "data": obj}]}
     request = requests.post('http://' + roverIp + ':4080', json=payload)
     if request is not None:
