@@ -10,7 +10,7 @@ import IconButton from 'material-ui/IconButton';
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft';
 import LayoutMenuList from '../../components/LayoutMenuList/';
 import ComponentMenuList from '../../components/ComponentMenuList/';
-import { closeLeftMenu } from '../../actions/';
+import { closeLeftMenu } from '../../actions/menu';
 
 const propTypes = {
   /** handles dispatching the method to close the left menu */

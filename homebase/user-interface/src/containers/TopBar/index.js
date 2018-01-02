@@ -7,7 +7,7 @@ import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
 import Typography from 'material-ui/Typography';
-import { openLeftMenu } from '../../actions/';
+import { openLeftMenu } from '../../actions/menu';
 
 const propTypes = {
   /** handles dispatching the method to open the left menu */
