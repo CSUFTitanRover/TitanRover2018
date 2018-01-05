@@ -11,9 +11,9 @@ obj = {}
 post(obj, recordName)
 
 while True:
-    p = Popen([ "iftop", "-o", "10s", "-t", "-s", "10", "-L", "2", "-i", interface ], stdout=subprocess.PIPE)
-    out, err = p.communicate()
     try:
+        p = Popen([ "iftop", "-o", "10s", "-t", "-s", "10", "-L", "2", "-i", interface ], stdout=subprocess.PIPE)
+        out, err = p.communicate()
         uploadArr = re.findall(r"Total send rate:\s+(\d{1,}\.{0,1}\d{0,})(\w+)", out)
         downloadArr = re.findall(r"Total receive rate:\s+(\d{1,}\.{0,1}\d{0,})(\w+)", out)
         upload = 0
