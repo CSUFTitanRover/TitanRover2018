@@ -226,7 +226,7 @@ Open the Windows command prompt:
 ```cmd
 bash
 ```
-Then you can follow this [Linux portion of this guide](###clone-the-deepstream-project:)
+Then you can follow this [Linux portion of this guide](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/servers/Deepstream/ds-server/README.md#clone-the-deepstream-project)
 
 The second method is boring and complex, just get bash on ubuntu on windows.
 
