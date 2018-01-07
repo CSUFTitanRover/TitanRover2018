@@ -19,7 +19,8 @@ Start the server: `npm start`
 -----
 
 # Universal Method to install and run deepstream:
-This process is necessary if you are running deepstream on a raspberry pi.
+This process is **necessary** if you are running deepstream on a raspberry pi, and works on the
+raspberry pi as well as any other Linux distro
 
 ## FIRST, Make sure you have NodeJs installed:
 For NodeJs on a raspberry pi go [here](https://github.com/audstanley/NodeJs-Raspberry-Pi) and copy paste into your cli to install NodeJs.
