@@ -1,6 +1,6 @@
 # Rover Deepstream Server
 
-This is the main directory for the official Deepstream server that will run on the Nvidia Tegra TX2.
+This is the main directory for the official Deepstream server that will run on our Rover's Computer.
 
 Ports the DS rover server will listen on:
 
