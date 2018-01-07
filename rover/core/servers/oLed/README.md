@@ -2,9 +2,9 @@
 
 First, you will need the dependency "screen" to launch these scripts on startup:
 
-sh
-```
-    sudo apt-get install screen;
+
+```sh
+sudo apt-get install screen;
 ```
 
 This project consists of four oleds attached to our rover.  The python scripts on launch will consist of
@@ -15,9 +15,9 @@ oLed4.py
 
 These scripts can be launched via a crontab.
 
-sh
-```
-    sudo vim /etc/crontab
+
+```sh
+sudo vim /etc/crontab
 ```
 
 create these lines in crontab:
