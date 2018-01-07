@@ -130,11 +130,11 @@ Example of part of the conf/config.yml file...
 
 ```
 
-line 21 should be:
+line 21 should be set to this:
 ```
 port: 4020
 ```
-line 47 should be:
+line 47 should be set to this:
 ```
 port: 4080
 ```
