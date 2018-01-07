@@ -39,7 +39,7 @@ git submodule update --init
 npm i;
 npm start;
 ```
-Ctrl-C to crash deepstream, after you see a successful startup, because there are more things to do.
+At this point, you are running deepstream, but we have some config files in deepstream that we want to edit. First go ahead and crash deepstream ctrl-c.
 
 ```sh
 # Install pm2 also, which we will need later to start deepstream on startup
@@ -47,7 +47,7 @@ sudo npm install pm2 -g;
 ```
 
 
-At this point, you are running deepstream, but we have some config files in deepstream that we want to edit. First go ahead and crash deepstream ctrl-c, and let's look at the deepstream file tree:
+Now after we have also installed pm2, Let's look at the deepstream file tree:
 
 ```
 ├── appveyor.yml
@@ -56,7 +56,7 @@ At this point, you are running deepstream, but we have some config files in deep
 ├── bin                
 ├── CHANGELOG.md
 ├── conf               <-- need to change conf/config.yml
-├── dist               <-- we will launch dist/bin/deepstream on startup.
+├── dist               <-- we will launch dist/bin/deepstream on startup with pm2
 ├── elton-square.png
 ├── jasmine.json
 ├── jasmine-runner.js
