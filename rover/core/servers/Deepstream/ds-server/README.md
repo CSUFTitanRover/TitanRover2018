@@ -203,6 +203,10 @@ Ctrl-C to get out of viewing the log.
 # To log out of root user:
 exit;
 ```
+Now you have successfully installed deepstream, and pm2 will launch deepstream
+every time your computer starts up. Now you can get and post data to deepstream
+you will need the deepstream.py file to get and post data easily to deepstream.
+Happy coding Titan Rover data to deepstream.
 
 
 ## Windows Guide:
