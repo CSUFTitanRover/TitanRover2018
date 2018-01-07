@@ -17,7 +17,9 @@ This process is **necessary** if you are running deepstream on a raspberry pi, a
 raspberry pi as well as any other Linux distro
 
 ## FIRST, Make sure you have NodeJs installed:
-For NodeJs on a **Raspberry pi ONLY** go [here](https://github.com/audstanley/NodeJs-Raspberry-Pi) and copy paste the code block into your cli to install NodeJs on your raspberry pi.
+NodeJs install:
+
+For [**Raspberry pi ONLY** go here](https://github.com/audstanley/NodeJs-Raspberry-Pi) and copy paste the code block into your cli to install NodeJs on your raspberry pi.
 
 For [x86 or x64 Linux use the installers go here](https://nodejs.org/en/)
 
