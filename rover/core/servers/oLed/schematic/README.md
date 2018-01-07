@@ -36,14 +36,19 @@ SYMLINK+="oled4"
 ```
 
 Now whenever the oleds are attached to linux, oLed#.py  can attach to either 
+
 /dev/oled1
+
 /dev/oled2
+
 /dev/oled3
+
 /dev/oled4
 
 The idProduct was also changed in the flashing process of the CP2102 to: titan rover
 in the USBxpress software, idProduct, can be found under the Product ID field.
 
+More information on this process can be found: [here](http://hintshop.ludvig.co.nz/show/persistent-names-usb-serial-devices/)
 
 Here is the result of the circuit board:
 
