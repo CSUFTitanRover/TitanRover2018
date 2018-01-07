@@ -24,6 +24,7 @@ raspberry pi as well as any other Linux distro
 
 ## FIRST, Make sure you have NodeJs installed:
 For NodeJs on a raspberry pi go [here](https://github.com/audstanley/NodeJs-Raspberry-Pi) and copy paste into your cli to install NodeJs.
+
 For Linux, Windows or Mac just use the installers [here](https://nodejs.org/en/)
 
 ## The Linux Guide (raspberry pi, x86 or x64):
