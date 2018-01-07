@@ -55,8 +55,8 @@ Now after we have also installed pm2, Let's look at the deepstream file tree:
 ├── benchmarks
 ├── bin                
 ├── CHANGELOG.md
-├── conf               <-- need to change conf/config.yml
-├── dist               <-- we will launch dist/bin/deepstream on startup with pm2
+├── conf  (file)             <-- need to change conf/config.yml
+├── dist  (file)             <-- we will launch dist/bin/deepstream on startup with pm2
 ├── elton-square.png
 ├── jasmine.json
 ├── jasmine-runner.js
