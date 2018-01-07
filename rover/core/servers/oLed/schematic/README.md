@@ -48,8 +48,8 @@ in the USBxpress software, idProduct, can be found under the Product ID field.
 Here is the result of the circuit board:
 
 ## Top of the board:
-![circuit board top]()
+![circuit board top](https://raw.githubusercontent.com/CSUFTitanRover/TitanRover2018/master/rover/core/servers/oLed/schematic/oLed_top.png)
 
 
 ## Bottom of the board:
-![circuit board bottom]()
+![circuit board bottom](https://raw.githubusercontent.com/CSUFTitanRover/TitanRover2018/master/rover/core/servers/oLed/schematic/oLed_bottom.png)
