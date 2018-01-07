@@ -38,6 +38,7 @@ git submodule update --init
 npm i;
 npm start;
 ```
+Ctrl-C to crash deepstream, after you see a successful startup, because there are more things to do.
 
 ```sh
 # Install pm2 also, which we will need later to start deepstream on startup
