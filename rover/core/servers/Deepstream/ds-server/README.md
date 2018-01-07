@@ -206,7 +206,18 @@ exit;
 Now you have successfully installed deepstream, and pm2 will launch deepstream
 every time your computer starts up. Now you can get and post data to deepstream.
 You will need the [deepstream.py](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/servers/ArduinoSocketServer/deepstream.py) file in your project's folder to get and post data easily to deepstream.
+The deepstream.py file has a dependency called: requests, install that **NOW**
+```sh
+# For python2.7
+sudo pip install requests
+# For python3.5
+sudo pip3 install requests
+# Personally I installed requests for BOTH python2.7 and python3.5 so do that also.
+```
+
 Happy coding Titan Rover data to deepstream.
+
+
 
 
 ## Windows Guide:
