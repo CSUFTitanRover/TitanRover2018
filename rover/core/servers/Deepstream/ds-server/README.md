@@ -28,7 +28,8 @@ For NodeJs on a **Raspberry pi ONLY** go [here](https://github.com/audstanley/No
 For Linux, Windows or Mac just use the installers [here](https://nodejs.org/en/)
 
 ## The Linux Guide (raspberry pi, x86 or x64):
-### Clone the project:
+After you have successfully installed NodeJs...
+### Clone the deepstream project:
 I like to keep deepstream in my Documents folder:
 
 ```sh
