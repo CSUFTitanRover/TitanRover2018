@@ -204,8 +204,8 @@ Ctrl-C to get out of viewing the log.
 exit;
 ```
 Now you have successfully installed deepstream, and pm2 will launch deepstream
-every time your computer starts up. Now you can get and post data to deepstream
-you will need the deepstream.py file to get and post data easily to deepstream.
+every time your computer starts up. Now you can get and post data to deepstream.
+You will need the [deepstream.py](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/servers/ArduinoSocketServer/deepstream.py) file in your project's folder to get and post data easily to deepstream.
 Happy coding Titan Rover data to deepstream.
 
 
