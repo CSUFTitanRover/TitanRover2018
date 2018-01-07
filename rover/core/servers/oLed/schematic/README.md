@@ -4,7 +4,7 @@ is the fritzing file for manufacturing.  This board consists of an ethernet conn
 and a custom cable will need to be made with an ethernet on one end, and four usb to serial devices on the other end.
 
 I used the CP2102 chip serial to usb by: Silabs.
-These CP2102 can be flashed with a serial number using the USBxpress Dev Software from Silabs' website.
+These CP2102 can be flashed with a serial number using the USBxpress Dev Software from [Silabs' website.](https://www.silabs.com/products/development-tools/software.page=10)
 
 It's important to flash unique serial numbers to the CP2102 chips, so our linux computers can assign a symlink
 to the /dev/someCustomName device, otherwise on startup, our python scripts will not know which serial device is which
