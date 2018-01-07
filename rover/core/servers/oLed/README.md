@@ -49,4 +49,5 @@ oLed3.py -> arduino3
 oLed4.py -> arduino4
 
 Each arduino and oled will share 5v power and ground from the usb attached to 
+
 oLed1 -> arduino1 (CP2102 - serial number: 1000)
