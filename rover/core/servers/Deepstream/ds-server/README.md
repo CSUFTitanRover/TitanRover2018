@@ -10,12 +10,6 @@ Ports the DS rover server will listen on:
 | HTTP      | 0.0.0.0 | 4080 |
 
 
-## Starting the Rover Deepstream server
-
-First install dependencies: `npm install`
-
-Start the server: `npm start`
-
 -----
 
 # Universal Method to install and run deepstream:
