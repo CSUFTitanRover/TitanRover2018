@@ -4,7 +4,7 @@ is the fritzing file for manufacturing.  This board consists of an ethernet conn
 and a custom cable will need to be made with an ethernet on one end, and four usb to serial devices on the other end.
 
 I used the CP2102 chip serial to usb by: Silabs.
-These CP2102 can be flashed with a serial number using the USBxpress Dev Software from Silabs' website.
+These CP2102 can be flashed with a serial number using the **USBxpress Dev Kit Software** from [Silabs' website.](https://www.silabs.com/products/development-tools/software.page=10) all the way at the bottom of the page.
 
 It's important to flash unique serial numbers to the CP2102 chips, so our linux computers can assign a symlink
 to the /dev/someCustomName device, otherwise on startup, our python scripts will not know which serial device is which
@@ -36,20 +36,25 @@ SYMLINK+="oled4"
 ```
 
 Now whenever the oleds are attached to linux, oLed#.py  can attach to either 
+
 /dev/oled1
+
 /dev/oled2
+
 /dev/oled3
+
 /dev/oled4
 
 The idProduct was also changed in the flashing process of the CP2102 to: titan rover
 in the USBxpress software, idProduct, can be found under the Product ID field.
 
+More information on this process can be found: [here](http://hintshop.ludvig.co.nz/show/persistent-names-usb-serial-devices/)
 
 Here is the result of the circuit board:
 
 ## Top of the board:
-![circuit board top]()
+![circuit board top](https://raw.githubusercontent.com/CSUFTitanRover/TitanRover2018/master/rover/core/servers/oLed/schematic/oLed_top.png)
 
 
 ## Bottom of the board:
-![circuit board bottom]()
+![circuit board bottom](https://raw.githubusercontent.com/CSUFTitanRover/TitanRover2018/master/rover/core/servers/oLed/schematic/oLed_bottom.png)
