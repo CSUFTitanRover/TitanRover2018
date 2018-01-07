@@ -23,7 +23,6 @@ For Linux, Windows or Mac just use the installers [here](https://nodejs.org/en/)
 
 ## The Linux Guide (raspberry pi, x86 or x64):
 After you have successfully installed NodeJs...
-(#linux-guide)
 ### Clone the deepstream project:
 I like to keep deepstream in my Documents folder:
 
@@ -227,7 +226,7 @@ Open the Windows command prompt:
 ```cmd
 bash
 ```
-Then you can follow the this [Linux portion of this guide](#linux-guide)
+Then you can follow the this [Linux portion of this guide](#clone-the-deepstream-project:)
 
 The second method is boring and complex, just get bash on ubuntu on windows.
 
