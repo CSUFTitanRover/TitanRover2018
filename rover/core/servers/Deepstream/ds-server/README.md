@@ -21,8 +21,9 @@ For NodeJs on a **Raspberry pi ONLY** go [here](https://github.com/audstanley/No
 
 For x86 or x64 Linux use the installers [here](https://nodejs.org/en/)
 
-For [Windows](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/servers/Deepstream/ds-server/README.md#windows-guide)
-For [Mac](https://github.com/CSUFTitanRover/TitanRover2018/tree/master/rover/core/servers/Deepstream/ds-server#mac-guide) 
+For [Windows go here](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/servers/Deepstream/ds-server/README.md#windows-guide)
+
+For [Mac go here](https://github.com/CSUFTitanRover/TitanRover2018/tree/master/rover/core/servers/Deepstream/ds-server#mac-guide) 
 
 ## The Linux Guide (raspberry pi, x86 or x64):
 After you have successfully installed NodeJs...
