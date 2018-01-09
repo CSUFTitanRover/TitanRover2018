@@ -25,7 +25,7 @@ For x86 or x64 Linux use the installers go here do this:
 
 ```sh
 curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-sudo apt-get install -y nodejs
+sudo apt-get install -y nodejs build-essential
 ````
 
 For [Windows go here](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/servers/Deepstream/ds-server/README.md#windows-guide)
