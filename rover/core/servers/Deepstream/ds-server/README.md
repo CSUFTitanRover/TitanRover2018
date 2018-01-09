@@ -61,9 +61,9 @@ Now after we have also installed pm2, Let's look at the deepstream file tree:
 ├── benchmarks
 ├── bin                
 ├── CHANGELOG.md
-├── conf  (file)             <-- need to change conf/config.yml
+├── conf  (file)             
 ├── dist  (file)             <-- we will launch dist/bin/deepstream on startup with pm2
-├── elton-square.png
+├── elton-square.png             as well as dist/conf/config.yml
 ├── jasmine.json
 ├── jasmine-runner.js
 ├── LICENSE
@@ -80,10 +80,10 @@ Now after we have also installed pm2, Let's look at the deepstream file tree:
 └── tslint.json
 ```
 
-you are going to want to open **conf/config.yml** and edit lines ~21 and ~47:
+you are going to want to open **dist/conf/config.yml** and edit lines ~21 and ~47:
 
 ```
-Example of part of the conf/config.yml file...
+Example of part of the dist/conf/config.yml file...
 ...
 16 connectionEndpoints:
 17   websocket:
