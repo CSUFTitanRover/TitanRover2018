@@ -5,6 +5,7 @@ from subprocess import call, Popen
 from deepstream import post
 import subprocess, re
 
+print("Loading: iftop")
 recordName = "speed"
 interface = "wlp3s0"
 
@@ -12,14 +13,15 @@ interface = "wlp3s0"
 elapsedTimout = 16
 
 obj = {}
-
 success = ""
+
 while success == "":
-    try:
-        success = post(obj, recordName)
-        success = post({"mode": "manual"}, "mode")
-    except:
-        print("Not connected to deepstream")
+   try:
+       success = post(obj, recordName)
+       success = post({"mode": "manual"}, "mode")
+   except:
+       print("Not connected to deepstream")
+   sleep(1)
 
 ipAddress = " NOREC"
 upload = 0
@@ -33,13 +35,13 @@ def getUpDownData():
         try:
             # command: sudo iftop -o 10s -t -s 10 -L 1 -i wlp3s0
             elapsedTime = 0
-            p = Popen([ "iftop", "-o", "10s", "-t", "-s", "10", "-L", "1", "-i", interface ], stdout=subprocess.PIPE)
-            out, err = p.communicate()
-            print(elapsedTime)
-            
+            p = Popen([ "iftop", "-o", "10s", "-t", "-s", "10", "-L", "1", "-i", interface ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            out = p[0]
+            err = p[1]
+
             uploadArr = re.findall(r"Total send rate:\s+(\d{1,}\.{0,1}\d{0,})(\w+)", out)
             downloadArr = re.findall(r"Total receive rate:\s+(\d{1,}\.{0,1}\d{0,})(\w+)", out)
-            ipAddressArr = re.findall(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", out)
+            ipAddressArr = re.findall(r"IP address is:\s+(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", err)
             if ipAddressArr is not []:
                 ipAddress = ipAddressArr[0]
             
@@ -54,15 +56,20 @@ def getUpDownData():
                     upload = upload * 1000000
                 if downloadArr[0][1] == "Mb":
                     download = download * 1000000
-                print "upload: {} {} download: {} {} ip: {}".format(upload, uploadArr[0][1], download , downloadArr[0][1], ipAddress)
-                post({"upload": upload, "download": download, "ip": ipAddress, "elapsed": elapsedTime}, recordName)
+                obj = {"upload": upload, "download": download, "ip": ipAddress, "elapsed": elapsedTime}
+                #print "upload: {} {} download: {} {} ip: {}".format(upload, uploadArr[0][1], download , downloadArr[0][1], ipAddress)
+                dsSuccess = post(obj, recordName)
+                print(obj)
+            uploadArr = []
+            downloadArr = []
         except:
             try:
-                post({}, "speed")
-                print("No data from interface: " + interface)
-                sleep(1)
+               post({}, "speed")
+               print("No data from interface: " + interface)
+               sleep(1)
             except:
-                print("cannot connect to deepstream.")
+               print("cannot connect to deepstream.")
+
 
 def checkElapsedTime():
     global elapsedTime
