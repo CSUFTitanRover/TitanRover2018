@@ -4,7 +4,9 @@ Add persistant /dev/tty-emlid port on the machine to always connect to /dev/tty-
 ## Instructions to do so:
 
 go to /etc/udev/rule.d/ and create a file "serial-symlinks.rules" and add the following lines
+
 SUBSYSTEM=="tty", ENV{ID_PATH}=="pci-0000:00:14.0-usb-0:2:1.2", SYMLINK+="tty-emlid"
+
 save the file
 
 ===========================
