@@ -51,5 +51,6 @@ while True:
             sleep(1)
 
         print(data)
+
     except:
         subprocess.call(["python", "emlidreach.py"])

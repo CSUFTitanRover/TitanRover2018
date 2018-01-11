@@ -4,8 +4,6 @@ import serial
 from time import sleep
 import subprocess
 
-
-
 while True:
     try:
         serial.Serial('/dev/tty-emlid', baudrate=115200)
