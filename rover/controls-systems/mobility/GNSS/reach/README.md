@@ -17,6 +17,7 @@ ifconfig
 exit
   
 ####NOTE##### >>>> Doing this kick you out if you try to ssh into the sensor. To recover from that just use command ssh root@192.168.2.15 "rm /etc/profile"
+
 save the file 
 
 ===========================
