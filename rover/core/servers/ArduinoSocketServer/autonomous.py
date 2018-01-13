@@ -1,9 +1,8 @@
 from socket import *
+from deepstream import get, post
 from datetime import datetime
-import threading, sys, time ,pygame , RPi.GPIO as GPIO, numpy as np
-
-# System setup wait
-time.sleep(5)
+from time import sleep
+import threading, sys #, time ,pygame , RPi.GPIO as GPIO, numpy as np
 
 # Arduino address and connection info
 address = ("192.168.1.177", 5000)
@@ -38,18 +37,19 @@ GPIO.setup(blueLed, GPIO.OUT)  # Blue LED'''
 
 def getDeepStreamCurrent():
     global GNSS
-    while true:
+    while True:
         GPS = get("GNSS")
-        GNSS['lat'],GNSS['lon'] = GPS["lat"] GPS["lon"]
+        GNSS['lat'],GNSS['lon'] = GPS["data"]["lat"], GPS["data"]["lon"]
         sleep(.04)
+        print(GNSS)
 
 Reach = threading.Thread( target = getDeepStreamCurrent, name = 'ReachSystem')
     
-def getCurrentDirection():
+#def getCurrentDirection():
 
-def getDirectionNeeded():
+#def getDirectionNeeded():
 
-def getGPS():
+#def getGPS():
 
 def main():
     Reach.start()
