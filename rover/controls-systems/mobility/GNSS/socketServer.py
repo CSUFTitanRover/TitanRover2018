@@ -32,8 +32,12 @@ def startListening():
         try:
             ser = serial.Serial('/dev/tty-emlid', baudrate=115200)
             data = conn.recv(1024)
-            ser.write(data)
-            print("Sending Data Successfully")
+            if not data:
+                print("No data Received. Check Connection on Base Reach")
+                break
+            else:
+                ser.write(data)
+                print("Sending Data Successfully")
         except:
             #i = 0
             print("Connection Terminated")
