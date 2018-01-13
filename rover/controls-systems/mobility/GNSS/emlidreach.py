@@ -1,8 +1,7 @@
-import os
-import threading
 import serial
 from time import sleep
 import subprocess
+
 
 while True:
     try:
