@@ -231,7 +231,7 @@ Happy coding Titan Rover data to deepstream.
 ## Windows Guide:
 If you are on windows, there are two ways you can install deepstream.
 #### Bash on ubuntu on Windows:
-Follow [this](http://www.zdnet.com/article/ubuntu-and-bash-arrive-on-windows-10/) guide then you can install NodeJs in bash.
+Follow [this](https://docs.microsoft.com/en-us/windows/wsl/install-win10) guide first, then you can install NodeJs in bash.
 Open the Windows command prompt:
 
 ```cmd
