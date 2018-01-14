@@ -35,6 +35,13 @@ if sys.platform != "linux":
             print(c.RED+"\nThis script was written ONLY for Linux OS."+c.DEFAULT)
             sys.exit()
 
+path = json.load(open('pathToTitanRover.json'))
+if path["path"] is None:
+    print(c.RED+"You need to set the path in the pathToTitanRover.json file"+c.DEFAULT)
+    print(c.RED+"    To the path leading up to the /TitanRover2018 file"+c.DEFAULT)
+    print(c.RED+"    An example of pathToTitanRover.json might be:"+c.DEFAULT)
+    print(c.YELLOW+"      { \"path\": \"/home/pi\" }\n"+c.DEFAULT)
+    sys.exit()
 
 screen = curses.initscr()
 curses.noecho()
@@ -91,12 +98,11 @@ def runWindow():
         screen.addstr(6, 6,  "    imu:")
         screen.addstr(9, 6,  "    reach:")
         screen.addstr(12, 6, "1 - iftop: ")
-        #screen.addstr(10, 6, str(keyIn))
 
         
         if type(imu) == dict:
             if imu == {}:
-                pass
+                screen.addstr(6, 25, "WAITING ON IMU...", curses.color_pair(2))
             else:
                 screen.addstr(6, 25, "Heading:")
                 screen.addstr(7, 25, str(imu["heading"]).rjust(8), curses.color_pair(1))
@@ -106,15 +112,15 @@ def runWindow():
                 screen.addstr(7, 51, str(imu["roll"]).rjust(8), curses.color_pair(1))
                 screen.addstr(6, 61, "MagCal:")
                 if imu["mag"] == 3:
-                    screen.addstr(7, 66, "yes", curses.color_pair(1))
+                    screen.addstr(7, 65, "yes", curses.color_pair(1))
                 else:
-                    screen.addstr(7, 66, "no", curses.color_pair(2))
+                    screen.addstr(7, 65, "no", curses.color_pair(2))
         elif type(imu) == str:
             screen.addstr(6, 25, str(imu), curses.color_pair(2))
         
         if type(reach) == dict:
             if reach == {}:
-                pass
+                screen.addstr(9, 25, "WAITING ON REACH...", curses.color_pair(2))
             else:
                 pass
         elif type(reach) == str:
@@ -122,7 +128,7 @@ def runWindow():
 
         if type(iftop) == dict:
             if iftop == {}:
-                screen.addstr(12, 25, "LOADING", curses.color_pair(2))
+                screen.addstr(12, 25, "WAITING ON IFTOP...", curses.color_pair(2))
             else:
                 screen.addstr(12, 25, "IP Address:")
                 screen.addstr(13, 25, iftop["ip"], curses.color_pair(1))
