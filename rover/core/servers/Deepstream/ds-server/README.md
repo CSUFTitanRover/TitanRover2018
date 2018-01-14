@@ -19,7 +19,7 @@ raspberry pi as well as any other Linux distro
 ## FIRST, Make sure you have NodeJs installed:
 NodeJs install:
 
-For [**Raspberry pi & Beaglebone ONLY** go here](https://github.com/audstanley/NodeJs-Raspberry-Pi) and copy paste the code block into your cli to install NodeJs on your raspberry pi.
+For [**Raspberry pi & Beaglebone ONLY** go here](https://github.com/audstanley/NodeJs-Raspberry-Pi) and copy paste the code block into your cli to install NodeJs on your raspberry pi or beaglebone.
 
 For x86 or x64 Linux use the installers go here do this:
 
