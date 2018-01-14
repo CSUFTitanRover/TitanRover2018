@@ -30,7 +30,7 @@ Here is how the **processes.json** file should look for your process:
 
 ]
 ```
-The *path* in this **pathToTitanRover.json** file is the path to your python script.
+The *path* in this **processes.json** file is the path to your python script.
 
 The *python* is which version of python will be running your script.  default *python* will run python2.7
 
