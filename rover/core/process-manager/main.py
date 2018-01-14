@@ -63,25 +63,6 @@ def restartProcess(screenName):
     p = Popen(["screen", "-dmLS", sn], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     p = Popen(["screen", "-S", sn, "-X", "stuff", cmd], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-def get_param(prompt_string):
-    screen.clear()
-    screen.border(0)
-    screen.addstr(2, 2, prompt_string)
-    screen.refresh()
-    input = screen.getstr(10, 10, 60)
-    return input
-
-def execute_cmd(cmd_string):
-    system("clear")
-    a = system(cmd_string)
-    print ""
-    if a == 0:
-        print "Command executed correctly"
-    else:
-        print "Command terminated with error"
-    raw_input("Press enter")
-    print ""
-
 def runWindow():
     global keyIn, screen, iftop, imu, reach
     
