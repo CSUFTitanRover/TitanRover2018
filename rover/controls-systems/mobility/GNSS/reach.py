@@ -15,7 +15,7 @@ def reach():
                 break
             except:
                 print("Not Connected to the Reach on /dev/ttyACM*")
-                sleep(1)
+                sleep(5)
             
             
         pattern = re.compile('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
