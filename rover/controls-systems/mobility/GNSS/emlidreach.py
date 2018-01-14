@@ -13,10 +13,9 @@ while True:
                 subprocess.Popen(["python", "usb0ip.py"])
                 subprocess.call(["ssh", "-L", "8000:localhost:80", "root@192.168.2.15"])
                 subprocess.call(["python", "reach.py"])
-                break
             except:
                 print("SSH Connection cannot be established")
                 sleep(1)
     except:
         print("Not Connected to the Reach on /dev/ttyACM*")
-        sleep(1)
+        sleep(5)
