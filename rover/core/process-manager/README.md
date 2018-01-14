@@ -60,7 +60,7 @@ now, you can run the setup:
 sudo python setup.py
 ```
 
-This will install all dependencies except for deepstream, which you can find how to install [here](https://github.com/CSUFTitanRover/TitanRover2018/tree/master/rover/core/servers/Deepstream/ds-server#universal-method-to-install-and-run-deepstream)
+This will install all dependencies **except for deepstream**, which you can find how to install [here](https://github.com/CSUFTitanRover/TitanRover2018/tree/master/rover/core/servers/Deepstream/ds-server#universal-method-to-install-and-run-deepstream)
 
 If you want to add your deepstream records to the process manager get in contact with [me](https://titanrover.slack.com/messages/audstanley/), 
 or feel free to look at the main.py in this process manager folder.
