@@ -1,6 +1,6 @@
 # Process Manager
 
-The process manager is a work in progress, and currently there is no ability to restart the processes
+The process manager is a work in progress
 
 ## Setup
 
