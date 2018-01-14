@@ -1,4 +1,8 @@
 from os import system
+import os
+import json
+from subprocess import Popen
+import subprocess
 from deepstream import get, post
 import sys
 from time import sleep
@@ -9,11 +13,50 @@ iftop = {}
 reach = {}
 imu = {}
 keyIn = 0
+
+class c:
+    BLUE = '\033[34m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    CYAN = '\033[36m'
+    MAGENTA = '\033[35'
+    RED = '\033[31m'
+    DEFAULT = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+if os.getuid() is not 0:
+    print(c.RED+"Please run script as sudo:\n\t"+c.YELLOW+"sudo python main.py\n"+c.DEFAULT)
+    sys.exit()
+
+if sys.platform != "linux":
+        if sys.platform != "linux2":
+            print("Your system: " + sys.platform)
+            print(c.RED+"\nThis script was written ONLY for Linux OS."+c.DEFAULT)
+            sys.exit()
+
+
 screen = curses.initscr()
+curses.noecho()
 curses.start_color()
 curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
 curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+
+def restartProcess(screenName):
+    path        = json.load(open('pathToTitanRover.json'))
+    processes   = json.load(open('processes.json'))
+    p = Popen([ "sudo", "screen", "-S", screenName, "-X", "\"kill\""], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    sleep(.1)
+    o = [x for x in processes if x['screenName'] == screenName][0]
+    sn = str(o["screenName"])
+    path = str(path["path"]) + str(o["path"])
+    py = str(o["python"])
+    scrpt = str(o["script"]) + "\015\""
+    cmd = py + " " + scrpt
+    p = Popen([ "screen", "-S", screenName, "-X", "kill"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    p = Popen(["screen", "-dmLS", sn], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    p = Popen(["screen", "-S", sn, "-X", "stuff", cmd], cwd=path, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
 def get_param(prompt_string):
     screen.clear()
@@ -42,11 +85,12 @@ def runWindow():
         screen.clear()
         screen.border(0)
         screen.addstr(1, 2, "Titan Rover CLI Process Manager", curses.color_pair(1))
-        screen.addstr(2, 6, "To restart a process, type the number of the listed process", curses.color_pair(2))
+        screen.addstr(2, 4, "To restart a process, type the number of the listed process", curses.color_pair(3))
+        screen.addstr(3, 4, "To exit, hold the ESC key", curses.color_pair(3))
         screen.addstr(4, 4, "Process List:")
-        screen.addstr(6, 6, "1 - imu:")
-        screen.addstr(9, 6, "2 - reach:")
-        screen.addstr(12, 6, "3 - iftop: ")
+        screen.addstr(6, 6,  "    imu:")
+        screen.addstr(9, 6,  "    reach:")
+        screen.addstr(12, 6, "1 - iftop: ")
         #screen.addstr(10, 6, str(keyIn))
 
         
@@ -92,8 +136,11 @@ def runWindow():
         screen.refresh()
 
         if keyIn == ord("1"):
-            get_param("what's up?")
-            curses.endwin()
+            keyIn = 0
+            iftop = {}
+            restartProcess("speed")
+            sleep(.1)
+
         if keyIn == ord("2"):
             pass
         if keyIn == ord("3"):
