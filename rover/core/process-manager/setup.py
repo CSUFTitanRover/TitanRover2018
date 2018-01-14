@@ -3,7 +3,6 @@ import os
 from subprocess import Popen
 import subprocess
 import json
-from pprint import pprint
 
 class c:
     BLUE = '\033[34m'
