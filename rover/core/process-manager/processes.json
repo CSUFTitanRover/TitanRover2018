@@ -1,0 +1,27 @@
+[
+    {
+        "path": "/TitanRover2018/rover/core/servers/ArduinoSocketServer/",
+        "python": "python",
+        "screenName": "mobility",
+        "script": "mobility.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/servers/iftop/",
+        "python": "python",
+        "screenName": "speed",
+        "script": "iftop.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/servers/iftop/",
+        "python": "python",
+        "screenName": "listening",
+        "script": "listenToSpeedAndModeRecords.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/servers/reach/",
+        "python": "python",
+        "screenName": "reach",
+        "script": "reach.py"
+    }
+
+]
