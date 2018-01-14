@@ -53,8 +53,6 @@ curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 def restartProcess(screenName):
     path        = json.load(open('pathToTitanRover.json'))
     processes   = json.load(open('processes.json'))
-    p = Popen([ "sudo", "screen", "-S", screenName, "-X", "\"kill\""], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-    sleep(.1)
     o = [x for x in processes if x['screenName'] == screenName][0]
     sn = str(o["screenName"])
     path = str(path["path"]) + str(o["path"])
