@@ -1,5 +1,11 @@
 [
     {
+        "path": "/TitanRover2018/rover/core/process-manager/motionConf/",
+        "python": "sudo",
+        "screenName": "motion",
+        "script": "motion"
+    },
+    {
         "path": "/TitanRover2018/rover/core/servers/ArduinoSocketServer/",
         "python": "python",
         "screenName": "mobility",
@@ -17,5 +23,5 @@
         "screenName": "reach",
         "script": "reach.py"
     }
-
+    
 ]
