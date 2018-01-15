@@ -2,6 +2,8 @@
 
 The process manager is a work in progress
 
+![Process Manager](gif/TitanRoverProcessManager.gif)
+
 ## Setup
 
 In order to add your python script to the master startup process, you need to modify the process.json file.
