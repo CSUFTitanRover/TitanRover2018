@@ -130,5 +130,5 @@ These are some of the basics, for more info read the docs:
 ```sh
 man screen;
 # or
-screnn --help;
+screen --help;
 ```
