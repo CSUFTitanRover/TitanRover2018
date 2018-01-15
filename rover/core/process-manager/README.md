@@ -1,4 +1,4 @@
-# Process Manager
+# Process Manager & Dependencies
 
 The process manager is a work in progress
 
