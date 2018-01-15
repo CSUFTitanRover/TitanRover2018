@@ -216,11 +216,7 @@ The deepstream.py file has a dependency called: *requests*,
 Let's install that **NOW**
 
 ```sh
-# For python2.7;
-sudo pip install requests
-# For python3.5;
-sudo pip3 install requests
-# Personally I installed requests for BOTH python2.7 and python3.5 so you should do that also.
+sudo apt-get install python-requests
 ```
 
 Happy coding Titan Rover data to deepstream.
