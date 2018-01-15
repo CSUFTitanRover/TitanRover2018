@@ -5,7 +5,7 @@ The process manager is a work in progress
 ## Setup
 
 In order to add your python script to the master startup process, you need to modify the process.json file.
-Here is how the **processes.json** file should look for your process:
+Here is an example of the **processes.json** file where each process is an object in the array:
 
 ```json
 [
@@ -30,24 +30,25 @@ Here is how the **processes.json** file should look for your process:
 
 ]
 ```
-The *path* in this **processes.json** file is the path to your python script.
+There are three processes in this example above. All you need to do is add your process to the file.
 
-The *python* is which version of python will be running your script.  default *python* will run python2.7
+> The ***path*** in this **processes.json** file is the path to your python script.
 
-The *screenName* is the name of the screen session your script will run under.  This needs to be **unique** and
-it should also match the name of your deepstream record.
+> The ***python*** is which version of python will be running your script.  default *python* will run python2.7
 
-The *script* is the full name of your python script.
+> The ***screenName*** is the name of the screen session your script will run under.  This needs to be **unique** and it should also match the name of your deepstream record. (preferably)
+
+> The ***script*** is the full name of your python script.
 
 -----
 
-In order for your scripts to run properly, you need to set the **pathToTitanRover.json** file to something like this:
+In order for your scripts to run properly, you need to **ALSO change** the **pathToTitanRover.json** file to something like this:
 
 ```json
 { "path": "/home/pi" }
 ```
 
-Be sure to leave out a trailing slash.  My personal **pathToTitanRover.json** file looks like this, and yours might vary:
+Be sure to leave out a trailing slash.  **My** personal **pathToTitanRover.json** file looks like this, and yours will vary:
 
 ```json
 { "path": "/home/audstanley/Documents" }
