@@ -1,5 +1,6 @@
 import sys
 import os
+from shutil import copyfile
 from subprocess import Popen
 import subprocess
 import json
@@ -46,6 +47,7 @@ else:
     p1 = Popen([ "whereis", "screen" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
     p2 = Popen([ "whereis", "iftop" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
     p3 = Popen([ "whereis", "pip" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+    p4 = Popen([ "whereis", "motion" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
     
     # automatically install dependencies if it does not exists.
     if p1[8:] == "":
@@ -59,6 +61,18 @@ else:
     if p3[5:] == "":
         print(c.YELLOW+"Installing python-pip, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "python-pip", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+    if p4[8:] == "" or len(p4) == 20:
+        print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        try:
+            copyfile("motionConf/motion.conf", "/etc/motion/motion.conf")
+            copyfile("motionConf/thread1.conf", "/etc/motion/thread1.conf")
+            copyfile("motionConf/thread2.conf", "/etc/motion/thread2.conf")
+            copyfile("motionConf/thread3.conf", "/etc/motion/thread3.conf")
+            copyfile("motionConf/thread4.conf", "/etc/motion/thread4.conf")
+        except:
+            print("There was a problem trying to copy one of the motion configure files")
 
     # install requests dependency, if not installed
     try:
@@ -83,7 +97,7 @@ else:
         # {@reboot root cd} {/home/audstanley/Documents} {/TitanRover2018/rover/core/servers/ArduinoSocketServer/} {&& /usr/bin/screen -dmLS }    {mobility}       {&& screen -S }   {mobility}            { -X stuff "}   {python}     {mobility.py}  \015";\n
         cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
                                     #  cA p1p2 cB oS cC oS cD oPoX cE
-    print(cronLinesFromProcesses)
+    #print(cronLinesFromProcesses)
     if len(lines) > 1 and len(cronLinesFromProcesses) > 1:
         dif = [v for v in lines if v not in cronLinesFromProcesses]
         if len(dif) > 0:
@@ -94,4 +108,4 @@ else:
                 file.write(i)
             file.close()
 
-
+    print(c.YELLOW+"Setup is complete"+c.DEFAULT)
