@@ -64,3 +64,20 @@ This will install all dependencies **except for deepstream**, which you can find
 
 If you want to add your deepstream records to the process manager get in contact with [me](https://titanrover.slack.com/messages/audstanley/), 
 or feel free to look at the main.py in this process manager folder.
+
+
+## Motion
+Motion will automatically install with the **setup.py** script and be added to the startup process along
+with the other startup processes.  This may not be something you want, because motion takes control of 
+your web camera, if you are on a laptop.  If you don't want this, you can simply remove the line that references motion in your **/etc/crontab** file. The line should look something like this:
+
+```sh
+@reboot root cd /home/audstanley/Documents/TitanRover2018/rover/core/process-manager/motionConf/ && screen -dmLS motion && screen -S motion -X stuff "sudo motion \015";
+``` 
+
+if you want to get motion running on startup again, you can simply rerun:
+
+```sh
+sudo python setup.py
+```
+and motion will be added to the startup process again.
