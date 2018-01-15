@@ -108,11 +108,17 @@ screen -ls;
 If you see something like *No sockets found*, then your screen sessions have not started yet, and the easiest way to
 start those sessions is to reboot. (assuming you have run the setup.py already)
 
+If you want to create your own screen sessions (in detached mode):
+
+```sh
+screen -dmS someScreenNameThatYouLike
+```
+
 To attach to a screen session:
 
 ```sh
-screen -x someSessionName;
-# or more accurately:
+screen -x someScreenNameThatYouLike;
+# or to attach to a TitanRover process:
 screen -x speed; # which is a session for you to be able to view your upload download speed
 # most likely this session will show a python error, and you can trouble shoot how to fis this error.
 # You will likely need to change the file /TitanRover2018/rover/core/servers/iftop/iftop.py
@@ -121,6 +127,10 @@ screen -x speed; # which is a session for you to be able to view your upload dow
 # on line 10, to an interface that you have on your machine.
 # once you change that, iftop.py will work on startup (which is the screen session "speed")
 ```
+
+
+
+
 
 If you want to leave the session **without** stopping your script, you can gracefully leave the session
 by holding **Ctrl** **A** then lift up on the **A** key, and hit **D** (Holding **Ctrl** the whole time)
