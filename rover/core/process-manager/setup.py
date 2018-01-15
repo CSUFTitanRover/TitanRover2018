@@ -73,8 +73,15 @@ else:
         copyfile("motionConf/thread2.conf", "/etc/motion/thread2.conf")
         copyfile("motionConf/thread3.conf", "/etc/motion/thread3.conf")
         copyfile("motionConf/thread4.conf", "/etc/motion/thread4.conf")
+        print("Created the "+c.YELLOW+"/etc/motion/motion.conf and thread#.conf"+c.DEFAULT+" files")
     except:
         print("There was a problem trying to copy one of the motion configure files")
+
+    try:
+        copyfile("udev/99-usb-serial.rules", "/etc/udev/rules.d/99-usb-serial.rules")
+        print("Created the "+c.YELLOW+"/etc/udev/rules.d/99-usb-serial.rules"+c.DEFAULT+" file")
+    except:
+        print("There was a problem trying to copy the udev rules")
 
     # install requests dependency, if not installed
     try:
@@ -110,7 +117,7 @@ else:
                 file.write(i)
             file.close()
 
-    print(c.YELLOW+"Setup is complete"+c.DEFAULT)
+    print(c.BLUE+"\nSetup is now complete\n"+c.DEFAULT)
     print(c.YELLOW+"  Please restart so that default applications may ake effect."+c.DEFAULT)
     print(c.YELLOW+"  If you would like to remove any startup processes:"+c.DEFAULT)
     print(c.YELLOW+"    Edit your /etc/crontab file and remove any process that you may not"+c.DEFAULT)
@@ -119,4 +126,4 @@ else:
     print(c.YELLOW+"  To edit the quality of your motion cameras check localhost:8080"+c.DEFAULT)
     print(c.YELLOW+"    Thread 1 -> config -> list -> stream_quality and stream_maxrate "+c.DEFAULT)
     print(c.YELLOW+"      These two options will improve your camera quality with larger numbers"+c.DEFAULT)
-    print()
+    print("\n")
