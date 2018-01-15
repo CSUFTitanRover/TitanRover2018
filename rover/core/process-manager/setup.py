@@ -115,3 +115,8 @@ else:
     print(c.YELLOW+"  If you would like to remove any startup processes:"+c.DEFAULT)
     print(c.YELLOW+"    Edit your /etc/crontab file and remove any process that you may not"+c.DEFAULT)
     print(c.YELLOW+"    want or need."+c.DEFAULT)
+    print(c.YELLOW+"  To view your motion cameras navigate to localhost:8081 :8082 :8083 and :8084"+c.DEFAULT)
+    print(c.YELLOW+"  To edit the quality of your motion cameras check localhost:8080"+c.DEFAULT)
+    print(c.YELLOW+"    Thread 1 -> config -> list -> stream_quality and stream_maxrate "+c.DEFAULT)
+    print(c.YELLOW+"      These two options will improve your camera quality with larger numbers"+c.DEFAULT)
+    print()
