@@ -1,6 +1,8 @@
 # Process Manager & Dependencies
 
 The process manager is a work in progress
+![Process Manager](gif/TitanRoverProcessManager.gif)
+
 
 ![Process Manager](gif/TitanRoverProcessManager.gif)
 
