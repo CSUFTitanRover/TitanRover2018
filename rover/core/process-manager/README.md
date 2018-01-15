@@ -1,10 +1,9 @@
 # Process Manager & Dependencies
 
 The process manager is a work in progress
-![Process Manager](gif/TitanRoverProcessManager.gif)
+![Process Manager](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/process-manager/gif/TitanRoverProcessManager.gif?raw=true)
 
 
-![Process Manager](gif/TitanRoverProcessManager.gif)
 
 ## Setup
 
