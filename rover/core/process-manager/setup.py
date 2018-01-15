@@ -65,14 +65,16 @@ else:
     if p4[8:] == "" or len(p4) == 20:
         print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
-        try:
-            copyfile("motionConf/motion.conf", "/etc/motion/motion.conf")
-            copyfile("motionConf/thread1.conf", "/etc/motion/thread1.conf")
-            copyfile("motionConf/thread2.conf", "/etc/motion/thread2.conf")
-            copyfile("motionConf/thread3.conf", "/etc/motion/thread3.conf")
-            copyfile("motionConf/thread4.conf", "/etc/motion/thread4.conf")
-        except:
-            print("There was a problem trying to copy one of the motion configure files")
+    
+    # Always copy the motion config files (for now), as updates in the future may change
+    try:
+        copyfile("motionConf/motion.conf", "/etc/motion/motion.conf")
+        copyfile("motionConf/thread1.conf", "/etc/motion/thread1.conf")
+        copyfile("motionConf/thread2.conf", "/etc/motion/thread2.conf")
+        copyfile("motionConf/thread3.conf", "/etc/motion/thread3.conf")
+        copyfile("motionConf/thread4.conf", "/etc/motion/thread4.conf")
+    except:
+        print("There was a problem trying to copy one of the motion configure files")
 
     # install requests dependency, if not installed
     try:
@@ -109,3 +111,7 @@ else:
             file.close()
 
     print(c.YELLOW+"Setup is complete"+c.DEFAULT)
+    print(c.YELLOW+"  Please restart so that default applications may ake effect."+c.DEFAULT)
+    print(c.YELLOW+"  If you would like to remove any startup processes:"+c.DEFAULT)
+    print(c.YELLOW+"    Edit your /etc/crontab file and remove any process that you may not"+c.DEFAULT)
+    print(c.YELLOW+"    want or need."+c.DEFAULT)
