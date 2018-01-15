@@ -125,7 +125,7 @@ screen -x speed; # which is a session for you to be able to view your upload dow
 # and edit the variable:
 # interface = "wlp3s0"
 # on line 10, to an interface that you have on your machine.
-# once you change that, iftop.py will work on startup (which is the screen session "speed")
+# once you change that, iftop.py will work on startup (which is running in the screen session "speed")
 ```
 
 
