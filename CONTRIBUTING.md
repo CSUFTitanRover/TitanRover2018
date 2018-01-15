@@ -71,11 +71,9 @@ Multiple Issues Example: `feature/UserInterface-components-14-17-23`
 If you need to create a feature branch then always remember to branch off from your base project branch. For example, if I need to create a feature branch under the User Interface project then I will branch off from the User Interface branch.
 
 ```
-master
-  \
-    - User Interface
-        \
-          - feature/UserInterface-Layout-19
+├───master
+  ├───UserInterface
+    ├───feature/UserInterface-Layout-19
 ```
 
 ## Git Layout
@@ -92,8 +90,22 @@ Our layout for the git structure looks like so:
    ├───Science
    ├───NvidiaTX2
    ├───docs
-   ├───schematics
 ```
+
+## Project Layout 
+
+Our current project layout looks like so from a top level view:
+```
+├───docs
+├───hoembase
+├───rover
+├───schematics
+```
+
+- **docs** will hold all of our documentation files
+- **homebase** will hold any code that will be run on the homebase e.g. User Interface
+- **rover** will hold any code that will run on the rover e.g. Control Systems
+- **schematics** will hold any schematic diagrams that are helpful for the Eletrical team to use for wiring up our rover
 
 ## Git GUI
 
