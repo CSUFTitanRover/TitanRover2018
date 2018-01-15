@@ -2,6 +2,7 @@
 
 The process manager is a work in progress
 ![Process Manager](https://github.com/CSUFTitanRover/TitanRover2018/blob/master/rover/core/process-manager/gif/TitanRoverProcessManager.gif?raw=true)
+and can be found [here](https://github.com/CSUFTitanRover/TitanRover2018/tree/master/rover/core/process-manager)
 
 
 
