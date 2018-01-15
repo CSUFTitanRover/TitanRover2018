@@ -82,3 +82,53 @@ if you want to get motion running on startup again, you can simply rerun:
 sudo python setup.py
 ```
 and motion will be added to the startup process again.
+
+## Screen
+Let's talk a little about how all of these startup precesses all work.  Your script gets added to **/etc/crontab** and
+it's added to a screen session.  If you already ran the **setup.py** as sudo, then you currently
+have screen installed on your machine.  In short, screen is like bash, but where you can go into
+a screen session, or pop out of a screen session, and your script keeps running in the background.
+This becomes immensely helpful when debugging, since your stdout, and stderr can be viewed at any time.
+If your script is failing for any reason, then it's really easy to find out how and why by going into the 
+screen session and viewing errors, and your stdout prints to console. Another great thing about screen is that screen has the option to save log files of all of the output from your session.
+
+Since all the screen sessions are being called in the startup process as root, you will first need to
+be root in order to view them. 
+
+```sh
+sudo su;
+```
+
+Now that you are root, you can view the screen sessions:
+
+```sh
+screen -ls;
+```
+
+If you see something like *No sockets found*, then your screen sessions have not started yet, and the easiest way to
+start those sessions is to reboot. (assuming you have run the setup.py already)
+
+To attach to a screen session:
+
+```sh
+screen -x someSessionName;
+# or more accurately:
+screen -x speed; # which is a session for you to be able to view your upload download speed
+# most likely this session will show a python error, and you can trouble shoot how to fis this error.
+# You will likely need to change the file /TitanRover2018/rover/core/servers/iftop/iftop.py
+# and edit the variable:
+# interface = "wlp3s0"
+# on line 10, to an interface that you have on your machine.
+# once you change that, iftop.py will work on startup (which is the screen session "speed")
+```
+
+If you want to leave the session **without** stopping your script, you can gracefully leave the session
+by holding **Ctrl** **A** then lift up on the **A** key, and hit **D** (Holding **Ctrl** the whole time)
+
+These are some of the basics, for more info read the docs:
+
+```sh
+man screen;
+# or
+screnn --help;
+```
