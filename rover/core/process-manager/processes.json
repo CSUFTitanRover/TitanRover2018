@@ -6,7 +6,7 @@
     },
     {
         "path": "/TitanRover2018/rover/core/servers/ArduinoSocketServer/",
-        "python": "python",
+        "python": "python3.5",
         "screenName": "mobility",
         "script": "mobility.py"
     },
