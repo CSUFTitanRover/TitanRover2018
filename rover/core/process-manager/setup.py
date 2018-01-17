@@ -107,7 +107,7 @@ else:
         if(os.path.exists(path["path"] + o["path"] + o["script"])) or o["script"] == "motion":
             cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
                                     #  cA p1p2 cB oS cC oS cD oPoX cE
-    setupCronLine = "0 15 1/2 * * root bash -e 'cd " + path["path"] + "/TitanRover2018/rover/core/process-manager/ && python getLatestFiles.py;'\n"; 
+    setupCronLine = "0 15 1/2 * * root bash -c 'cd " + path["path"] + "/TitanRover2018/rover/core/process-manager/ && python getLatestFiles.py;'\n"; 
     cronLinesFromProcesses.insert(0, setupCronLine)
     #print(cronLinesFromProcesses)
     if len(lines) > 1 and len(cronLinesFromProcesses) > 1:
