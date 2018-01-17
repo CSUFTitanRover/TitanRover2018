@@ -5,9 +5,23 @@
 '''
 import requests
 import json
+import commands
+
 
 roverIp = "localhost"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
+
+
+try:
+    if "titan-share" in commands.getoutput("iwgetid -r"):
+        roverIp = "192.168.1.161"
+        #print('Your Deepstream IP address is : ' + str(roverIp))
+    else:
+        roverIp = "127.0.0.1"
+        #print('Your Deepstream IP address is : ' + str(roverIp))
+except:
+    roverIp = "127.0.0.1"
+
 
 def get(recordName):
     '''
