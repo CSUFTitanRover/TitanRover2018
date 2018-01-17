@@ -12,11 +12,27 @@
 
 from socket import *
 from datetime import datetime
+import subprocess
+from subprocess import Popen
 import time
 import pygame
-import RPi.GPIO as GPIO
 import numpy as np
 import sys
+
+uname = Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
+isNvidia = True if uname == "arm64\n" else False
+
+if isPi:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    redLed = 18
+    greenLed = 23
+    blueLed = 24
+    GPIO.setup(redLed, GPIO.OUT)  # Red LED
+    GPIO.setup(greenLed, GPIO.OUT)  # Green LED
+    GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
 
 # System setup wait
 time.sleep(5)
@@ -31,14 +47,7 @@ pygame.init()
 pygame.joystick.init()
 
 # LED status signals
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-redLed = 18
-greenLed = 23
-blueLed = 24
-GPIO.setup(redLed, GPIO.OUT)  # Red LED
-GPIO.setup(greenLed, GPIO.OUT)  # Green LED
-GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
+
 
 #Global declarations
 global paused
@@ -148,9 +157,10 @@ def setLed():
         myLeds = pausedLEDs
     else:
         myLeds = controls[mode]["leds"]
-    GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
-    GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
-    GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
+    if isPi:
+        GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
+        GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
+        GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
 
 def checkPause():
     global paused, roverActions
