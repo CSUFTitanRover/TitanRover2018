@@ -15,8 +15,14 @@ Here is an example of the **processes.json** file where each process is an objec
 ```json
 [
     {
+        "path": "/TitanRover2018/rover/core/process-manager/motionConf/",
+        "python": "sudo",
+        "screenName": "motion",
+        "script": "motion"
+    },
+    {
         "path": "/TitanRover2018/rover/core/servers/ArduinoSocketServer/",
-        "python": "python",
+        "python": "python3.4",
         "screenName": "mobility",
         "script": "mobility.py"
     },
@@ -27,12 +33,17 @@ Here is an example of the **processes.json** file where each process is an objec
         "script": "iftop.py"
     },
     {
-        "path": "/TitanRover2018/rover/core/servers/reach/",
+        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
         "python": "python",
         "screenName": "reach",
-        "script": "reach.py"
+        "script": "emlidreach.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
+        "python": "python",
+        "screenName": "reachSocketServer",
+        "script": "socketServer.py"
     }
-
 ]
 ```
 There are three processes in this example above. All you need to do is add your process to the file.
