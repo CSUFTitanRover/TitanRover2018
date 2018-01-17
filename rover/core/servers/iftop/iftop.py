@@ -35,7 +35,7 @@ def getUpDownData():
         try:
             # command: sudo iftop -o 10s -t -s 10 -L 1 -i wlp3s0
             elapsedTime = 0
-            p = Popen([ "iftop", "-o", "10s", "-t", "-s", "10", "-L", "1", "-i", interface ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+            p = Popen([ "/usr/sbin/iftop", "-o", "10s", "-t", "-s", "10", "-L", "1", "-i", interface ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
             out = p[0]
             err = p[1]
 
