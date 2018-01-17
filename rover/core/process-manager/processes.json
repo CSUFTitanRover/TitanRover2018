@@ -17,7 +17,7 @@
         "script": "iftop.py"
     },
     {
-        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS",
+        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
         "python": "python",
         "screenName": "reach",
         "script": "emlidreach.py"
