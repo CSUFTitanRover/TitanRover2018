@@ -108,7 +108,7 @@ else:
             cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
                                     #  cA p1p2 cB oS cC oS cD oPoX cE
     setupCronLine = "0 15 1/2 * * root cd " + path["path"] + "/TitanRover2018/rover/core/process-manager/ && python setup.py;\n"; 
-    cronLinesFromProcesses.insert(0, setupCronLine)
+    #cronLinesFromProcesses.insert(0, setupCronLine)
     #print(cronLinesFromProcesses)
     if len(lines) > 1 and len(cronLinesFromProcesses) > 1:
         dif = [v for v in lines if v not in cronLinesFromProcesses]
