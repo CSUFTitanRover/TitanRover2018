@@ -1,0 +1,20 @@
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1000", 
+SYMLINK+="oled1"
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1001", 
+SYMLINK+="oled2"
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1002", 
+SYMLINK+="oled3"
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1003", 
+SYMLINK+="oled4"
