@@ -1,5 +1,4 @@
-[
-    {
+[{
         "path": "/TitanRover2018/rover/core/process-manager/motionConf/",
         "python": "sudo",
         "screenName": "motion",
@@ -18,10 +17,16 @@
         "script": "iftop.py"
     },
     {
-        "path": "/TitanRover2018/rover/core/servers/reach/",
+        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS",
         "python": "python",
         "screenName": "reach",
-        "script": "reach.py"
+        "script": "emlidreach.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
+        "python": "python",
+        "screenName": "reachSocketServer",
+        "script": "socketServer.py"
     }
-    
+
 ]
