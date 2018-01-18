@@ -11,7 +11,7 @@ def startListening():
             break
         except:
             print("Not Connected to the Reach on /dev/ttyACM*")
-            sleep(1)
+            sleep(5)
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('', 9000))
@@ -26,7 +26,7 @@ def startListening():
             break
         except:
             print("ERROR CONNECTING")
-            sleep(1)
+            sleep(3)
 
     while True:
         try:
@@ -34,6 +34,7 @@ def startListening():
             data = conn.recv(1024)
             if not data:
                 print("No data Received. Check Connection on Base Reach")
+                sleep(5)
                 break
             else:
                 ser.write(data)

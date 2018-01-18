@@ -15,7 +15,7 @@ def reach():
                 break
             except:
                 print("Not Connected to the Reach on /dev/ttyACM*")
-                sleep(1)
+                sleep(5)
             
             
         pattern = re.compile('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
@@ -26,7 +26,7 @@ def reach():
             print(data)
             m = re.match(pattern, data)
             if m:
-                payload = {"body":[{"topic": "record", "action":"write", "recordName": "reach/gps", 
+                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/reach", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4)),
                 "altitude": float(m.group(5)), "fix": (True if (int(m.group(6)) > 0) else False),
                 "nos": int(m.group(7)), "sdn":float(m.group(8)), 
