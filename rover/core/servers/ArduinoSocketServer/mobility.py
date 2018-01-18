@@ -14,6 +14,8 @@ from socket import *
 from datetime import datetime
 import subprocess
 from subprocess import Popen
+from threading import Thread
+from deepstream import post
 import time
 import pygame
 import numpy as np
@@ -45,9 +47,6 @@ client_socket.settimeout(0.5)
 # Initialize pygame and joysticks
 pygame.init()
 pygame.joystick.init()
-
-# LED status signals
-
 
 #Global declarations
 global paused
@@ -89,7 +88,7 @@ def setRoverActions():
 setRoverActions()  # Initiate roverActions to enter loop
 
 # Initialize connection to Arduino
-client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,0", "utf-8"), address)
+client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -122,10 +121,8 @@ def getZero(*arg):
 def getOne(*arg):
     return 1
 
-''' Direction: in case axis needs to be reversed
-    Should always return value between -1 and 1 '''
 def getRate():
-    return roverActions["throttle"]["direction"] * roverActions["throttle"]["value"]
+    return roverActions["throttle"]["direction"] * roverActions["throttle"]["value"]  # If axis needs to be reversed
 
 specialMultipliers = {"motor": 127, "none": 1}
 rateMultipliers = {"motor": getRate, "none": getOne}
@@ -173,7 +170,6 @@ def checkPause():
         datetime.now() - roverActions["pause"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["pause"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         paused = not paused
-        #setLed()
 
 def checkModes():
     global modeNum, mode, roverActions
@@ -192,7 +188,6 @@ def checkModes():
         setRoverActions()  # Clear all inputs
         roverActions["mode"]["set"] = modeNum
         roverActions["ledMode"]["value"] = controls[mode]["ledCode"]
-        #setLed()
 
 def checkButtons():
     global roverActions
@@ -250,8 +245,7 @@ def main(*argv):
     for i in range(joystick_count):
         pygame.joystick.Joystick(i).init()
 
-    while (1):
-        #setLed()
+    while True:
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
@@ -283,5 +277,16 @@ def main(*argv):
                 print("Send failed")
                 pass
 
+def sendToDeepstream():
+    while True:
+        try:
+            post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
+        except:
+            print("Cannot post to deepstream")
+        time.sleep(1)
+
 if __name__ == '__main__':
-    main()
+    t1 = Thread(target = main)
+    t2 = Thread(target = sendToDeepstream)
+    t1.start()
+    t2.start()
