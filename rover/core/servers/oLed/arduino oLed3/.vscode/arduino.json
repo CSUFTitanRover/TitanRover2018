@@ -1,0 +1,6 @@
+{
+    "port": "/dev/ttyUSB0",
+    "board": "arduino:avr:mega",
+    "configuration": "cpu=atmega2560",
+    "sketch": "Serial-to-OLED.ino"
+}

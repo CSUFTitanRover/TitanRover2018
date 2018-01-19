@@ -1,0 +1,36 @@
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1000", 
+SYMLINK+="oled1"
+
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1001", 
+SYMLINK+="oled2"
+
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1002", 
+SYMLINK+="oled3"
+
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1003", 
+SYMLINK+="oled4"
+
+SUBSYSTEM=="tty", 
+ATTRS{idVendor}=="Silicon Labs", 
+ATTRS{idProduct}=="titan rover", 
+ATTRS{serial}=="1004", 
+SYMLINK+="arduinoReset"
+
+SUBSYSTEM=="tty",
+ATTRS{serial}=="0d596f3a49235bf708548e85ce65ec94",
+ATTRS{idVendor}=="8087",
+ATTRS{idProduct}=="0a9e",
+SYMLINK+="tty-emlid"
+
