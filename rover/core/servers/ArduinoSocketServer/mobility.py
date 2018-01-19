@@ -12,33 +12,41 @@
 
 from socket import *
 from datetime import datetime
+import subprocess
+from subprocess import Popen
+from threading import Thread
+from deepstream import post
 import time
 import pygame
-import RPi.GPIO as GPIO
 import numpy as np
 import sys
+
+uname = Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
+isNvidia = True if uname == "arm64\n" else False
+
+if isPi:
+    import RPi.GPIO as GPIO
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setwarnings(False)
+    redLed = 18
+    greenLed = 23
+    blueLed = 24
+    GPIO.setup(redLed, GPIO.OUT)  # Red LED
+    GPIO.setup(greenLed, GPIO.OUT)  # Green LED
+    GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
 
 # System setup wait
 time.sleep(5)
 
 # Arduino address and connection info
-address = ("192.168.1.177", 5000)
+address = ("192.168.1.10", 5000)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(0.5)
 
 # Initialize pygame and joysticks
 pygame.init()
 pygame.joystick.init()
-
-# LED status signals
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-redLed = 18
-greenLed = 23
-blueLed = 24
-GPIO.setup(redLed, GPIO.OUT)  # Red LED
-GPIO.setup(greenLed, GPIO.OUT)  # Green LED
-GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
 
 #Global declarations
 global paused
@@ -80,7 +88,7 @@ def setRoverActions():
 setRoverActions()  # Initiate roverActions to enter loop
 
 # Initialize connection to Arduino
-client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,0", "utf-8"), address)
+client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -113,10 +121,8 @@ def getZero(*arg):
 def getOne(*arg):
     return 1
 
-''' Direction: in case axis needs to be reversed
-    Should always return value between -1 and 1 '''
 def getRate():
-    return roverActions["throttle"]["direction"] * roverActions["throttle"]["value"]
+    return roverActions["throttle"]["direction"] * roverActions["throttle"]["value"]  # If axis needs to be reversed
 
 specialMultipliers = {"motor": 127, "none": 1}
 rateMultipliers = {"motor": getRate, "none": getOne}
@@ -148,9 +154,10 @@ def setLed():
         myLeds = pausedLEDs
     else:
         myLeds = controls[mode]["leds"]
-    GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
-    GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
-    GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
+    if isPi:
+        GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
+        GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
+        GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
 
 def checkPause():
     global paused, roverActions
@@ -163,7 +170,6 @@ def checkPause():
         datetime.now() - roverActions["pause"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["pause"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         paused = not paused
-        #setLed()
 
 def checkModes():
     global modeNum, mode, roverActions
@@ -182,7 +188,6 @@ def checkModes():
         setRoverActions()  # Clear all inputs
         roverActions["mode"]["set"] = modeNum
         roverActions["ledMode"]["value"] = controls[mode]["ledCode"]
-        #setLed()
 
 def checkButtons():
     global roverActions
@@ -240,8 +245,7 @@ def main(*argv):
     for i in range(joystick_count):
         pygame.joystick.Joystick(i).init()
 
-    while (1):
-        #setLed()
+    while True:
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
@@ -273,5 +277,16 @@ def main(*argv):
                 print("Send failed")
                 pass
 
+def sendToDeepstream():
+    while True:
+        try:
+            post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
+        except:
+            print("Cannot post to deepstream")
+        time.sleep(1)
+
 if __name__ == '__main__':
-    main()
+    t1 = Thread(target = main)
+    t2 = Thread(target = sendToDeepstream)
+    t1.start()
+    t2.start()
