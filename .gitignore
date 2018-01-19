@@ -22,3 +22,4 @@ yarn-error.log*
 /.idea
 
 *.0
+*.pyc
