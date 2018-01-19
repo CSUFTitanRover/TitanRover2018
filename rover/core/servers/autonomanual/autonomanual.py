@@ -75,8 +75,10 @@ def switchToAutonomanual():
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             client_socket.sendto(bytes("5,5,0,0,0,0,0,0,0,3","utf-8"), address)
+                        sleep(.05)
                     except:
                         print("Send failed")
+                        
 
 
 
