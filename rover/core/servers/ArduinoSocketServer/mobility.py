@@ -40,7 +40,7 @@ if isPi:
 time.sleep(5)
 
 # Arduino address and connection info
-address = ("192.168.1.177", 5000)
+address = ("192.168.1.10", 5000)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(0.5)
 
