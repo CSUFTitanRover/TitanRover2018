@@ -35,9 +35,9 @@ We currently have the following projects baking in the oven:
 You are more than welcome, and in fact, are encouraged to try to contribute to more than 1 project. The more you help with different projects,
 the more you come to learn about the entire rover system. 
 
-We have a _projects page*_ where you can read more about our system: https://github.com/CSUFTitanRover/TitanRover2018/projects
+We have a *projects page\** where you can read more about our system: https://github.com/CSUFTitanRover/TitanRover2018/projects
 
-_\* There are additional side projects listed that are not listed above._
+*\* There are additional side projects listed that are not listed above.*
 
 We encourage our team members to track issues/progress of your team by going to the project tracking view. Which is done by clicking on the project link in the [projects page listing](https://github.com/CSUFTitanRover/TitanRover2018/projects).
 
@@ -47,6 +47,7 @@ e.g. https://github.com/CSUFTitanRover/TitanRover2018/projects/1
 
 GitFlow is a naming convention for a certain type of branching model.
 Here at _Titan Rover Industries<sup>tm</sup>_ we are using the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
+Here at Titan Rover Industries<sup>tm</sup> we are using the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
 
 Our use cases for **feature branches** are mainly to be implementing one single aspect of a project. Once done implementing a feature, then you would submit a Pull Request to merge the branch back into your base project branch and have it reviewed by your team lead.
 
@@ -123,10 +124,15 @@ We have a number of labels that can be applied to any GitHub Issues created and 
 go over them. You can view our labels here: https://github.com/CSUFTitanRover/TitanRover2018/labels
 
 Priority tags - define how urgent it is an issue needs to be completed
+
   - There should only be 1 priority tag per issue
+
 Status tags - define what the status is for an issue
+
   - There should only be 1 status tag per issue
+
 Default tags - these tags help describe what the issue is or wants
+
   - There can be any number of tags per issue
 
 ## Typical Workflow
