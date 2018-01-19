@@ -74,12 +74,11 @@ def switchToAutonomanual():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
-                            client_socket.sendto(bytes("6,-6,0,0,0,0,0,0,0,3","utf-8"), address)
+                            client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,3","utf-8"), address)
                         sleep(.05)
                     except:
                         print("Send failed")
                         
-
 
 
 t1 = Thread(target = getDataFromDeepstream)
