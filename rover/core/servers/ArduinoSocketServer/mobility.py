@@ -270,6 +270,7 @@ def main(*argv):
     for i in range(joystick_count):
         pygame.joystick.Joystick(i).init()
 
+
     while True:
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
