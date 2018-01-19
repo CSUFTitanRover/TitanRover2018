@@ -8,13 +8,16 @@ import json
 import commands
 
 
-roverIp = "localhost"   # This ip will change periodically, 
+roverIp = "192.168.1.2"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
 
 try:
-    if "titan-share" in commands.getoutput("iwgetid -r"):
-        roverIp = "192.168.1.161"
+    if "titan" in commands.getoutput("iwgetid -r"):
+        roverIp = "192.168.1.2"
+        #print('Your Deepstream IP address is : ' + str(roverIp))
+    elif "00:24:B2:CA:8B:86" in commands.getoutput("nmap -sP 192.168.1.1"):
+        roverIp = "192.168.1.2"
         #print('Your Deepstream IP address is : ' + str(roverIp))
     else:
         roverIp = "127.0.0.1"
