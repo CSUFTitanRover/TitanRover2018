@@ -52,7 +52,7 @@ int packetSize;
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
 byte mac[] = { 0x90, 0xA2, 0xDA, 0x10, 0x30, 0xD3 };
-byte ip[] = {192, 168, 1, 177};
+byte ip[] = {192, 168, 1, 10};
 byte gateway[] = {192,168,1,1};
 byte subnet[] = {255,255,255,0};
 

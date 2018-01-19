@@ -1,0 +1,32 @@
+[
+    {
+        "path": "/TitanRover2018/rover/core/process-manager/motionConf/",
+        "python": "sudo",
+        "screenName": "motion",
+        "script": "motion"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/servers/ArduinoSocketServer/",
+        "python": "python3.4",
+        "screenName": "mobility",
+        "script": "mobility.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/servers/iftop/",
+        "python": "python",
+        "screenName": "speed",
+        "script": "iftop.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
+        "python": "python",
+        "screenName": "reach",
+        "script": "emlidreach.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
+        "python": "python",
+        "screenName": "reachSocketServer",
+        "script": "socketServer.py"
+    }
+]

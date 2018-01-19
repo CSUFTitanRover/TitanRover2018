@@ -1,0 +1,42 @@
+DeviceName,Mac Address,Owner,IP Address,Connection Type
+On the Rover,,,,
+TR1,b8:27:eb:a1:68:95,Rover Pi,192.168.1.2,Ethernet
+Rover Arduino,90:a2:da:10:30:d3,Rover,192.168.1.10,Ethernet
+nvidia,00:04:4b:8c:53:90,Nvidia Jetson,192.168.1.16,Wireless
+nvidia,00:04:4b:8c:53:92,Nvidia Jetson,192.168.1.15,Ethernet
+Rover Ubiquity,68:72:51:03:ac:95,Rover Ubiquity,192.168.1.50,Ethernet
+deepstream,,,192.168.1.20,Ethernet
+Science Arduino,,,192.168.1.11,
+Rover Reach,,,192.168.1.30,
+,,,,
+On the Runt,,,,
+,,,,
+TR5,,Runt Pi,192.168.1.4,Ethernet
+Runt Beaglebone,88:dc:96:35:e7:a4,Runt Beaglebone,192.168.1.17,Ethernet
+Runt Arduino,90:a2:da:10:6f:f9,Runt Arduino,192.168.1.12,Ethernet
+,,,,
+Base Station,,,,
+Base Station Ubiquity,68:72:51:02:ac:95,Base Ubiquity,192.168.1.51,Ethernet
+Base Reach,90:b6:86:07:3b:2b,Base Reach,192.168.1.31,Wireless
+TR4,B8:27:EB:6c:3d:2d,Base Pi,192.168.1.3,Ethernet
+deepstream,,,192.168.1.21,
+,,,,
+People,,,,
+Shree,3C:a0:67:69:2a:cd,Shree,192.168.1.88,wireless
+audstanley-G750JM,54:27:1e:90:84:1c,Stanley,192.168.1.84,wireless
+Insp17-R,80:86:f2:65:bf:71,Richard E,192.168.1.86,Wireless
+Insp17-R,b8:2a:72:9f:D6:46,Richard E,192.168.1.85,Ethernet
+MasterSurface3,c0:33:5e:2f:57:c9,Tim P,192.168.1.81,Wireless
+MasterSurface4,98:5f:d3:e4:57:78,Tim P,192.168.1.82,Wireless
+MasterNetworkUSB,a0:ce:c8:02:46:24,Tim P,192.168.1.83,USB to RJ45
+ganymede,18:5e:0f:0c:ff:17,Chary V,192.168.1.87,Wireless
+,,,,
+2 to 9,Pi's,,,
+10 to 14,Arduinos,,,
+15 to 16,Nvidia,,,
+17,Beaglebone,,,
+20 to 29,Servers,,,
+30 to 39,Sensors,,,
+50 to 51,Ubiquity,,,
+80 to 99,Leads,,,
+100+,Others,,,
