@@ -28,5 +28,11 @@
         "python": "python",
         "screenName": "reachSocketServer",
         "script": "socketServer.py"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/servers/autonomanual/",
+        "python": "python",
+        "screenName": "autonomanual",
+        "script": "autonomanual.py"
     }
 ]
