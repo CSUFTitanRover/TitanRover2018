@@ -48,6 +48,7 @@ else:
     p2 = Popen([ "whereis", "iftop" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
     p3 = Popen([ "whereis", "pip" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
     p4 = Popen([ "whereis", "motion" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+    p5 = Popen([ "whereis", "nmap" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
     
     # automatically install dependencies if it does not exists.
     if p1[8:] == "":
@@ -63,6 +64,10 @@ else:
         Popen([ "sudo", "apt-get", "install", "python-pip", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     if p4[8:] == "" or len(p4) == 20:
+        print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    
+    if p4[6:] == "":
         print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     
