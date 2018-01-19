@@ -68,8 +68,8 @@ else:
         Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     
     if p4[6:] == "":
-        print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        print(c.YELLOW+"Installing nmap, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "apt-get", "install", "nmap", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     
     # Always copy the motion config files (for now), as updates in the future may change
     try:
