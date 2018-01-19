@@ -88,12 +88,24 @@ else:
     except:
         print("There was a problem trying to copy the udev rules")
 
-    # install requests dependency, if not installed
+    # install python dependencies, if not installed
     try:
         __import__("requests") 
     except:
         print(c.YELLOW+"Installing requests for python, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "python-requests", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+    try:
+        __import__("fastkml") 
+    except:
+        print(c.YELLOW+"Installing fastkml for python, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "apt-get", "install", "python-fastkml", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
+    try:
+        __import__("shapely") 
+    except:
+        print(c.YELLOW+"Installing shapely for geometry in python, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "apt-get", "install", "python-shapely", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     with open(crontab, 'r') as file:
         lines = file.readlines()
@@ -109,10 +121,12 @@ else:
     for o in processes:
         # cronLineA           path["path"]                  o["path"]                                             cronLineB                 o["screenName"]      cronLineC       o["screenName"]       cronLineD        o["python"] o["script"]   cronLineD
         # {@reboot root cd} {/home/audstanley/Documents} {/TitanRover2018/rover/core/servers/ArduinoSocketServer/} {&& /usr/bin/screen -dmLS }    {mobility}       {&& screen -S }   {mobility}            { -X stuff "}   {python}     {mobility.py}  \015";\n
-        if(os.path.exists(path["path"] + o["path"] + o["script"])) or o["script"] == "motion":
-            cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
-                                    #  cA p1p2 cB oS cC oS cD oPoX cE
-    setupCronLine = "0 15 1 * * root cd " + path["path"] + "/TitanRover2018/rover/core/process-manager/ && python getLatestFiles.py;\n"; 
+        if "roverType" in os.environ:
+            if o["computer"] == os.environ["roverType"] or o["computer"] == "both":
+                if(os.path.exists(path["path"] + o["path"] + o["script"])) or o["script"] == "motion":
+                    cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
+                                            #  cA p1p2 cB oS cC oS cD oPoX cE
+        setupCronLine = "0 15 1 * * root cd " + path["path"] + "/TitanRover2018/rover/core/process-manager/ && python getLatestFiles.py;\n"; 
     cronLinesFromProcesses.insert(0, setupCronLine)
     #print(cronLinesFromProcesses)
     if len(lines) > 1 and len(cronLinesFromProcesses) > 1:
