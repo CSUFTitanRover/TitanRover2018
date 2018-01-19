@@ -25,7 +25,6 @@ try:
 except:
     roverIp = "127.0.0.1"
 
-
 def get(recordName):
     '''
         The get function will get the entire record "rover/" + recordName
