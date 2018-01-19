@@ -15,7 +15,7 @@ from datetime import datetime
 import subprocess
 from subprocess import Popen
 from threading import Thread
-from deepstream import post
+from deepstream import post, get
 import time
 import pygame
 import numpy as np
@@ -57,9 +57,13 @@ global mode  # Current set name (string) in use
 global modeNames  # List of set names (strings) from .txt file
 global actionTime  # Seconds needed to trigger pause / mode change
 global pausedLEDs  # LED settings for paused mode
+global dsMode  # Deepstream mode 
+global dsButton
 paused = False
 modeNum = 0
 actionTime = 3
+dsMode = "manual"  
+dsButton = False
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
@@ -84,6 +88,7 @@ def setRoverActions():
     roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to support "mode" action
     roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
     roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0}  # Added to support button throttle
+    roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
 
 setRoverActions()  # Initiate roverActions to enter loop
 
@@ -158,6 +163,26 @@ def setLed():
         GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
         GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
         GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
+
+def checkDsButton():
+    global dsButton, roverActions
+    if (not roverActions["auto"]["held"] and roverActions["auto"]["value"]):  # New button press
+        roverActions["auto"]["held"] = True
+        roverActions["auto"]["lastpress"] = datetime.now()
+    if (roverActions["auto"]["held"] and not roverActions["auto"]["value"]):  # Button held, but now released
+        roverActions["auto"]["held"] = False
+    if (roverActions["auto"]["held"] and roverActions["auto"]["value"] and (
+        datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
+        roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
+        dsButton = True
+
+def requestControl():
+    try:
+        post({"mode": "manual"}, "mode")
+        print("Updated mode record")
+    except:
+        print("Cannot access mode record")
+        pass
 
 def checkPause():
     global paused, roverActions
@@ -239,7 +264,7 @@ def checkHats(currentJoystick):
                         roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
 
 def main(*argv):
-    global paused
+    global paused, dsButton, dsMode
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -258,6 +283,9 @@ def main(*argv):
             throttleStep()
             checkPause()
             checkModes()
+            checkDsButton()
+            if dsButton:
+                requestControl()
             setLed()
             print("Sending Arduino command")
             try:
@@ -265,24 +293,30 @@ def main(*argv):
                 #print(bytes.decode(re_data[0]))  # Debug
                 if bytes.decode(re_data[0]) == "r":
                         #print("Received packet")  # Debug
-                    if (paused):
+                    if paused:
                         outVals = list(map(getZero, actionList))
                     else:
                         outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
                     outVals = list(map(str, outVals))
                     outString = ",".join(outVals)
-                    client_socket.sendto(bytes(outString,"utf-8"), address)
-                    print(outString)
+                    if dsMode == "manual":
+                        client_socket.sendto(bytes(outString,"utf-8"), address)
+                        print(outString)
+                    else:
+                        print("Not in manual mode")
             except:
                 print("Send failed")
                 pass
 
 def sendToDeepstream():
+    global dsMode
     while True:
         try:
             post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
+            dsMode = get("mode")["mode"]
         except:
-            print("Cannot post to deepstream")
+            print("Cannot send to Deepstream")
+            pass 
         time.sleep(1)
 
 if __name__ == '__main__':
