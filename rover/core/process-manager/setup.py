@@ -96,16 +96,11 @@ else:
         Popen([ "sudo", "apt-get", "install", "python-requests", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     try:
-        __import__("fastkml") 
+        __import__("simplekml") 
     except:
-        print(c.YELLOW+"Installing fastkml for python, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "python-fastkml", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        print(c.YELLOW+"Installing simplekml for python, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "pip", "install", "simplekml", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
-    try:
-        __import__("shapely") 
-    except:
-        print(c.YELLOW+"Installing shapely for geometry in python, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "python-shapely", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     with open(crontab, 'r') as file:
         lines = file.readlines()
