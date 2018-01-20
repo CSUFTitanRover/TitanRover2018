@@ -71,6 +71,7 @@ else:
         print(c.YELLOW+"Installing nmap, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "nmap", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     
+
     # Always copy the motion config files (for now), as updates in the future may change
     try:
         copyfile("motionConf/motion.conf", "/etc/motion/motion.conf")
@@ -100,6 +101,7 @@ else:
     except:
         print(c.YELLOW+"Installing simplekml for python, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "pip", "install", "simplekml", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+
 
 
     with open(crontab, 'r') as file:
