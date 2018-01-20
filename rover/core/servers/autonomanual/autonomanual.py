@@ -36,7 +36,7 @@ err = "0"
 
 while err != "":
     sleep(3)
-    out, err = Popen(["ssh", "pi@192.168.1.3", "date +%s"], stdout=PIPE, stderr=PIPE).communicate()
+    out, err = Popen(["ssh", "root@192.168.1.3", "date +%s"], stdout=PIPE, stderr=PIPE).communicate()
     print("OUT:", out)
     print("ERR:", err)
     if out != "":
