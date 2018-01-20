@@ -6,7 +6,7 @@ import time
 import serial
 import math
 from subprocess import Popen, PIPE
-#from kml import addPoint, saveKML
+from kml import addPoint, saveKML
 
 address = ("192.168.1.10", 5000)
 client_socket = socket(AF_INET, SOCK_DGRAM)
@@ -49,14 +49,14 @@ def getDataFromDeepstream():
     global reach, imu, mobilityTime, heading
     #print("getting in getDataFromDeepstream")
     sleep(1)
-    '''
+    
     while mobilityTime == None or mobilityTime == "NO_RECORD":
         try:
             mobilityTime = get('mobilityTime')["mobilityTime"]
         except:
             pass
         sleep(1)
-    '''
+    
     while True:
         try:
             try:
@@ -82,7 +82,7 @@ def getDataFromDeepstream():
             except:
                 imu = {}
             sleep(.025)
-            '''
+           
             try:
                 print("Getting Mobility time stamp")
                 mobilityTime = get('mobilityTime')["mobilityTime"]
@@ -90,10 +90,10 @@ def getDataFromDeepstream():
                 pass
             #print("Latitude : " + str(lat) + "    Longitude : " + str(lon) + "    heading : " + str(heading) + "    MobilityTime : " + mobilityTime)
             sleep(.025)
-            '''
+            
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
-            #saveKML()
+            saveKML()
 
 
 
@@ -128,7 +128,7 @@ def storeDataInList(reach):
     lat2, lon2 = reach['lat'], reach['lon']
 
     # PUT KML data here
-    #addPoint(lon1, lon1)
+    addPoint(lon1, lon1)
 
     if distance((lat1, lon1), (lat2, lon2)) > 3 and reach['sde'] < 10 and reach['sdn'] < 10 and reach['fix']:
         if counter < 350:
