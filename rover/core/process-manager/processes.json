@@ -36,7 +36,7 @@
     },
     {
         "path": "/TitanRover2018/rover/core/servers/autonomanual/",
-        "python": "python",
+        "python": "python3.4",
         "screenName": "autonomanual",
         "script": "autonomanual.py",
         "computer": "rover"
