@@ -264,8 +264,7 @@ def sendToDeepstream():
             post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
             dsMode = get("mode")["mode"]
         except:
-            print("Cannot send to Deepstream")
-            pass 
+            print("Cannot send to Deepstream") 
         time.sleep(1)
 
 def requestControl():
