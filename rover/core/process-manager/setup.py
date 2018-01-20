@@ -115,13 +115,16 @@ else:
     cronLineD   = "-X stuff \""
     cronLineE   = "\\015\";\n"
 
+
     for o in processes:
         # cronLineA           path["path"]                  o["path"]                                             cronLineB                 o["screenName"]      cronLineC       o["screenName"]       cronLineD        o["python"] o["script"]   cronLineD
         # {@reboot root cd} {/home/audstanley/Documents} {/TitanRover2018/rover/core/servers/ArduinoSocketServer/} {&& /usr/bin/screen -dmLS }    {mobility}       {&& screen -S }   {mobility}            { -X stuff "}   {python}     {mobility.py}  \015";\n
-        if "roverType" in os.environ:
-            if o["computer"] == os.environ["roverType"] or o["computer"] == "both":
-                if(os.path.exists(path["path"] + o["path"] + o["script"])) or o["script"] == "motion":
-                    cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
+        #if os.environ.get("roverType") == "rover":
+            #print("OS ENV GOOD")
+            #if o["computer"] == os.environ.get("roverType") or o["computer"] == "both":
+                #print(o["computer"])
+	if(os.path.exists(path["path"] + o["path"] + o["script"])) or o["script"] == "motion":
+	    cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
                                             #  cA p1p2 cB oS cC oS cD oPoX cE
         setupCronLine = "0 15 1 * * root cd " + path["path"] + "/TitanRover2018/rover/core/process-manager/ && python getLatestFiles.py;\n"; 
     cronLinesFromProcesses.insert(0, setupCronLine)
