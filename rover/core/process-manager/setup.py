@@ -115,12 +115,6 @@ else:
     cronLineD   = "-X stuff \""
     cronLineE   = "\\015\";\n"
 
-<<<<<<< HEAD
-    #out, err = Popen(["source", "/etc/environment"], stdout=PIPE, stderr=PIPE).communicate()
-    #print("OUT:", out)
-
-=======
->>>>>>> 70833a83480df0ad6edc9c91d798ed74c48041df
 
     for o in processes:
         # cronLineA           path["path"]                  o["path"]                                             cronLineB                 o["screenName"]      cronLineC       o["screenName"]       cronLineD        o["python"] o["script"]   cronLineD
