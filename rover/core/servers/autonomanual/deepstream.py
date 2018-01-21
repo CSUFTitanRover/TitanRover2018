@@ -5,7 +5,8 @@
 '''
 import requests
 import json
-import commands
+from subprocess import Popen, PIPE
+import subprocess
 
 
 roverIp = "192.168.1.2"   # This ip will change periodically, 
@@ -13,10 +14,10 @@ roverIp = "192.168.1.2"   # This ip will change periodically,
 
 
 try:
-    if "titan" in commands.getoutput("iwgetid -r"):
+    if "titan" == Popen(["iwgetid", "-r"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
         roverIp = "192.168.1.2"
         #print('Your Deepstream IP address is : ' + str(roverIp))
-    elif "00:24:B2:CA:8B:86" in commands.getoutput("nmap -sP 192.168.1.1"):
+    elif "00:24:B2:CA:8B:86" in Popen(["nmap", "-sP", "192.168.1.1"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
         roverIp = "192.168.1.2"
         #print('Your Deepstream IP address is : ' + str(roverIp))
     else:
