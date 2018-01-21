@@ -22,7 +22,7 @@ import numpy as np
 import sys
 import os
 
-uname = Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode("utf-8")
+uname = str(Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode("utf-8"))
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
 isNvidia = True if uname == "arm64\n" else False
 
@@ -95,7 +95,9 @@ def setRoverActions():
 setRoverActions()  # Initiate roverActions to enter loop
 
 # Initialize connection to Arduino
-client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+def initArduinoConnection():
+    client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+initArduinoConnection()
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -262,15 +264,19 @@ def sendToDeepstream():
     while True:
         try:
             post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
+            sleep(.05)
             dsMode = get("mode")["mode"]
         except:
             print("Cannot send to Deepstream") 
-        time.sleep(1)
+        time.sleep(.9)
 
 def requestControl():
     try:
-        post({"mode": "manual"}, "mode")
-        print("Updated mode record")
+        modeRecord = post({"mode": "manual"}, "mode")
+        print("Updated mode record:", str(modeRecord))
+        sleep(.1)
+        initArduinoConnection()
+        print("Trying to initialize a connection to the arduino...")
     except:
         print("Cannot access mode record")
         
