@@ -132,6 +132,7 @@ def switchToAutonomanual():
                         print("changing mode to autonomanual and posting to deepstream")
                         #ser = serial.Serial(device, baud, timeout = 0.5)
                         #ser.write("1")
+                        sleep(8)
                         mode = "autonomanual"
                     except:
                         print("Error In changing modes to Autonomanual so setting mode to MANUAL")
