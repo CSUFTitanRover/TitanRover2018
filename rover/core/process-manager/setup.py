@@ -1,7 +1,7 @@
 import sys
 import os
 from shutil import copyfile
-from subprocess import Popen
+from subprocess import Popen, PIPE
 import subprocess
 import json
 
@@ -44,32 +44,32 @@ if path["path"] == None or path["path"][-1:] == "/":
     sys.exit()
 else:
     # look to see if screen exists
-    p1 = Popen([ "whereis", "screen" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-    p2 = Popen([ "whereis", "iftop" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-    p3 = Popen([ "whereis", "pip" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-    p4 = Popen([ "whereis", "motion" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
-    p5 = Popen([ "whereis", "nmap" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+    p1 = Popen([ "whereis", "screen" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p2 = Popen([ "whereis", "iftop" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p3 = Popen([ "whereis", "pip" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p4 = Popen([ "whereis", "motion" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p5 = Popen([ "whereis", "nmap" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     
     # automatically install dependencies if it does not exists.
     if p1[8:] == "":
         print(c.YELLOW+"Installing screen, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "screen", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        Popen([ "sudo", "apt-get", "install", "screen", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
     if p2[7:] == "":
         print(c.YELLOW+"Installing iftop, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "iftop", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        Popen([ "sudo", "apt-get", "install", "iftop", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
     if p3[5:] == "":
         print(c.YELLOW+"Installing python-pip, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "python-pip", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        Popen([ "sudo", "apt-get", "install", "python-pip", "-y"], stdout=PIPE, stderr=PIPE).communicate()
 
     if p4[8:] == "" or len(p4) == 20:
         print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
     if p4[6:] == "":
         print(c.YELLOW+"Installing nmap, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "nmap", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        Popen([ "sudo", "apt-get", "install", "nmap", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
 
     # Always copy the motion config files (for now), as updates in the future may change
@@ -94,13 +94,13 @@ else:
         __import__("requests") 
     except:
         print(c.YELLOW+"Installing requests for python, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "apt-get", "install", "python-requests", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        Popen([ "sudo", "apt-get", "install", "python-requests", "-y"], stdout=PIPE, stderr=PIPE).communicate()
 
     try:
         __import__("simplekml") 
     except:
         print(c.YELLOW+"Installing simplekml for python, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "pip", "install", "simplekml", "-y"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        Popen([ "sudo", "pip", "install", "simplekml", "-y"], stdout=PIPE, stderr=PIPE).communicate()
 
 
 
@@ -126,11 +126,23 @@ else:
 	if(os.path.exists(path["path"] + o["path"] + o["script"])) or o["script"] == "motion":
 	    cronLinesFromProcesses.append("{} {}{} {} {} {} {} {}{} {} {}".format(cronLineA, path["path"], o["path"], cronLineB, o["screenName"], cronLineC, o["screenName"], cronLineD , o["python"], o["script"], cronLineE))
                                             #  cA p1p2 cB oS cC oS cD oPoX cE
+        else:
+            print(c.RED+"Cannot find the roverType variable in /etc/environment:")
+            print("    in order to fis this, you need to edit your /etc/environment.")
+            print("    on the line under the "+c.BLUE+"PATH="+c.RED+" put:")
+            print("    "+c.BLUE+"roverType="+c.DEFAULT+"\"rover\""+c.RED+"# or "+c.DEFAULT+"\"base\""+c.RED)
+            print("then the setup will know how to organize your crontab"+c.DEFAULT)
+            sys.exit()
+
         setupCronLine = "0 15 1 * * root cd " + path["path"] + "/TitanRover2018/rover/core/process-manager/ && python getLatestFiles.py;\n"; 
     cronLinesFromProcesses.insert(0, setupCronLine)
+    
     #print(cronLinesFromProcesses)
     if len(lines) > 1 and len(cronLinesFromProcesses) > 1:
         dif = [v for v in lines if v not in cronLinesFromProcesses]
+        if "roverType" in os.environ:
+                if not any("roverType" in s for s in dif):
+                    cronLinesFromProcesses.insert(0, "roverType=" + "\"" + os.environ["roverType"] +"\"\n")
         if len(dif) > 0:
             file = open(crontab, 'w')
             for i in dif:
