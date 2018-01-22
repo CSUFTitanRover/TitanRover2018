@@ -31,7 +31,7 @@ if sys.platform != "linux":
             sys.exit()
 
 if os.getuid() is not 0:
-    print(c.RED+"Please run script as sudo:\n\t"+c.YELLOW+"sudo python processMan.py\n"+c.DEFAULT)
+    print(c.RED+"Please run script as sudo:\n\t"+c.YELLOW+"sudo python setup.py\n"+c.DEFAULT)
     sys.exit()
 
 if path["path"] == None or path["path"][-1:] == "/":
