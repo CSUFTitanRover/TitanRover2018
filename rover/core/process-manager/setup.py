@@ -67,7 +67,7 @@ else:
         print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "motion", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
-    if p4[6:] == "":
+    if p5[6:] == "":
         print(c.YELLOW+"Installing nmap, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "nmap", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
