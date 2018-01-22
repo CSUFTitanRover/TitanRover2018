@@ -20,7 +20,10 @@ client_socket.settimeout(0.5)
 global reach, imu, points
 reach = {}
 imu = {}
-points = [(get('gps')['lat'], get('gps')['lat'])]
+if get('gps') != "NO_RECORD":
+    points = [(get('gps')['lat'], get('gps')['lat'])]
+else:
+    points = []
 
 global lat1, lat2, lon1, lon2, heading, counter
 lat1 = 0
@@ -33,7 +36,10 @@ counter = 0
 global mode, mobilityTime, previousMobilityTime
 mode = "manual"                     #The Initial mode is always manual
 mobilityTime = None
-previousMobilityTime = get('mobilityTime')["mobilityTime"]
+if get('mobilityTime') != "NO_RECORD":
+    previousMobilityTime = get('mobilityTime')["mobilityTime"]
+else:
+    previousMobilityTime = None
 
 
 device = "/dev/arduinoReset"
@@ -234,16 +240,24 @@ def revDir(heading):
 
 def returnToStart():
     global heading
-    print("#### TAKE A 180 DEGREE TURN ####")
+    print("#### TAKING A 180 DEGREE TURN ####")
     sleep(0.5)
     revTurn = revDir(heading)
     while heading != range(revTurn-.5, revTurn+.5):
-        client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,3","utf-8"), address)
-        sleep(.1)
+        try:
+            re_data = client_socket.recvfrom(512)
+            if bytes.decode(re_data[0]) == "r":
+                #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
+                #print("-20,0,0,0,0,0,0,0,0,3")
+                client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,3","utf-8"), address)
+                sleep(.05)
+        except:
+            print("Send failed")
+            sleep(.1)
 
     
     print("#### RETURNING BACK TO THE STARTING POINT ####")
-    while len(points) != 1:
+    while len(points) > 1:
         while distance(points[-1], points[-2]) > 0.5:
             angle = reverseGpsDirection(points[-1], points[-2])
         points.pop()
