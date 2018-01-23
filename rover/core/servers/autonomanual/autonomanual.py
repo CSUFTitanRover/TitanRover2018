@@ -30,6 +30,8 @@ lon2 = 0
 currLat = 0
 currLon = 0
 heading = 0
+timeDiff = 0
+thread = True
 
 global mode, mobilityTime, previousMobilityTime
 mode = "manual"                     #The Initial mode is always manual
@@ -61,7 +63,7 @@ while err != "":
 #   Function to get mobilityTime Stamp, heading from imu, gps coordinates from deepstream
 
 def getDataFromDeepstream():
-    global reach, imu, mobilityTime, heading
+    global reach, imu, mobilityTime, heading, thread, timeDiff
     print("getting in getDataFromDeepstream")
     sleep(0.3)
     
@@ -70,14 +72,20 @@ def getDataFromDeepstream():
             mobilityTime = get('mobilityTime')["mobilityTime"]          #   Initializing the mobilityTime from deepstream
         except:
             print("Still Getting the initial Mobility Time")
-            sleep(0.05)
+        
+        sleep(0.05)
+
+        try:
+            post({"timeDiff": str(timeDiff)}, "timeDiff")
+        except:
             pass
+        
         print("Initial Mobility Time : ", mobilityTime)
         sleep(0.5)
     
     t2.start()
     
-    while True:
+    while thread:
         try:
             try:
                 print("getting GPS")
@@ -119,16 +127,23 @@ def getDataFromDeepstream():
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
             saveKML()
+            thread = False
+            sleep(3)
+            try:
+                post({"mode":"manual"}, mode)
+            except:
+                print("There was a problem setting mode back to manual")
 
 #   Function to check mobilityTime and switch modes between manual and autonomanual
 
 def switchToAutonomanual():
-    global mobilityTime, mode
+    global mobilityTime, mode, thread, timeDiff
     print("getting in switchToAutonomaual")
-    while True:
+    while thread:
         sleep(.3)
         #print("mobility time : ", mobilityTime)
         if(type(mobilityTime) == int):
+            timeDiff = (mobilityTime - time.time())
             print("\nThe Time Difference is : ", (mobilityTime - time.time()))
             if mobilityTime + 10 < int(time.time()) or mode == "autonomanual":
                 print("checking for autonomanual mode")        
