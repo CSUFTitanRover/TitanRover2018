@@ -74,11 +74,6 @@ def getDataFromDeepstream():
             print("Still Getting the initial Mobility Time")
         
         sleep(0.05)
-
-        try:
-            post({"timeDiff": str(timeDiff)}, "timeDiff")
-        except:
-            pass
         
         print("Initial Mobility Time : ", mobilityTime)
         sleep(0.5)
@@ -120,6 +115,11 @@ def getDataFromDeepstream():
                 print("Mobility Time : ", mobilityTime)
                 sleep(0.3)
                 pass
+            
+            try:
+                post({"timeDiff": str(timeDiff)}, "timeDiff")
+            except:
+                pass
                 
             #print("Latitude : " + str(lat) + "    Longitude : " + str(lon) + "    heading : " + str(heading) + "    MobilityTime : " + mobilityTime)
             sleep(.025)
@@ -144,7 +144,7 @@ def switchToAutonomanual():
         #print("mobility time : ", mobilityTime)
         if(type(mobilityTime) == int):
             timeDiff = (mobilityTime - time.time())
-            print("\nThe Time Difference is : ", (mobilityTime - time.time()))
+            #print("\nThe Time Difference is : ", (mobilityTime - time.time()))
             if mobilityTime + 10 < int(time.time()) or mode == "autonomanual":
                 print("checking for autonomanual mode")        
                 if mode != "autonomanual":
