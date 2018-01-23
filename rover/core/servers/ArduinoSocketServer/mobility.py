@@ -26,6 +26,9 @@ uname = str(Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.P
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
 isNvidia = True if uname == "arm64\n" else False
 
+
+
+
 if isPi:
     import RPi.GPIO as GPIO
     GPIO.setmode(GPIO.BCM)
@@ -67,6 +70,17 @@ actionTime = 3
 dsMode = "manual"  
 dsButton = False
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
+
+while True:
+    success = None
+    try:
+        success = post({"mode": dsMode}, "mode")
+    except:
+        pass
+    time.sleep(.1)
+    if success == "SUCCESS":
+        break
+
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
               "joint5b", "reserved1", "ledMode"]  # List in order of socket output values
