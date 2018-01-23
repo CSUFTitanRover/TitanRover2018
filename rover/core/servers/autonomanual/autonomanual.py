@@ -150,8 +150,8 @@ def switchToAutonomanual():
                 if mode != "autonomanual":
                     try:
                         print("changing mode to autonomanual and posting to deepstream")
-                        #ser = serial.Serial(device, baud, timeout = 0.5)
-                        #ser.write("1")
+                        ser = serial.Serial(device, baud, timeout = 0.5)
+                        ser.write("1")
                         sleep(8)
                         mode = "autonomanual"
                     except:
@@ -162,7 +162,7 @@ def switchToAutonomanual():
                     sleep(2)
                     print("SENDING DATA TO ARDUINO TO STOP")
                     print("0,0,0,0,0,0,0,0,0,1")
-                    #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+                    client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
                 elif int(mobilityTime) + 10 > int(time.time()):
                     print("Entering Into MANUAL MODE Again")
                     mode = "manual"
@@ -285,7 +285,9 @@ def returnToStart():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
+                            print("Turning Right")
                             client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -298,7 +300,9 @@ def returnToStart():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
+                            print("Turning Left")
                             client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -310,8 +314,10 @@ def returnToStart():
                 while heading not in range(179.50, 180.50):
                     try:
                         re_data = client_socket.recvfrom(512)
+                        print("Turning Back 180 degrees")
                         if bytes.decode(re_data[0]) == "r":
                             client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -324,6 +330,7 @@ def returnToStart():
                     if bytes.decode(re_data[0]) == "r":
                         print("SENDING DATA TO ARDUINO TO GO BACK AT START POINT")
                         client_socket.sendto(bytes("20,20,0,0,0,0,0,0,0,4", "utf-8"), address)
+                        print("20,20,0,0,0,0,0,0,0,4")
                         sleep(.05)
                 except:
                     print("Send failed")
