@@ -386,5 +386,13 @@ void switchLEDs(int colorCode) {
         digitalWrite(greenPin, LOW);
             
         break;  
+
+    case 4:
+        //White
+        digitalWrite(redPin, HIGH);
+        digitalWrite(bluePin, HIGH);
+        digitalWrite(greenPin, HIGH);
+            
+        break;  
   }  
 }
