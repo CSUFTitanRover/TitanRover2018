@@ -181,7 +181,6 @@ def switchToAutonomanual():
                     except:
                         print("Send failed")
                 
-
 #   Function to store 350 gps coordinates to travele back to the starting point
 
 def storeDataInList(reach):
