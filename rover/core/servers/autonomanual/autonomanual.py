@@ -185,7 +185,7 @@ def switchToAutonomanual():
 
 def storeDataInList(reach):
     print("Getting into storeDataInList")
-    global lat1, lat2, lon1, lon2, points, reach
+    global lat1, lat2, lon1, lon2, points
     lat2, lon2 = reach['lat'], reach['lon']
 
     # PUT KML data here
