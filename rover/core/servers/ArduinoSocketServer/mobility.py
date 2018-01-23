@@ -254,6 +254,7 @@ def checkDsButton():
         roverActions["auto"]["lastpress"] = datetime.now()
     if (roverActions["auto"]["held"] and not roverActions["auto"]["value"]):  # Button held, but now released
         roverActions["auto"]["held"] = False
+        dsButton = False
     if (roverActions["auto"]["held"] and roverActions["auto"]["value"] and (
         datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
