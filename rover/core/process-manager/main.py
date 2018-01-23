@@ -15,7 +15,8 @@ reach       = {}
 reachTail   = ""
 imu         = {}
 imuTail     = ""
-mode         = {}
+mode        = {}
+timeDiff    = {}
 keyIn       = 0
 
 path        = json.load(open('pathToTitanRover.json'))
@@ -90,6 +91,7 @@ def runWindow():
         screen.addstr(3, 4, "To exit, hold the ESC key", curses.color_pair(3))
         screen.addstr(4, 4, "Process List:")
         screen.addstr(4, 60, "Mode:")
+        screen.addstr(4, 78, "TimeDiff:")
         screen.addstr(6, 6,  "    imu:")
         screen.addstr(12, 6,  "    reach:")
         screen.addstr(18, 6, "1 - iftop: ")
@@ -127,7 +129,7 @@ def runWindow():
         # information from iftop record
         if type(iftop) == dict:
             if iftop == {}:
-                screen.addstr(18, 25, "WAITING ON IFTOP...", curses.color_pair(2))
+                screen.addstr(18, 25, "NO_RECORD", curses.color_pair(2))
             else:
                 log = getTail("speed")
                 screen.addstr(18, 25, "IP Address:")
@@ -150,8 +152,17 @@ def runWindow():
         elif type(mode) == str:
             screen.addstr(4, 66, mode, curses.color_pair(2))
 
+        # information from the timeDiff record which tracks the difference in the timestamps
+        if type(timeDiff) == dict:
+            if timeDiff == {}:
+                screen.addstr(4, 88, "WAITING ON TIME...", curses.color_pair(2))
+            else:
+                screen.addstr(4, 88, timeDiff["timeDiff"], curses.color_pair(3))
+        elif type(mode) == str:
+            screen.addstr(4, 88, mode, curses.color_pair(2))
 
         screen.refresh()
+        sleep(.1)
 
         if keyIn == ord("1"):
             keyIn = 0
@@ -191,6 +202,11 @@ def getDataFromDeepstream():
             mode = get("mode")
         except:
             mode = {}
+        sleep(.08)
+        try:
+            timeDiff = get("timeDiff")
+        except:
+            timeDiff = {}
         sleep(.08)
         if keyIn == ord(chr(27)):
             quit()
