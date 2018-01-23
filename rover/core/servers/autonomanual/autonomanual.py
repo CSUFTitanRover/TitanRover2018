@@ -20,18 +20,16 @@ client_socket.settimeout(0.5)
 global reach, imu, points
 reach = {}
 imu = {}
-if get('gps') != "NO_RECORD":
-    points = [(get('gps')['lat'], get('gps')['lat'])]
-else:
-    points = []
+points = []
 
-global lat1, lat2, lon1, lon2, heading, counter
+global lat1, lat2, lon1, lon2, heading, currLat, currLon
 lat1 = 0
 lon1 = 0
 lat2 = 0
 lon2 = 0
+currLat = 0
+currLon = 0
 heading = 0
-counter = 0
 
 global mode, mobilityTime, previousMobilityTime
 mode = "manual"                     #The Initial mode is always manual
@@ -47,7 +45,7 @@ baud = 4800
 err = "0"
 
 #   This loop synchronizes the clocks between the RoverPi and the BasePi
-'''
+
 while err != "":
     sleep(3)
     out, err = Popen(["ssh", "root@192.168.1.3", "date +%s"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -59,22 +57,23 @@ while err != "":
         date = out[:-1]
         Popen(["date", "-s", "@" + str(date)])
     sleep(3)
-'''
+
 #   Function to get mobilityTime Stamp, heading from imu, gps coordinates from deepstream
 
 def getDataFromDeepstream():
     global reach, imu, mobilityTime, heading
     print("getting in getDataFromDeepstream")
-    sleep(1)
+    sleep(0.3)
     
     while mobilityTime == None or mobilityTime == "NO_RECORD" or mobilityTime == previousMobilityTime:
         try:
             mobilityTime = get('mobilityTime')["mobilityTime"]          #   Initializing the mobilityTime from deepstream
         except:
             print("Still Getting the initial Mobility Time")
+            sleep(0.05)
             pass
         print("Initial Mobility Time : ", mobilityTime)
-        sleep(1)
+        sleep(0.5)
     
     t2.start()
     
@@ -85,7 +84,6 @@ def getDataFromDeepstream():
                 reach = get("gps")              #   getting the entire GPS data object(json)
                 if type(reach) == dict:
                     print("passing to function storedataindeepstream")
-                    sleep(1)
                     if reach != {}:
                         storeDataInList(reach)
                 #lat = reach['lat']
@@ -112,6 +110,7 @@ def getDataFromDeepstream():
                 print("Current Mobility Time : ", mobilityTime)
             except:
                 print("Mobility Time : ", mobilityTime)
+                sleep(0.3)
                 pass
                 
             #print("Latitude : " + str(lat) + "    Longitude : " + str(lon) + "    heading : " + str(heading) + "    MobilityTime : " + mobilityTime)
@@ -127,7 +126,7 @@ def switchToAutonomanual():
     global mobilityTime, mode
     print("getting in switchToAutonomaual")
     while True:
-        sleep(.5)
+        sleep(.3)
         #print("mobility time : ", mobilityTime)
         if(type(mobilityTime) == int):
             print("\nThe Time Difference is : ", (mobilityTime - time.time()))
@@ -145,7 +144,7 @@ def switchToAutonomanual():
                         mode = "manual"
                     print("The Current Mode is : ", mode)
                     post({"mode" : mode}, "mode")
-                    sleep(4)
+                    sleep(2)
                     print("SENDING DATA TO ARDUINO TO STOP")
                     print("0,0,0,0,0,0,0,0,0,1")
                     #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
@@ -154,34 +153,34 @@ def switchToAutonomanual():
                     mode = "manual"
                     post({"mode" : mode}, "mode")
                     print("The Current Mode is : ", mode)
-                    sleep(4)
+                    sleep(2)
                 else:
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
                             #print("-20,0,0,0,0,0,0,0,0,3")
-                            client_socket.sendto(bytes("-20,0,0,0,0,0,0,0,0,3","utf-8"), address)
+                            #client_socket.sendto(bytes("-20,0,0,0,0,0,0,0,0,3","utf-8"), address)
+                            returnToStart()
                         sleep(.05)
                     except:
                         print("Send failed")
                 
 
-
 #   Function to store 350 gps coordinates to travele back to the starting point
 
 def storeDataInList(reach):
     print("Getting into storeDataInList")
-    global counter, lat1, lat2, lon1, lon2, points
+    global lat1, lat2, lon1, lon2, points, reach
     lat2, lon2 = reach['lat'], reach['lon']
 
     # PUT KML data here
-    addPoint(lon1, lon1)
+    if lat1 != 0 and lon1 != 0:
+        addPoint(lat1, lon1)
 
     if distance((lat1, lon1), (lat2, lon2)) > 3 and reach['sde'] < 10 and reach['sdn'] < 10 and reach['fix'] and mode == "manual":
-        if counter < 350:
+        if len(points) < 350:
             points.append((lat2, lon2))
-            counter += 1
         else: 
             del points[0]
             points.append((lat2, lon2))
@@ -190,7 +189,6 @@ def storeDataInList(reach):
     lat1 = lat2
     lon1 = lon2
     
-    sleep(1)
     print("Recorded Points : ", points)
     sleep(1)
 
@@ -239,11 +237,12 @@ def revDir(heading):
 
 
 def returnToStart():
-    global heading
+    global heading, points, currLat, currlon
+    '''
     print("#### TAKING A 180 DEGREE TURN ####")
     sleep(0.5)
     revTurn = revDir(heading)
-    while heading != range(revTurn-.5, revTurn+.5):
+    while heading not in range(revTurn-.5, revTurn+.5):
         try:
             re_data = client_socket.recvfrom(512)
             if bytes.decode(re_data[0]) == "r":
@@ -254,20 +253,77 @@ def returnToStart():
         except:
             print("Send failed")
             sleep(.1)
-
-    
+    '''
     print("#### RETURNING BACK TO THE STARTING POINT ####")
     while len(points) > 1:
-        while distance(points[-1], points[-2]) > 0.5:
+        try:
+            if type(reach) == dict:
+                if reach != {}:
+                    currLat, currLon = reach['lat'], reach['lon']
+            else:
+                continue
+
             angle = reverseGpsDirection(points[-1], points[-2])
-        points.pop()
+            if angle < 0:
+                print("Taking a RIGHT TURN (CLOCKWISE)")
+                sleep(0.05)
+                while heading not in range(abs(angle) - 0.5, abs(angle) + 0.5):
+                    try:
+                        re_data = client_socket.recvfrom(512)
+                        if bytes.decode(re_data[0]) == "r":
+                            client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,3","utf-8"), address)
+                            sleep(.05)
+                    except:
+                        print("Send failed")
+                        sleep(.1)
+
+            elif angle > 0:
+                print("Taking a LEFT TURN (ANTI - CLOCKWISE)")
+                sleep(0.05)
+                while heading not in (360 - range(angle - 0.5, angle + 0.5)):
+                    try:
+                        re_data = client_socket.recvfrom(512)
+                        if bytes.decode(re_data[0]) == "r":
+                            client_socket.sendto(bytes("-20,20,0,0,0,0,0,0,0,3","utf-8"), address)
+                            sleep(.05)
+                    except:
+                        print("Send failed")
+                        sleep(.1)
+
+            elif angle == -0:
+                print("Taking a 180 DEGREE TURN")
+                sleep(0.05)
+                while heading not in range(179.50, 180.50):
+                    try:
+                        re_data = client_socket.recvfrom(512)
+                        if bytes.decode(re_data[0]) == "r":
+                            client_socket.sendto(bytes("-20,20,0,0,0,0,0,0,0,3","utf-8"), address)
+                            sleep(.05)
+                    except:
+                        print("Send failed")
+                        sleep(.1)
+
+            while distance(points[-1], (currLat, currLon)) > 0.5:
+                try:
+                    currLat, currLon = reach['lat'], reach['lon']
+                    re_data = client_socket.recvfrom(512)
+                    if bytes.decode(re_data[0]) == "r":
+                        print("SENDING DATA TO ARDUINO TO GO BACK AT START POINT")
+                        client_socket.sendto(bytes("20,20,0,0,0,0,0,0,0,3", "utf-8"), address)
+                        sleep(.05)
+                except:
+                    print("Send failed")
+                    sleep(.1)
+            points.pop()
+        except:
+            print("#### ERROR GOING BACK ####")
+            sleep(0.1)
 
 
 print("Starting The Threads")
 
-t1 = Thread(target = getDataFromDeepstream)
-t2 = Thread(target = switchToAutonomanual)
+t1 = Thread(target=getDataFromDeepstream)
+t2 = Thread(target=switchToAutonomanual)
 
 t1.start()
 sleep(5)
-
