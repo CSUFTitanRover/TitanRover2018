@@ -175,7 +175,7 @@ def switchToAutonomanual():
                         if bytes.decode(re_data[0]) == "r":
                             #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
                             #print("-20,0,0,0,0,0,0,0,0,3")
-                            #client_socket.sendto(bytes("-20,0,0,0,0,0,0,0,0,3","utf-8"), address)
+                            #client_socket.sendto(bytes("-20,0,0,0,0,0,0,0,0,4","utf-8"), address)
                             returnToStart()
                         sleep(.05)
                     except:
@@ -263,7 +263,7 @@ def returnToStart():
             if bytes.decode(re_data[0]) == "r":
                 #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
                 #print("-20,0,0,0,0,0,0,0,0,3")
-                client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,3","utf-8"), address)
+                client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,4","utf-8"), address)
                 sleep(.05)
         except:
             print("Send failed")
@@ -286,7 +286,7 @@ def returnToStart():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
-                            client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,3","utf-8"), address)
+                            client_socket.sendto(bytes("20,-20,0,0,0,0,0,0,0,4","utf-8"), address)
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -299,7 +299,7 @@ def returnToStart():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
-                            client_socket.sendto(bytes("-20,20,0,0,0,0,0,0,0,3","utf-8"), address)
+                            client_socket.sendto(bytes("-20,20,0,0,0,0,0,0,0,4","utf-8"), address)
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -312,7 +312,7 @@ def returnToStart():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
-                            client_socket.sendto(bytes("-20,20,0,0,0,0,0,0,0,3","utf-8"), address)
+                            client_socket.sendto(bytes("-20,20,0,0,0,0,0,0,0,4","utf-8"), address)
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -324,7 +324,7 @@ def returnToStart():
                     re_data = client_socket.recvfrom(512)
                     if bytes.decode(re_data[0]) == "r":
                         print("SENDING DATA TO ARDUINO TO GO BACK AT START POINT")
-                        client_socket.sendto(bytes("20,20,0,0,0,0,0,0,0,3", "utf-8"), address)
+                        client_socket.sendto(bytes("20,20,0,0,0,0,0,0,0,4", "utf-8"), address)
                         sleep(.05)
                 except:
                     print("Send failed")
