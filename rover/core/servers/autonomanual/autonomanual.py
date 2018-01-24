@@ -35,12 +35,19 @@ thread = True
 
 global mode, mobilityTime, previousMobilityTime
 mode = "manual"                     #The Initial mode is always manual
-mobilityTime = None
-if get('mobilityTime') != "NO_RECORD":
-    previousMobilityTime = get('mobilityTime')["mobilityTime"]
-else:
-    previousMobilityTime = None
+mobilityTime = {}
 
+while True:
+    try:
+        if mobilityTime == {} or type(mobilityTime) == str:
+            mobilityTime = get("mobilityTime")
+            if type(mobilityTime) == dict:
+                previousMobilityTime = mobilityTime["mobilityTime"]
+                mobilityTime = mobilityTime["mobilityTime"]
+                break
+    except:
+        print("Waiting for mobility time...")
+    sleep(.1)
 
 device = "/dev/arduinoReset"
 baud = 4800
@@ -73,10 +80,10 @@ def getDataFromDeepstream():
         except:
             print("Still Getting the initial Mobility Time")
         
-        sleep(0.05)
+        sleep(0.1)
         
         print("Initial Mobility Time : ", mobilityTime)
-        sleep(0.5)
+        sleep(0.1)
     
     t2.start()
     
@@ -95,7 +102,7 @@ def getDataFromDeepstream():
                 reach = "NO_RECORD"
                 #print("reach : ", reach)
             #print("Latitude : " + str(lat) + "   Longitude : " + str(lon))
-            sleep(.025)
+            sleep(.1)
             
             try:
                 print("Getting IMU")
@@ -105,7 +112,7 @@ def getDataFromDeepstream():
             except:
                 imu = {}
                 print("imu : ", imu)
-            sleep(.025)
+            sleep(.1)
            
             try:
                 print("Getting Mobility time stamp")
@@ -113,8 +120,8 @@ def getDataFromDeepstream():
                 print("Current Mobility Time : ", mobilityTime)
             except:
                 print("Mobility Time : ", mobilityTime)
-                sleep(0.3)
                 pass
+            sleep(0.1)
             
             try:
                 post({"timeDiff": str(timeDiff)}, "timeDiff")
@@ -122,7 +129,7 @@ def getDataFromDeepstream():
                 pass
                 
             #print("Latitude : " + str(lat) + "    Longitude : " + str(lon) + "    heading : " + str(heading) + "    MobilityTime : " + mobilityTime)
-            sleep(.025)
+            sleep(.1)
             
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
