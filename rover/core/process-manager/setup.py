@@ -49,6 +49,7 @@ else:
     p3 = Popen([ "whereis", "pip" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     p4 = Popen([ "whereis", "motion" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     p5 = Popen([ "whereis", "nmap" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p6 = Popen([ "whereis", "arp-scan" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     
     # automatically install dependencies if it does not exists.
     if p1[8:] == "":
@@ -70,6 +71,10 @@ else:
     if p5[6:] == "":
         print(c.YELLOW+"Installing nmap, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "nmap", "-y"], stdout=PIPE, stderr=PIPE).communicate()
+    
+    if p5[11:] == "":
+        print(c.YELLOW+"Installing arp-scan, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "apt-get", "install", "arp-scan", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
 
     # Always copy the motion config files (for now), as updates in the future may change
