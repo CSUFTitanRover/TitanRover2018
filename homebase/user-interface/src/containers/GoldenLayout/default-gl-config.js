@@ -6,14 +6,17 @@ const config = {
         {
           type: 'react-component',
           component: 'Counter',
+          title: 'Counter Component',
         },
         {
           type: 'react-component',
           component: 'Counter',
+          title: 'Counter Component',
         },
         {
           type: 'react-component',
           component: 'Counter',
+          title: 'Counter Component',
         },
       ],
     },
