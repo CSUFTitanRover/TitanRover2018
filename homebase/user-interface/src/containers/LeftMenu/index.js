@@ -62,7 +62,7 @@ class LeftMenu extends Component {
         <div style={styles.drawerHeader}>
           <Typography type="headline">Titan Rover</Typography>
           <Tooltip title="Close Menu" placement="bottom">
-            <IconButton onClick={handleOnClick}>
+            <IconButton aria-label="Close Menu" onClick={handleOnClick} >
               <ChevronLeftIcon />
             </IconButton>
           </Tooltip>

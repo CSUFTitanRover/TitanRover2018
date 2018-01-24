@@ -46,7 +46,7 @@ class TopBar extends Component {
       <AppBar position="static" className={classNames}>
         <Toolbar>
           <Tooltip title="Open Menu" placement="bottom">
-            <IconButton color="contrast" aria-label="Menu" onClick={handleOnClick} style={iconStyle} >
+            <IconButton color="inherit" aria-label="Open Menu" onClick={handleOnClick} style={iconStyle} >
               <MenuIcon />
             </IconButton>
           </Tooltip>
