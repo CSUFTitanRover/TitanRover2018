@@ -33,7 +33,6 @@ class Playground extends Component {
     const glNode = new GoldenLayout(config, this.node);
     initializeGL(glNode);
     this.props.handleAddPlaygroundToStore(glNode);
-    
   }
 
   render() {

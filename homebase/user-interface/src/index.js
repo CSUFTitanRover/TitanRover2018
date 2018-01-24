@@ -13,7 +13,7 @@ window.ReactDOM = ReactDOM;
 // and add support for google chrome Redux extension
 const store = createStore(
   appStore,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
 );
 
 const AppWithProvider = (

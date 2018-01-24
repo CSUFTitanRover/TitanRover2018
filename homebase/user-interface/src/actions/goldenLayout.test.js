@@ -1,4 +1,4 @@
-import { addPlaygroundToStore } from './goldenLayout'
+import { addPlaygroundToStore } from './goldenLayout';
 
 test('testing addPlaygroundToStore action', () => {
   const result = addPlaygroundToStore('<PLAYGROUND>');

@@ -10,15 +10,16 @@ class ComponentMenuItem extends Component {
   static propTypes = {
     /** The text for the menu item that will be displayed */
     title: PropTypes.string.isRequired,
-    /** The text that will be displayed in the playground tab*/
+    /** The text that will be displayed in the playground tab */
     componentname: PropTypes.string.isRequired,
     /** Provide your own Icon element to be shown instead of the default triangle icon */
     icon: PropTypes.element,
-    className: PropTypes.string
+    className: PropTypes.string,
   }
 
   static defaultProps = {
-    icon: <ChangeHistoryIcon />
+    icon: <ChangeHistoryIcon />,
+    className: null,
   }
 
   render() {
@@ -36,7 +37,7 @@ class ComponentMenuItem extends Component {
         </ListItemIcon>
         <ListItemText inset primary={title} />
       </ListItem>
-    )
+    );
   }
 }
 
