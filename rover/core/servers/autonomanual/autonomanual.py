@@ -35,12 +35,19 @@ thread = True
 
 global mode, mobilityTime, previousMobilityTime
 mode = "manual"                     #The Initial mode is always manual
-mobilityTime = None
-if get('mobilityTime') != "NO_RECORD":
-    previousMobilityTime = get('mobilityTime')["mobilityTime"]
-else:
-    previousMobilityTime = None
+mobilityTime = {}
 
+while True:
+    try:
+        if mobilityTime == {} or type(mobilityTime) == str:
+            mobilityTime = get("mobilityTime")
+            if type(mobilityTime) == dict:
+                previousMobilityTime = mobilityTime["mobilityTime"]
+                mobilityTime = mobilityTime["mobilityTime"]
+                break
+    except:
+        print("Waiting for mobility time...")
+    sleep(.1)
 
 device = "/dev/arduinoReset"
 baud = 4800
@@ -73,10 +80,10 @@ def getDataFromDeepstream():
         except:
             print("Still Getting the initial Mobility Time")
         
-        sleep(0.05)
+        sleep(0.1)
         
         print("Initial Mobility Time : ", mobilityTime)
-        sleep(0.5)
+        sleep(0.1)
     
     t2.start()
     
@@ -95,7 +102,7 @@ def getDataFromDeepstream():
                 reach = "NO_RECORD"
                 #print("reach : ", reach)
             #print("Latitude : " + str(lat) + "   Longitude : " + str(lon))
-            sleep(.025)
+            sleep(.1)
             
             try:
                 print("Getting IMU")
@@ -105,7 +112,7 @@ def getDataFromDeepstream():
             except:
                 imu = {}
                 print("imu : ", imu)
-            sleep(.025)
+            sleep(.1)
            
             try:
                 print("Getting Mobility time stamp")
@@ -113,8 +120,8 @@ def getDataFromDeepstream():
                 print("Current Mobility Time : ", mobilityTime)
             except:
                 print("Mobility Time : ", mobilityTime)
-                sleep(0.3)
                 pass
+            sleep(0.1)
             
             try:
                 post({"timeDiff": str(timeDiff)}, "timeDiff")
@@ -122,7 +129,7 @@ def getDataFromDeepstream():
                 pass
                 
             #print("Latitude : " + str(lat) + "    Longitude : " + str(lon) + "    heading : " + str(heading) + "    MobilityTime : " + mobilityTime)
-            sleep(.025)
+            sleep(.1)
             
         except KeyboardInterrupt:
             print("KeyboardInterrupt")
@@ -150,8 +157,8 @@ def switchToAutonomanual():
                 if mode != "autonomanual":
                     try:
                         print("changing mode to autonomanual and posting to deepstream")
-                        #ser = serial.Serial(device, baud, timeout = 0.5)
-                        #ser.write("1")
+                        ser = serial.Serial(device, baud, timeout = 0.5)
+                        ser.write("1")
                         sleep(8)
                         mode = "autonomanual"
                     except:
@@ -162,7 +169,7 @@ def switchToAutonomanual():
                     sleep(2)
                     print("SENDING DATA TO ARDUINO TO STOP")
                     print("0,0,0,0,0,0,0,0,0,1")
-                    #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+                    client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
                 elif int(mobilityTime) + 10 > int(time.time()):
                     print("Entering Into MANUAL MODE Again")
                     mode = "manual"
@@ -185,7 +192,7 @@ def switchToAutonomanual():
 
 def storeDataInList(reach):
     print("Getting into storeDataInList")
-    global lat1, lat2, lon1, lon2, points, reach
+    global lat1, lat2, lon1, lon2, points
     lat2, lon2 = reach['lat'], reach['lon']
 
     # PUT KML data here
@@ -285,7 +292,9 @@ def returnToStart():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
+                            print("Turning Right")
                             client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -298,7 +307,9 @@ def returnToStart():
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
+                            print("Turning Left")
                             client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -310,8 +321,10 @@ def returnToStart():
                 while heading not in range(179.50, 180.50):
                     try:
                         re_data = client_socket.recvfrom(512)
+                        print("Turning Back 180 degrees")
                         if bytes.decode(re_data[0]) == "r":
                             client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -324,6 +337,7 @@ def returnToStart():
                     if bytes.decode(re_data[0]) == "r":
                         print("SENDING DATA TO ARDUINO TO GO BACK AT START POINT")
                         client_socket.sendto(bytes("20,20,0,0,0,0,0,0,0,4", "utf-8"), address)
+                        print("20,20,0,0,0,0,0,0,0,4")
                         sleep(.05)
                 except:
                     print("Send failed")

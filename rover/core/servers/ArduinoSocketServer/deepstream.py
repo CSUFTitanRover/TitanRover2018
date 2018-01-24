@@ -12,7 +12,6 @@ from subprocess import Popen
 roverIp = "192.168.1.2"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
-
 try:
     if "titan" == str(Popen(["iwgetid", "-r"], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8")):
         roverIp = "192.168.1.2"

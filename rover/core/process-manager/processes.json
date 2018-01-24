@@ -1,5 +1,4 @@
-[
-    {
+[{
         "path": "/TitanRover2018/rover/core/process-manager/motionConf/",
         "python": "sudo",
         "screenName": "motion",
@@ -8,7 +7,7 @@
     },
     {
         "path": "/TitanRover2018/rover/core/servers/ArduinoSocketServer/",
-        "python": "python3.4",
+        "python": "python3.5",
         "screenName": "mobility",
         "script": "mobility.py",
         "computer": "both"
@@ -36,7 +35,7 @@
     },
     {
         "path": "/TitanRover2018/rover/core/servers/autonomanual/",
-        "python": "python3.4",
+        "python": "python3.5",
         "screenName": "autonomanual",
         "script": "autonomanual.py",
         "computer": "rover"
