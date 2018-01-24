@@ -1,4 +1,5 @@
-[{
+[
+    {
         "path": "/TitanRover2018/rover/core/process-manager/motionConf/",
         "python": "sudo",
         "screenName": "motion",
