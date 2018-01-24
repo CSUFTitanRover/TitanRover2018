@@ -278,18 +278,20 @@ def sendToDeepstream():
     global dsMode
     while True:
         try:
-            post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
-            sleep(.05)
-            dsMode = get("mode")["mode"]
+            post({"mobilityTime": int(time.time())}, "mobilityTime")
+            time.sleep(.1)
+            m = get("mode")
+            if type(m) == dict:
+                dsMode = m["mode"]
         except:
             print("Cannot send to Deepstream") 
-        time.sleep(.9)
+        time.sleep(.1)
 
 def requestControl():
     try:
         modeRecord = post({"mode": "manual"}, "mode")
         print("Updated mode record:", str(modeRecord))
-        sleep(.1)
+        time.sleep(.1)
         initArduinoConnection()
         print("Trying to initialize a connection to the arduino...")
     except:
