@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import * as GL from 'golden-layout';
+import GoldenLayout from 'golden-layout';
 import { initializeGL } from './utils';
 import { addPlaygroundToStore } from '../../actions/goldenLayout';
 import defaultGLConfig from './default-gl-config';
@@ -12,13 +12,13 @@ const defaultProps = {
 
 const propTypes = {
   /** Adds golden-layout object to global redux store */
-  // handleAddPlaygroundToStore: PropTypes.func.isRequired,
+  handleAddPlaygroundToStore: PropTypes.func.isRequired,
   config: PropTypes.object,
 };
 
 const mapDispatchToProps = dispatch => ({
-  handleAddPlaygroundToStore: (glLayout) => {
-    dispatch(addPlaygroundToStore(glLayout));
+  handleAddPlaygroundToStore: (glNode) => {
+    dispatch(addPlaygroundToStore(glNode));
   },
 });
 
@@ -30,9 +30,10 @@ const mapDispatchToProps = dispatch => ({
 class Playground extends Component {
   componentDidMount() {
     const { config } = this.props;
-    const glNode = new GL(config, this.node);
+    const glNode = new GoldenLayout(config, this.node);
     initializeGL(glNode);
-    // this.props.handleAddPlaygroundToStore(glNode);
+    this.props.handleAddPlaygroundToStore(glNode);
+    
   }
 
   render() {
