@@ -21,7 +21,7 @@ describe('testing actions', () => {
   });
 
   test('testing addPlaygroundToStore action', () => {
-    const result = addPlaygroundToStore('<GL_LAYOUT>');
+    const result = addPlaygroundToStore('<PLAYGROUND>');
     const expectedResult = {
       type: 'ADD_PLAYGROUND',
       playground: '<PLAYGROUND>',
