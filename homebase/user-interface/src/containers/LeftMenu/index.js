@@ -69,7 +69,7 @@ class LeftMenu extends Component {
         </div>
         <Divider light />
         <List>
-          <LayoutMenuList />
+          <LayoutMenuList open={false} />
           <Divider />
           <ComponentMenuList />
         </List>

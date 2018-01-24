@@ -1,3 +1,4 @@
-import GoldenLayoutContainer from './GoldenLayoutContainer';
+// import GoldenLayoutContainer from './GoldenLayoutContainer';
+import Playground from './Playground';
 
-export default GoldenLayoutContainer;
+export default Playground;

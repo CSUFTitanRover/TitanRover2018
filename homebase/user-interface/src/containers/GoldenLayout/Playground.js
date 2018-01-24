@@ -12,7 +12,7 @@ const defaultProps = {
 
 const propTypes = {
   /** Adds golden-layout object to global redux store */
-  handleAddPlaygroundToStore: PropTypes.func.isRequired,
+  // handleAddPlaygroundToStore: PropTypes.func.isRequired,
   config: PropTypes.object,
 };
 
@@ -32,7 +32,7 @@ class Playground extends Component {
     const { config } = this.props;
     const glNode = new GL(config, this.node);
     initializeGL(glNode);
-    this.props.handleAddPlaygroundToStore(glNode);
+    // this.props.handleAddPlaygroundToStore(glNode);
   }
 
   render() {

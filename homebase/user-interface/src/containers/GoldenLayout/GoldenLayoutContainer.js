@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 const propTypes = {
-  Playground: PropTypes.object.isRequired,
+  Playground: PropTypes.node.isRequired,
 };
 
 const mapStateToProps = state => ({ Playground: state.playground });

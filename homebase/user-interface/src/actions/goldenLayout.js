@@ -5,6 +5,4 @@ export function addPlaygroundToStore(playground) {
   };
 }
 
-export function ass() {
-
-}
+export default addPlaygroundToStore;
