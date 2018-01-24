@@ -14,15 +14,18 @@ roverIp = "192.168.1.2"   # This ip will change periodically,
 
 
 try:
-    if "titan" == Popen(["iwgetid", "-r"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
+    if "titan" == str(Popen(["iwgetid", "-r"], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8")):
         roverIp = "192.168.1.2"
-        #print('Your Deepstream IP address is : ' + str(roverIp))
-    elif "00:24:B2:CA:8B:86" in Popen(["nmap", "-sP", "192.168.1.1"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
+        print('Your Deepstream IP address is : ' + str(roverIp))
+    elif "00:24:b2:ca:8b:86" in str(Popen(["arp-scan", "-l", "-T" "00:24:b2:ca:8b:86"], stdout=PIPE, stderr=PIPE).communicate()[0].decode('utf-8')):
         roverIp = "192.168.1.2"
-        #print('Your Deepstream IP address is : ' + str(roverIp))
+        print('Your Deepstream IP address is : ' + str(roverIp))
+    elif "30:5a:3a:51:a5:70" in str(Popen(["arp-scan", "-l", "-T" "30:5a:3a:51:a5:70"], stdout=PIPE, stderr=PIPE).communicate()[0].decode('utf-8')):
+        roverIp = "192.168.1.2"
+        print('Your Deepstream IP address is : ' + str(roverIp))
     else:
         roverIp = "127.0.0.1"
-        #print('Your Deepstream IP address is : ' + str(roverIp))
+        print('Your Deepstream IP address is : ' + str(roverIp))
 except:
     roverIp = "127.0.0.1"
 
