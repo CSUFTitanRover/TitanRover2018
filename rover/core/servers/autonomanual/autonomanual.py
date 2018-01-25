@@ -35,8 +35,14 @@ thread = True
 
 global mode, mobilityTime, previousMobilityTime
 mode = "manual"                     #The Initial mode is always manual
-mobilityTime = {}
+mobilityTime = None
 
+try:
+    previousMobilityTime = get('mobilityTime')['mobilityTime']
+except:
+    previousMobilityTime = None
+
+'''
 while True:
     try:
         if mobilityTime == {} or type(mobilityTime) == str:
@@ -48,6 +54,7 @@ while True:
     except:
         print("Waiting for mobility time...")
     sleep(.1)
+'''
 
 device = "/dev/arduinoReset"
 baud = 4800
@@ -147,26 +154,27 @@ def switchToAutonomanual():
     global mobilityTime, mode, thread, timeDiff
     print("getting in switchToAutonomaual")
     while thread:
-        sleep(.3)
+        sleep(.2)
         #print("mobility time : ", mobilityTime)
         if(type(mobilityTime) == int):
             timeDiff = (mobilityTime - time.time())
+            post({"timeDiff" : ":.2f".format(timeDiff)}, "timeDiff")
             #print("\nThe Time Difference is : ", (mobilityTime - time.time()))
             if mobilityTime + 10 < int(time.time()) or mode == "autonomanual":
                 print("checking for autonomanual mode")        
                 if mode != "autonomanual":
                     try:
                         print("changing mode to autonomanual and posting to deepstream")
-                        ser = serial.Serial(device, baud, timeout = 0.5)
-                        ser.write("1")
-                        sleep(8)
+                        #ser = serial.Serial(device, baud, timeout = 0.5)
+                        #ser.write("1")
+                        #sleep(8)
                         mode = "autonomanual"
                     except:
                         print("Error In changing modes to Autonomanual so setting mode to MANUAL")
                         mode = "manual"
                     print("The Current Mode is : ", mode)
                     post({"mode" : mode}, "mode")
-                    sleep(2)
+                    sleep(1)
                     print("SENDING DATA TO ARDUINO TO STOP")
                     print("0,0,0,0,0,0,0,0,0,1")
                     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
@@ -175,15 +183,15 @@ def switchToAutonomanual():
                     mode = "manual"
                     post({"mode" : mode}, "mode")
                     print("The Current Mode is : ", mode)
-                    sleep(2)
+                    sleep(1)
                 else:
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
                             #print("-20,0,0,0,0,0,0,0,0,4")
-                            #client_socket.sendto(bytes("-20,0,0,0,0,0,0,0,0,4","utf-8"), address)
-                            returnToStart()
+                            client_socket.sendto(bytes("-20,-20,0,0,0,0,0,0,0,4","utf-8"), address)
+                            #returnToStart()
                         sleep(.05)
                     except:
                         print("Send failed")
@@ -199,8 +207,8 @@ def storeDataInList(reach):
     if lat1 != 0 and lon1 != 0:
         addPoint(lat1, lon1)
 
-    if distance((lat1, lon1), (lat2, lon2)) > 3 and reach['sde'] < 10 and reach['sdn'] < 10 and reach['fix'] and mode == "manual":
-        if len(points) < 350:
+    if distance((lat1, lon1), (lat2, lon2)) > 1.5 and reach['sde'] < 10 and reach['sdn'] < 10 and reach['fix'] and mode == "manual":
+        if len(points) < 500:
             points.append((lat2, lon2))
         else: 
             del points[0]
