@@ -7,7 +7,7 @@ import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
 import Typography from 'material-ui/Typography';
-import { openLeftMenu } from '../../actions/';
+import { openLeftMenu } from '../../actions/menu';
 
 const propTypes = {
   /** handles dispatching the method to open the left menu */
@@ -27,6 +27,11 @@ const mapStateToProps = state => ({ leftMenuActive: state.leftMenuActive });
 
 const mapDispatchToProps = dispatch => ({
   handleOnClick: () => {
+    // dispatch the window resize method to force the GL Playground to resize itself
+    // this gets rid of the extra spacing that appears
+    // although it's kind of a hacky approach
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 225);
+
     dispatch(openLeftMenu());
   },
 });
@@ -46,7 +51,7 @@ class TopBar extends Component {
       <AppBar position="static" className={classNames}>
         <Toolbar>
           <Tooltip title="Open Menu" placement="bottom">
-            <IconButton color="contrast" aria-label="Menu" onClick={handleOnClick} style={iconStyle} >
+            <IconButton color="inherit" aria-label="Open Menu" onClick={handleOnClick} style={iconStyle} >
               <MenuIcon />
             </IconButton>
           </Tooltip>

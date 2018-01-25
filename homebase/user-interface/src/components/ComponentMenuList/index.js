@@ -7,6 +7,7 @@ import EqualizerIcon from 'material-ui-icons/Equalizer';
 import InboxIcon from 'material-ui-icons/Inbox';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
+import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {
   /** classes is passed down via withStyles() */
@@ -49,24 +50,9 @@ class ComponentMenuList extends Component {
         </ListItem>
 
         <Collapse in={this.state.open} transitionDuration="auto">
-          <ListItem button className={classes.nested}>
-            <ListItemIcon>
-              <EqualizerIcon />
-            </ListItemIcon>
-            <ListItemText inset primary="Sensor #1" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon>
-              <EqualizerIcon />
-            </ListItemIcon>
-            <ListItemText inset primary="Sensor #2" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon>
-              <EqualizerIcon />
-            </ListItemIcon>
-            <ListItemText inset primary="Sensor #3" />
-          </ListItem>
+          <ComponentMenuItem title="Sensor #1" componentname="Counter" icon={<EqualizerIcon />} className={classes.nested} />
+          <ComponentMenuItem title="Sensor #2" componentname="Counter" icon={<EqualizerIcon />} className={classes.nested} />
+          <ComponentMenuItem title="Sensor #3" componentname="Counter" icon={<EqualizerIcon />} className={classes.nested} />
         </Collapse>
       </List>
     );

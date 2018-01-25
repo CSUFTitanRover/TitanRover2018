@@ -10,7 +10,7 @@ import IconButton from 'material-ui/IconButton';
 import ChevronLeftIcon from 'material-ui-icons/ChevronLeft';
 import LayoutMenuList from '../../components/LayoutMenuList/';
 import ComponentMenuList from '../../components/ComponentMenuList/';
-import { closeLeftMenu } from '../../actions/';
+import { closeLeftMenu } from '../../actions/menu';
 
 const propTypes = {
   /** handles dispatching the method to close the left menu */
@@ -30,6 +30,11 @@ const mapStateToProps = state => ({ leftMenuActive: state.leftMenuActive });
 
 const mapDispatchToProps = dispatch => ({
   handleOnClick: () => {
+    // dispatch the window resize method to force the GL Playground to resize itself
+    // this gets rid of the extra spacing that appears
+    // although it's kind of a hacky approach
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 250);
+
     dispatch(closeLeftMenu());
   },
 });
@@ -62,14 +67,14 @@ class LeftMenu extends Component {
         <div style={styles.drawerHeader}>
           <Typography type="headline">Titan Rover</Typography>
           <Tooltip title="Close Menu" placement="bottom">
-            <IconButton onClick={handleOnClick}>
+            <IconButton aria-label="Close Menu" onClick={handleOnClick} >
               <ChevronLeftIcon />
             </IconButton>
           </Tooltip>
         </div>
         <Divider light />
         <List>
-          <LayoutMenuList />
+          <LayoutMenuList open={false} />
           <Divider />
           <ComponentMenuList />
         </List>

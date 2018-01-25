@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Layout from './containers/Layout';
-import GoldenLayout from './containers/GoldenLayout';
+import GoldenLayout from './containers/GoldenLayout/';
 import './App.css';
 
 export default class App extends Component {
