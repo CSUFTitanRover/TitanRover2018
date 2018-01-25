@@ -27,6 +27,11 @@ const mapStateToProps = state => ({ leftMenuActive: state.leftMenuActive });
 
 const mapDispatchToProps = dispatch => ({
   handleOnClick: () => {
+    // dispatch the window resize method to force the GL Playground to resize itself
+    // this gets rid of the extra spacing that appears
+    // although it's kind of a hacky approach
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 225);
+
     dispatch(openLeftMenu());
   },
 });
