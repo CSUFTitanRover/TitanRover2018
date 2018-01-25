@@ -1,7 +1,7 @@
 const deepstream = require('deepstream.io-client-js');
-const roverSettings = require('./roverSettings.json');
+const appSettings = require('../app-settings.json');
 
-const { rover } = roverSettings.deepstream;
+const { rover } = appSettings.deepstream;
 let client; // singleton
 
 /**

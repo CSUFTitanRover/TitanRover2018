@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, minimum-scale=0.1">
@@ -11,15 +12,15 @@
         var cameraFour = true
         var cameraFive = true
         var cameraSix = true
-        
-        function changeIpAddress() { 
-            ip = document.getElementById("addressInput").value 
+
+        function changeIpAddress() {
+            ip = document.getElementById("addressInput").value
             console.log(ip)
         }
 
         function cameraOneFunc() {
             var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "http://" + ip + ":8080/1/config/set?stream_port=" + ((cameraOne)? "8081":"0") , true);
+            xhttp.open("GET", "http://" + ip + ":8080/1/config/set?stream_port=" + ((cameraOne) ? "8081" : "0"), true);
             xhttp.send()
             if (cameraOne) document.getElementById("cameraOneDiv").innerHTML = '<img src="http://' + ip + ':8081/" width="640" height="480">'
             else document.getElementById("cameraOneDiv").innerHTML = ''
@@ -27,7 +28,7 @@
         }
         function cameraTwoFunc() {
             var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "http://" + ip + ":8080/2/config/set?stream_port=" + ((cameraTwo)? "8082":"0") , true);
+            xhttp.open("GET", "http://" + ip + ":8080/2/config/set?stream_port=" + ((cameraTwo) ? "8082" : "0"), true);
             xhttp.send()
             if (cameraTwo) document.getElementById("cameraTwoDiv").innerHTML = '<img src="http://' + ip + ':8082/" width="640" height="480">'
             else document.getElementById("cameraTwoDiv").innerHTML = ''
@@ -35,7 +36,7 @@
         }
         function cameraThreeFunc() {
             var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "http://" + ip + ":8080/3/config/set?stream_port=" + ((cameraThree)? "8083":"0") , true);
+            xhttp.open("GET", "http://" + ip + ":8080/3/config/set?stream_port=" + ((cameraThree) ? "8083" : "0"), true);
             xhttp.send()
             if (cameraThree) document.getElementById("cameraThreeDiv").innerHTML = '<img src="http://' + ip + ':8083/" width="640" height="480">'
             else document.getElementById("cameraThreeDiv").innerHTML = ''
@@ -43,7 +44,7 @@
         }
         function cameraFourFunc() {
             var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "http://" + ip + ":8080/4/config/set?stream_port=" + ((cameraFour)? "8084":"0") , true);
+            xhttp.open("GET", "http://" + ip + ":8080/4/config/set?stream_port=" + ((cameraFour) ? "8084" : "0"), true);
             xhttp.send()
             if (cameraFour) document.getElementById("cameraFourDiv").innerHTML = '<img src="http://' + ip + ':8084/" width="640" height="480">'
             else document.getElementById("cameraFourDiv").innerHTML = ''
@@ -51,7 +52,7 @@
         }
         function cameraFiveFunc() {
             var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "http://" + ip + ":8080/5/config/set?stream_port=" + ((cameraFive)? "8085":"0") , true);
+            xhttp.open("GET", "http://" + ip + ":8080/5/config/set?stream_port=" + ((cameraFive) ? "8085" : "0"), true);
             xhttp.send()
             if (cameraFive) document.getElementById("cameraFiveDiv").innerHTML = '<img src="http://' + ip + ':8085/" width="640" height="480">'
             else document.getElementById("cameraFiveDiv").innerHTML = ''
@@ -59,7 +60,7 @@
         }
         function cameraSixFunc() {
             var xhttp = new XMLHttpRequest();
-            xhttp.open("GET", "http://" + ip + ":8080/6/config/set?stream_port=" + ((cameraSix)? "8086":"0") , true);
+            xhttp.open("GET", "http://" + ip + ":8080/6/config/set?stream_port=" + ((cameraSix) ? "8086" : "0"), true);
             xhttp.send()
             if (cameraSix) document.getElementById("cameraSixDiv").innerHTML = '<img src="http://' + ip + ':8086/" width="640" height="480">'
             else document.getElementById("cameraSixDiv").innerHTML = ''
@@ -77,81 +78,91 @@
 
     </script>
 </head>
-    <body onload="cameraOneFunc();cameraTwoFunc();cameraThreeFunc();cameraFourFunc();">
-            <form name="myform" id="myform">
-                    <font color="white">IP Address: </font>
-                    <input type="text" name="message" value="localhost" id="addressInput"/>
-                    <button type="button" name="submit" onclick="changeIpAddress();cameraOneFunc();cameraTwoFunc();cameraThreeFunc();cameraFourFunc();"> Change </button>
-            </form>
-        <div class="wrapper">
-                <div class="one">
-                    Logitech:
-                    <button onclick="cameraOneFunc()">off/on</button>
-                    <button type="button" onclick="setCamRate('1', '4', '4')">Low</button>
-                    <button type="button" onclick="setCamRate('1', '20', '10')">Mid</button>
-                    <button type="button" onclick="setCamRate('1', '50', '20')">High</button>
-                    <button type="button" onclick="setCamRate('1', '75', '30')">Ultra</button> <br>
-                    <div id="cameraOneDiv"></div>
-                </div>
 
-                <div class="two">
-                        ELP:
-                        <button onclick="cameraTwoFunc()">off/on</button>
-                        <button type="button" onclick="setCamRate('2', '4', '4')">Low</button>
-                        <button type="button" onclick="setCamRate('2', '20', '10')">Mid</button>
-                        <button type="button" onclick="setCamRate('2', '50', '20')">High</button>
-                        <button type="button" onclick="setCamRate('2', '75', '30')">Ultra</button> <br>
-                        <div id="cameraTwoDiv"></div>
-                </div>
-
-                <div class="three">
-                        Stanley's Webcam:
-                        <button onclick="cameraThreeFunc()">off/on</button>
-                        <button type="button" onclick="setCamRate('3', '4', '4')">Low</button>
-                        <button type="button" onclick="setCamRate('3', '20', '10')">Mid</button>
-                        <button type="button" onclick="setCamRate('3', '50', '20')">High</button>
-                        <button type="button" onclick="setCamRate('3', '75', '30')">Ultra</button> <br>
-                        <div id="cameraThreeDiv"></div>
-                </div>
-
-                <div class="four">
-                        Stanley's Webcam (dup):
-                        <button onclick="cameraFourFunc()">off/on</button>
-                        <button type="button" onclick="setCamRate('4', '4', '4')">Low</button>
-                        <button type="button" onclick="setCamRate('4', '20', '10')">Mid</button>
-                        <button type="button" onclick="setCamRate('4', '50', '20')">High</button>
-                        <button type="button" onclick="setCamRate('4', '75', '30')">Ultra</button> <br>
-                        <div id="cameraFourDiv"></div>
-                </div>
-
-                <div class="five">
-                    Stanley's Webcam (dup):
-                    <button onclick="cameraFiveFunc()">off/on</button>
-                    <button type="button" onclick="setCamRate('5', '4', '4')">Low</button>
-                    <button type="button" onclick="setCamRate('5', '20', '10')">Mid</button>
-                    <button type="button" onclick="setCamRate('5', '50', '20')">High</button>
-                    <button type="button" onclick="setCamRate('5', '75', '30')">Ultra</button> <br>
-                    <div id="cameraFiveDiv"></div>
-                </div>
-
-                <div class="six">
-                    Stanley's Webcam (dup):
-                    <button onclick="cameraSixFunc()">off/on</button>
-                    <button type="button" onclick="setCamRate('6', '4', '4')">Low</button>
-                    <button type="button" onclick="setCamRate('6', '20', '10')">Mid</button>
-                    <button type="button" onclick="setCamRate('6', '50', '20')">High</button>
-                    <button type="button" onclick="setCamRate('6', '75', '30')">Ultra</button> <br>
-                    <div id="cameraSixDiv"></div>
-            </div>
+<body onload="cameraOneFunc();cameraTwoFunc();cameraThreeFunc();cameraFourFunc();">
+    <form name="myform" id="myform">
+        <font color="white">IP Address: </font>
+        <input type="text" name="message" value="localhost" id="addressInput" />
+        <button type="button" name="submit" onclick="changeIpAddress();cameraOneFunc();cameraTwoFunc();cameraThreeFunc();cameraFourFunc();">
+        Change </button>
+    </form>
+    <div class="wrapper">
+        <div class="one">
+            Logitech:
+            <button onclick="cameraOneFunc()">off/on</button>
+            <button type="button" onclick="setCamRate('1', '4', '4')">Low</button>
+            <button type="button" onclick="setCamRate('1', '20', '10')">Mid</button>
+            <button type="button" onclick="setCamRate('1', '50', '20')">High</button>
+            <button type="button" onclick="setCamRate('1', '75', '30')">Ultra</button>
+            <br>
+            <div id="cameraOneDiv"></div>
         </div>
 
-    </body>
-    <button type="button" onclick="cameraTwoFunc();cameraThreeFunc();cameraFourFunc();">All But Main Camera</button>
-    <button type="button" onclick="setCamRate('1', '4', '4');setCamRate('2', '4', '4');setCamRate('3', '4', '4');setCamRate('4', '4', '4');setCamRate('5', '4', '4');setCamRate('6', '4', '4');">All Low</button>
-    <button type="button" onclick="setCamRate('1', '20', '10');setCamRate('2', '20', '10');setCamRate('3', '20', '10');setCamRate('4', '20', '10');setCamRate('5', '20', '10');setCamRate('6', '20', '10');">All Mid</button>
-    <button type="button" onclick="setCamRate('1', '50', '20');setCamRate('2', '50', '20');setCamRate('3', '50', '20');setCamRate('4', '50', '20');setCamRate('5', '50', '20');setCamRate('6', '50', '20');">All High</button>
-    <button type="button" onclick="setCamRate('1', '75', '30');setCamRate('2', '75', '30');setCamRate('3', '75', '30');setCamRate('4', '75', '30');setCamRate('5', '75', '30');setCamRate('6', '75', '30');">All Ultra</button>
-    <br> <br> <br>
-    <iframe src="http://192.168.1.200/index.cgi" height="500" width="1350"></iframe>
+        <div class="two">
+            ELP:
+            <button onclick="cameraTwoFunc()">off/on</button>
+            <button type="button" onclick="setCamRate('2', '4', '4')">Low</button>
+            <button type="button" onclick="setCamRate('2', '20', '10')">Mid</button>
+            <button type="button" onclick="setCamRate('2', '50', '20')">High</button>
+            <button type="button" onclick="setCamRate('2', '75', '30')">Ultra</button>
+            <br>
+            <div id="cameraTwoDiv"></div>
+        </div>
+
+        <div class="three">
+            Stanley's Webcam:
+            <button onclick="cameraThreeFunc()">off/on</button>
+            <button type="button" onclick="setCamRate('3', '4', '4')">Low</button>
+            <button type="button" onclick="setCamRate('3', '20', '10')">Mid</button>
+            <button type="button" onclick="setCamRate('3', '50', '20')">High</button>
+            <button type="button" onclick="setCamRate('3', '75', '30')">Ultra</button>
+            <br>
+            <div id="cameraThreeDiv"></div>
+        </div>
+
+        <div class="four">
+            Stanley's Webcam (dup):
+            <button onclick="cameraFourFunc()">off/on</button>
+            <button type="button" onclick="setCamRate('4', '4', '4')">Low</button>
+            <button type="button" onclick="setCamRate('4', '20', '10')">Mid</button>
+            <button type="button" onclick="setCamRate('4', '50', '20')">High</button>
+            <button type="button" onclick="setCamRate('4', '75', '30')">Ultra</button>
+            <br>
+            <div id="cameraFourDiv"></div>
+        </div>
+
+        <div class="five">
+            Stanley's Webcam (dup):
+            <button onclick="cameraFiveFunc()">off/on</button>
+            <button type="button" onclick="setCamRate('5', '4', '4')">Low</button>
+            <button type="button" onclick="setCamRate('5', '20', '10')">Mid</button>
+            <button type="button" onclick="setCamRate('5', '50', '20')">High</button>
+            <button type="button" onclick="setCamRate('5', '75', '30')">Ultra</button>
+            <br>
+            <div id="cameraFiveDiv"></div>
+        </div>
+
+        <div class="six">
+            Stanley's Webcam (dup):
+            <button onclick="cameraSixFunc()">off/on</button>
+            <button type="button" onclick="setCamRate('6', '4', '4')">Low</button>
+            <button type="button" onclick="setCamRate('6', '20', '10')">Mid</button>
+            <button type="button" onclick="setCamRate('6', '50', '20')">High</button>
+            <button type="button" onclick="setCamRate('6', '75', '30')">Ultra</button>
+            <br>
+            <div id="cameraSixDiv"></div>
+        </div>
+    </div>
+
+</body>
+<button type="button" onclick="cameraTwoFunc();cameraThreeFunc();cameraFourFunc();">All But Main Camera</button>
+<button type="button" onclick="setCamRate('1', '4', '4');setCamRate('2', '4', '4');setCamRate('3', '4', '4');setCamRate('4', '4', '4');setCamRate('5', '4', '4');setCamRate('6', '4', '4');">All Low</button>
+<button type="button" onclick="setCamRate('1', '20', '10');setCamRate('2', '20', '10');setCamRate('3', '20', '10');setCamRate('4', '20', '10');setCamRate('5', '20', '10');setCamRate('6', '20', '10');">All Mid</button>
+<button type="button" onclick="setCamRate('1', '50', '20');setCamRate('2', '50', '20');setCamRate('3', '50', '20');setCamRate('4', '50', '20');setCamRate('5', '50', '20');setCamRate('6', '50', '20');">All High</button>
+<button type="button" onclick="setCamRate('1', '75', '30');setCamRate('2', '75', '30');setCamRate('3', '75', '30');setCamRate('4', '75', '30');setCamRate('5', '75', '30');setCamRate('6', '75', '30');">All Ultra</button>
+<br>
+<br>
+<br>
+<iframe src="http://192.168.1.200/index.cgi" height="500" width="1350"></iframe>
 
 </html>

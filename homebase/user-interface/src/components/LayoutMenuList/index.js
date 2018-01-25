@@ -48,7 +48,7 @@ class LayoutMenuList extends Component {
           {this.state.open ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
 
-        <Collapse in={this.state.open} transitionDuration="auto">
+        <Collapse in={this.state.open}>
           <ListItem button className={classes.nested}>
             <ListItemIcon>
               <DeveloperBoardIcon />

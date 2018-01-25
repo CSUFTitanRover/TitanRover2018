@@ -8,5 +8,8 @@
       "http": "0.0.0.0:4080",
       "ws": "0.0.0.0:4020"
     }
+  },
+  "cameras": {
+    "base_ip": "http://localhost"
   }
 }
