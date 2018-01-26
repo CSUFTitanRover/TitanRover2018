@@ -118,7 +118,7 @@ def getDataFromDeepstream():
                 #print(heading)
             except:
                 imu = {}
-                print("imu : ", imu)
+            print("imu : ", imu)
             sleep(.1)
            
             try:
@@ -174,7 +174,7 @@ def switchToAutonomanual():
                         mode = "manual"
                     print("The Current Mode is : ", mode)
                     post({"mode" : mode}, "mode")
-                    sleep(1)
+                    sleep(0.3)
                     print("SENDING DATA TO ARDUINO TO STOP")
                     print("0,0,0,0,0,0,0,0,0,1")
                     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
@@ -183,7 +183,7 @@ def switchToAutonomanual():
                     mode = "manual"
                     post({"mode" : mode}, "mode")
                     print("The Current Mode is : ", mode)
-                    sleep(1)
+                    sleep(0.3)
                 else:
                     try:
                         re_data = client_socket.recvfrom(512)

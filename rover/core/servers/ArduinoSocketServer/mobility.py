@@ -278,11 +278,15 @@ def sendToDeepstream():
     global dsMode
     while True:
         try:
+            prevMode = dsMode
             post({"mobilityTime": int(time.time())}, "mobilityTime")
             time.sleep(.1)
             m = get("mode")
             if type(m) == dict:
                 dsMode = m["mode"]
+            
+            if prevMode != dsMode:
+                client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
         except:
             print("Cannot send to Deepstream") 
         time.sleep(.1)
