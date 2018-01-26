@@ -22,7 +22,7 @@ const styles = theme => ({
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 100,
+    minWidth: 110,
   },
   bar: {},
   checked: {
