@@ -5,8 +5,10 @@ import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 import Collapse from 'material-ui/transitions/Collapse';
 import EqualizerIcon from 'material-ui-icons/Equalizer';
 import InboxIcon from 'material-ui-icons/Inbox';
+import VideocamIcon from 'material-ui-icons/Videocam';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
+import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {
   /** classes is passed down via withStyles() */
@@ -32,7 +34,7 @@ class ComponentMenuList extends Component {
   state = { open: this.props.open };
 
   handleSubmenuClick = () => {
-    this.setState({ open: !this.state.open });
+    this.setState(prevState => ({ open: !prevState.open }));
   };
 
   render() {
@@ -48,25 +50,41 @@ class ComponentMenuList extends Component {
           {this.state.open ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
 
-        <Collapse in={this.state.open} transitionDuration="auto">
-          <ListItem button className={classes.nested}>
-            <ListItemIcon>
-              <EqualizerIcon />
-            </ListItemIcon>
-            <ListItemText inset primary="Sensor #1" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon>
-              <EqualizerIcon />
-            </ListItemIcon>
-            <ListItemText inset primary="Sensor #2" />
-          </ListItem>
-          <ListItem button className={classes.nested}>
-            <ListItemIcon>
-              <EqualizerIcon />
-            </ListItemIcon>
-            <ListItemText inset primary="Sensor #3" />
-          </ListItem>
+        <Collapse in={this.state.open}>
+          <ComponentMenuItem
+            title="Camera #1"
+            componentname="Camera"
+            icon={<VideocamIcon />}
+            className={classes.nested}
+            componentprops={{ cameraID: '1' }}
+          />
+          <ComponentMenuItem
+            title="Camera #2"
+            componentname="Camera"
+            icon={<VideocamIcon />}
+            className={classes.nested}
+            componentprops={{ cameraID: '2' }}
+          />
+          <ComponentMenuItem
+            title="Camera #3"
+            componentname="Camera"
+            icon={<VideocamIcon />}
+            className={classes.nested}
+            componentprops={{ cameraID: '3' }}
+          />
+          <ComponentMenuItem
+            title="Camera #4"
+            componentname="Camera"
+            icon={<VideocamIcon />}
+            className={classes.nested}
+            componentprops={{ cameraID: '4' }}
+          />
+          <ComponentMenuItem
+            title="Counter Example"
+            componentname="Counter"
+            icon={<EqualizerIcon />}
+            className={classes.nested}
+          />
         </Collapse>
       </List>
     );

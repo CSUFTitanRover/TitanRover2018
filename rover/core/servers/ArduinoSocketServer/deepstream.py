@@ -11,6 +11,7 @@ from subprocess import Popen
 
 roverIp = "192.168.1.2"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
+
 '''
 try:
     if "titan" == Popen(["iwgetid", "-r"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
@@ -25,6 +26,7 @@ try:
 except:
     roverIp = "127.0.0.1"
 '''
+
 def get(recordName):
     '''
         The get function will get the entire record "rover/" + recordName

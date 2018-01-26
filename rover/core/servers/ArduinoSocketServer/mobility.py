@@ -79,9 +79,11 @@ while True:
     except:
         pass
     time.sleep(.1)
+
     print(str(success))
     if success == "SUCCESS":
         break
+        
 print("Posted mode to manual...")
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
@@ -280,12 +282,12 @@ def sendToDeepstream():
     global dsMode
     while True:
         try:
-            prevDsMode = dsMode
             post({"mobilityTime": int(time.time())}, "mobilityTime")
             time.sleep(.1)
             m = get("mode")
             if type(m) == dict:
                 dsMode = m["mode"]
+
             if prevDsMode != dsMode:
                 client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
                 
@@ -329,6 +331,7 @@ def main(*argv):
             setLed()
             print("Sending Arduino command")
             try:
+
                 #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
                 re_data = client_socket.recvfrom(512)
                 #print(bytes.decode(re_data[0]))  # Debug

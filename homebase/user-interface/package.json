@@ -5,38 +5,40 @@
   "dependencies": {
     "c3": "^0.4.18",
     "classnames": "^2.2.5",
-    "deepstream.io-client-js": "^2.2.1",
+    "deepstream.io-client-js": "^2.3.0",
     "golden-layout": "^1.5.9",
-    "material-ui": "^1.0.0-beta.11",
-    "material-ui-icons": "^1.0.0-beta.10",
-    "prop-types": "^15.5.10",
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "material-ui": "^1.0.0-beta.30",
+    "material-ui-icons": "^1.0.0-beta.17",
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "react-contextmenu": "^2.9.2",
+    "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
+    "react-resizable-box": "^2.1.0",
     "react-scripts": "1.0.11",
     "redux": "^3.7.2",
-    "socket.io-client": "^2.0.3",
-    "typeface-roboto": "0.0.35"
+    "socket.io-client": "^2.0.4",
+    "typeface-roboto": "0.0.35",
+    "uuid": "^3.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
-    "prebuild": "lint",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom --coverage",
     "eject": "react-scripts eject",
     "styleguide": "styleguidist server",
     "styleguide:build": "styleguidist build",
-    "lint": "./node_modules/.bin/eslint .",
-    "lint:fix": "./node_modules/.bin/eslint . --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "report-coverage": "codecov --token=fc200a62-2cb4-4cd6-a15d-9f5f41d6189d"
   },
   "devDependencies": {
-    "codecov": "^2.3.0",
-    "eslint": "^4.8.0",
+    "codecov": "^2.3.1",
+    "eslint": "^4.16.0",
     "eslint-config-airbnb": "^15.1.0",
-    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
-    "eslint-plugin-react": "^7.4.0",
-    "react-styleguidist": "^6.0.26"
+    "eslint-plugin-react": "^7.5.1",
+    "react-styleguidist": "^6.2.0"
   }
 }

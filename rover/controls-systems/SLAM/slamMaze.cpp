@@ -66,7 +66,6 @@ struct _openGL_ROVER_LINE_TRACKING_
 	std::vector<double> line_z;
 }_openGLRLT_;
 
-
 void setProjection(int w1, int h1)
 {
 	float ratio;
@@ -90,6 +89,7 @@ void changeSize(int w1, int h1)
 	if (h1 == 0){ h1 = 1; }
 		
 	// we're keeping these values cause we'll need them latter
+
 	_openGLMV_.width = w1;
 	_openGLMV_.height = h1;
 
@@ -157,7 +157,6 @@ void drawCube()
 	glVertex3f(-cube_size, cube_size, cube_size);
 	glEnd();
 
-	// Red side - BOTTOM
 	//glBegin(GL_POLYGON);
 	//glColor3f(1.0, 0.0, 0.0);
 	//glVertex3f(cube_size, -cube_size, -cube_size);
@@ -195,6 +194,7 @@ void restorePerspectiveProjection()
 	glMatrixMode(GL_MODELVIEW);
 }
 
+
 void setOrthographicProjection() 
 {
 	// switch to projection mode
@@ -213,6 +213,7 @@ void setOrthographicProjection()
 	// switch back to modelview mode
 	glMatrixMode(GL_MODELVIEW);
 }
+
 
 void computePos(GLfloat deltaMove) 
 {
@@ -285,7 +286,7 @@ void renderTopDownScene()
 
 	//Main Camera Position, starting position for top down view.
 	gluLookAt(_openGLCV_.x, _openGLCV_.y + 15, _openGLCV_.z, _openGLCV_.x,
-		_openGLCV_.y - 1, _openGLCV_.z, _openGLCV_.lx, 0, _openGLCV_.lz);
+	_openGLCV_.y - 1, _openGLCV_.z, _openGLCV_.lx, 0, _openGLCV_.lz);
 
 	// Draw red cone at the location of the main camera.
 	glPushMatrix();
@@ -341,6 +342,7 @@ void renderSceneAll()
 	}
 
 	// Left right movement reference check.
+
 	if (_openGLKS_.deltaAngle)
 	{
 		computeDir(_openGLKS_.deltaAngle);
@@ -356,6 +358,7 @@ void renderSceneAll()
 // --------------------------------------------------------------------------------
 //             KEYBOARD SECTION
 // --------------------------------------------------------------------------------
+
 
 void processNormalKeys(unsigned char key, GLint xx, GLint yy) {
 
@@ -394,6 +397,7 @@ void releaseKey(int key, int x, int y)
 // --------------------------------------------------------------------------------
 //             MOUSE INPUT SECTION
 // --------------------------------------------------------------------------------
+
 
 void physicalCameraMove(int x, int y)
 {
