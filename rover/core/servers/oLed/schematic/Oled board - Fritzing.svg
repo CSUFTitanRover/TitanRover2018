@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="Layer_1" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docname="Oled board - Fritzing.svg" inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="453.26px"
+	 height="94.394px" viewBox="-91.496 435.336 453.26 94.394" enable-background="new -91.496 435.336 453.26 94.394"
+	 xml:space="preserve">
+<path id="silkscreen" inkscape:label="board" sodipodi:nodetypes="cccccccccccccc" inkscape:connector-curvature="0" display="none" fill="none" stroke="#000000" stroke-width="0.4" d="
+	M-85.831,441.903v28.311c-0.022,2.772,2.867,2.771,2.867,2.771h188.47l92.121,0.001l51.385-0.001
+	c32.531,0.001,46.908,21.078,47.832,48.188c-0.045,2.793,2.836,2.834,2.836,2.834h51.025c0,0,2.836-0.039,2.836-2.834v-79.366
+	c0-2.835-2.836-2.835-2.836-2.835H-83.018C-85.908,438.856-85.831,441.903-85.831,441.903z"/>
+<g id="board" transform="translate(-5.0078928,-261.99886)" inkscape:label="layer" inkscape:groupmode="layer">
+	
+		<path id="_x3C_Path_x3E_" inkscape:label="silkscreen" sodipodi:nodetypes="cccccccccccccc" inkscape:connector-curvature="0" fill="#008000" stroke="#000000" d="
+		M-80.8,703.956v28.311c-0.022,2.772,2.867,2.771,2.867,2.771h188.47l92.122,0.001l51.383-0.001
+		c32.533,0.001,46.91,21.079,47.834,48.187c-0.045,2.795,2.836,2.836,2.836,2.836h51.025c0,0,2.834-0.039,2.834-2.836v-79.365
+		c0-2.835-2.834-2.835-2.834-2.835H-77.988C-80.877,700.909-80.8,703.956-80.8,703.956z"/>
+</g>
+</svg>
