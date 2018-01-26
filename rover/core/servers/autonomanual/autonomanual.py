@@ -64,7 +64,7 @@ err = "0"
 
 while err != "":
     sleep(3)
-    out, err = Popen(["ssh", "root@192.168.1.3", "date +%s"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    out, err = Popen(["ssh", "root@192.168.1.2", "date +%s"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     out = out.decode('utf-8')
     err = err.decode()
     print("OUT:", out)
@@ -118,7 +118,7 @@ def getDataFromDeepstream():
                 #print(heading)
             except:
                 imu = {}
-                print("imu : ", imu)
+            print("imu : ", imu)
             sleep(.1)
            
             try:
@@ -129,12 +129,6 @@ def getDataFromDeepstream():
                 print("Mobility Time : ", mobilityTime)
                 pass
             sleep(0.1)
-            
-            try:
-                post({"timeDiff": str(timeDiff)}, "timeDiff")
-            except:
-                pass
-                
             #print("Latitude : " + str(lat) + "    Longitude : " + str(lon) + "    heading : " + str(heading) + "    MobilityTime : " + mobilityTime)
             sleep(.1)
             
@@ -159,7 +153,8 @@ def switchToAutonomanual():
         if(type(mobilityTime) == int):
             timeDiff = (mobilityTime - time.time())
             post({"timeDiff" : ":.2f".format(timeDiff)}, "timeDiff")
-            #print("\nThe Time Difference is : ", (mobilityTime - time.time()))
+            print("\nThe Time Difference is : ", timeDiff)
+            
             if mobilityTime + 10 < int(time.time()) or mode == "autonomanual":
                 print("checking for autonomanual mode")        
                 if mode != "autonomanual":
@@ -174,7 +169,7 @@ def switchToAutonomanual():
                         mode = "manual"
                     print("The Current Mode is : ", mode)
                     post({"mode" : mode}, "mode")
-                    sleep(1)
+                    sleep(0.3)
                     print("SENDING DATA TO ARDUINO TO STOP")
                     print("0,0,0,0,0,0,0,0,0,1")
                     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
@@ -183,14 +178,14 @@ def switchToAutonomanual():
                     mode = "manual"
                     post({"mode" : mode}, "mode")
                     print("The Current Mode is : ", mode)
-                    sleep(1)
+                    sleep(0.3)
                 else:
                     try:
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
                             #print("-20,0,0,0,0,0,0,0,0,4")
-                            client_socket.sendto(bytes("-20,-20,0,0,0,0,0,0,0,4","utf-8"), address)
+                            client_socket.sendto(bytes("-20,0,0,0,0,0,0,0,0,4","utf-8"), address)
                             #returnToStart()
                         sleep(.05)
                     except:
@@ -276,8 +271,8 @@ def returnToStart():
             re_data = client_socket.recvfrom(512)
             if bytes.decode(re_data[0]) == "r":
                 #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
-                #print("-30,30,0,0,0,0,0,0,0,4")
-                client_socket.sendto(bytes(",-30,30,0,0,0,0,0,0,4","utf-8"), address)
+                #print("-30,0,0,0,0,0,0,0,0,4")
+                client_socket.sendto(bytes(",-30,0,0,0,0,0,0,0,4","utf-8"), address)
                 sleep(.05)
         except:
             print("Send failed")
@@ -301,8 +296,8 @@ def returnToStart():
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             print("Turning Right")
-                            client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
-                            print("-30,30,0,0,0,0,0,0,0,4")
+                            client_socket.sendto(bytes("0,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("0,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -316,8 +311,8 @@ def returnToStart():
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             print("Turning Left")
-                            client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
-                            print("-30,30,0,0,0,0,0,0,0,4")
+                            client_socket.sendto(bytes("-30,0,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,0,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -331,8 +326,8 @@ def returnToStart():
                         re_data = client_socket.recvfrom(512)
                         print("Turning Back 180 degrees")
                         if bytes.decode(re_data[0]) == "r":
-                            client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
-                            print("-30,30,0,0,0,0,0,0,0,4")
+                            client_socket.sendto(bytes("0,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("0,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -344,8 +339,8 @@ def returnToStart():
                     re_data = client_socket.recvfrom(512)
                     if bytes.decode(re_data[0]) == "r":
                         print("SENDING DATA TO ARDUINO TO GO BACK AT START POINT")
-                        client_socket.sendto(bytes("20,20,0,0,0,0,0,0,0,4", "utf-8"), address)
-                        print("20,20,0,0,0,0,0,0,0,4")
+                        client_socket.sendto(bytes("20,0,0,0,0,0,0,0,0,4", "utf-8"), address)
+                        print("20,0,0,0,0,0,0,0,0,4")
                         sleep(.05)
                 except:
                     print("Send failed")
