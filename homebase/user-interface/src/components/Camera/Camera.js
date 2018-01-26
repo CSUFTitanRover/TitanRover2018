@@ -75,6 +75,12 @@ class Camera extends PureComponent {
     }
   }
 
+  handleSaveImage = () => {
+    const { baseIP, basePort, cameraID } = this.props;
+    fetch(`${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
+    console.info(`Image from Camera #${cameraID} should be saved to /var/lib/motion directory.`);
+  }
+
   render() {
     const { baseIP, basePort, cameraID } = this.props;
     const { width, height, resizing, fullsize } = this.state;
@@ -102,7 +108,7 @@ class Camera extends PureComponent {
             {fullsize && <CheckIcon />}
           </MenuItem>
           <MenuItem divider />
-          <MenuItem>
+          <MenuItem onClick={this.handleSaveImage}>
             Save Image to Rover
           </MenuItem>
         </ContextMenu>
