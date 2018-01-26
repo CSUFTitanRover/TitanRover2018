@@ -35,9 +35,15 @@ const styles = theme => ({
 
 class CameraSettingControls extends PureComponent {
   static propTypes = {
+    /** Property passed in from Material UI withStyles */
     classes: PropTypes.object.isRequired,
+    /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
+    /** The base IP of all camera strings. (e.g. http::/localhost)
+     *  Defaults to the option in app-settings.json if no prop is received */
     baseIP: PropTypes.string,
+    /** The base port of all camera strings. (e.g. 8080)
+     *  Defaults to the option in app-settings.json if no prop is received */
     basePort: PropTypes.string,
   }
 
