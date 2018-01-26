@@ -41,6 +41,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jsx-a11y": "^5.1.1",
     "eslint-plugin-react": "^7.5.1",
+    "react-docgen": "^2.20.0",
     "react-styleguidist": "^6.2.0"
   }
 }
