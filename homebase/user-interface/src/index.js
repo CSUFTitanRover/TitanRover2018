@@ -2,12 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import registerObserver from 'react-perf-devtool';
 import appStore from './reducers/';
 import App from './App';
-
-// register react-perf-devtool
-registerObserver();
 
 // adding this as a workaround for Golden-Layout to work without ejecting CRA from the project
 window.React = React;
