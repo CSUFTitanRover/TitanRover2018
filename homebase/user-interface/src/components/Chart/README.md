@@ -1,3 +1,3 @@
 ```js
-<Chart chartName="Test Chart" maxPoints={-8} />
+<Chart chartName="Test Chart" maxPoints={8} />
 ```
