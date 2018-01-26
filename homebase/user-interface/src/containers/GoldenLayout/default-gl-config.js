@@ -5,13 +5,9 @@ const config = {
       content: [
         {
           type: 'react-component',
-          component: 'Counter',
-          title: 'Counter Component',
-        },
-        {
-          type: 'react-component',
-          component: 'Counter',
-          title: 'Counter Component',
+          component: 'Camera',
+          title: 'Camera #1',
+          props: { cameraID: '1' },
         },
         {
           type: 'react-component',

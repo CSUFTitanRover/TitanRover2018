@@ -11,12 +11,15 @@
     "material-ui-icons": "^1.0.0-beta.17",
     "prop-types": "^15.6.0",
     "react": "^16.2.0",
+    "react-contextmenu": "^2.9.2",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
+    "react-resizable-box": "^2.1.0",
     "react-scripts": "1.0.11",
     "redux": "^3.7.2",
     "socket.io-client": "^2.0.4",
-    "typeface-roboto": "0.0.35"
+    "typeface-roboto": "0.0.35",
+    "uuid": "^3.2.1"
   },
   "scripts": {
     "start": "react-scripts start",

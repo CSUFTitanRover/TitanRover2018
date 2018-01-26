@@ -15,15 +15,17 @@ class ComponentMenuItem extends Component {
     /** Provide your own Icon element to be shown instead of the default triangle icon */
     icon: PropTypes.element,
     className: PropTypes.string,
+    componentprops: PropTypes.object,
   }
 
   static defaultProps = {
     icon: <ChangeHistoryIcon />,
     className: null,
+    componentprops: null,
   }
 
   render() {
-    const { title, icon, className, componentname } = this.props;
+    const { title, icon, className, componentname, componentprops } = this.props;
 
     return (
       <ListItem
@@ -31,6 +33,7 @@ class ComponentMenuItem extends Component {
         className={`playgroundDragSource ${className}`}
         data-title={title}
         data-componentname={componentname}
+        data-componentprops={componentprops && JSON.stringify(componentprops)}
       >
         <ListItemIcon>
           {icon}

@@ -9,6 +9,7 @@ import App from './App';
 window.React = React;
 window.ReactDOM = ReactDOM;
 
+
 // create store with appStore
 // and add support for google chrome Redux extension
 const store = createStore(
