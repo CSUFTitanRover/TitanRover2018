@@ -64,7 +64,7 @@ err = "0"
 
 while err != "":
     sleep(3)
-    out, err = Popen(["ssh", "root@192.168.1.3", "date +%s"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+    out, err = Popen(["ssh", "root@192.168.1.2", "date +%s"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
     out = out.decode('utf-8')
     err = err.decode()
     print("OUT:", out)
@@ -185,7 +185,7 @@ def switchToAutonomanual():
                         if bytes.decode(re_data[0]) == "r":
                             #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
                             #print("-20,0,0,0,0,0,0,0,0,4")
-                            client_socket.sendto(bytes("-20,-20,0,0,0,0,0,0,0,4","utf-8"), address)
+                            client_socket.sendto(bytes("-20,0,0,0,0,0,0,0,0,4","utf-8"), address)
                             #returnToStart()
                         sleep(.05)
                     except:
@@ -271,8 +271,8 @@ def returnToStart():
             re_data = client_socket.recvfrom(512)
             if bytes.decode(re_data[0]) == "r":
                 #print("SENDING DATA TO ARDUINO TO TAKE REVERSE")
-                #print("-30,30,0,0,0,0,0,0,0,4")
-                client_socket.sendto(bytes(",-30,30,0,0,0,0,0,0,4","utf-8"), address)
+                #print("-30,0,0,0,0,0,0,0,0,4")
+                client_socket.sendto(bytes(",-30,0,0,0,0,0,0,0,4","utf-8"), address)
                 sleep(.05)
         except:
             print("Send failed")
@@ -296,8 +296,8 @@ def returnToStart():
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             print("Turning Right")
-                            client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
-                            print("-30,30,0,0,0,0,0,0,0,4")
+                            client_socket.sendto(bytes("0,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("0,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -311,8 +311,8 @@ def returnToStart():
                         re_data = client_socket.recvfrom(512)
                         if bytes.decode(re_data[0]) == "r":
                             print("Turning Left")
-                            client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
-                            print("-30,30,0,0,0,0,0,0,0,4")
+                            client_socket.sendto(bytes("-30,0,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("-30,0,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -326,8 +326,8 @@ def returnToStart():
                         re_data = client_socket.recvfrom(512)
                         print("Turning Back 180 degrees")
                         if bytes.decode(re_data[0]) == "r":
-                            client_socket.sendto(bytes("-30,30,0,0,0,0,0,0,0,4","utf-8"), address)
-                            print("-30,30,0,0,0,0,0,0,0,4")
+                            client_socket.sendto(bytes("0,30,0,0,0,0,0,0,0,4","utf-8"), address)
+                            print("0,30,0,0,0,0,0,0,0,4")
                             sleep(.05)
                     except:
                         print("Send failed")
@@ -339,8 +339,8 @@ def returnToStart():
                     re_data = client_socket.recvfrom(512)
                     if bytes.decode(re_data[0]) == "r":
                         print("SENDING DATA TO ARDUINO TO GO BACK AT START POINT")
-                        client_socket.sendto(bytes("20,20,0,0,0,0,0,0,0,4", "utf-8"), address)
-                        print("20,20,0,0,0,0,0,0,0,4")
+                        client_socket.sendto(bytes("20,0,0,0,0,0,0,0,0,4", "utf-8"), address)
+                        print("20,0,0,0,0,0,0,0,0,4")
                         sleep(.05)
                 except:
                     print("Send failed")
