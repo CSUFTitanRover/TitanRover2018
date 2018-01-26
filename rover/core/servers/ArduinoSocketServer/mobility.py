@@ -41,7 +41,7 @@ if isPi:
     GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
 
 # System setup wait
-time.sleep(5)
+#time.sleep(5)
 
 # Arduino address and connection info
 address = ("192.168.1.10", 5000)
@@ -71,6 +71,7 @@ dsMode = "manual"
 dsButton = False
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
+print("Going through startup process...")
 while True:
     success = None
     try:
@@ -78,9 +79,12 @@ while True:
     except:
         pass
     time.sleep(.1)
+
+    print(str(success))
     if success == "SUCCESS":
         break
-
+        
+print("Posted mode to manual...")
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
               "joint5b", "reserved1", "ledMode"]  # List in order of socket output values
@@ -283,6 +287,10 @@ def sendToDeepstream():
             m = get("mode")
             if type(m) == dict:
                 dsMode = m["mode"]
+
+            if prevDsMode != dsMode:
+                client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+                
         except:
             print("Cannot send to Deepstream") 
         time.sleep(.1)
@@ -323,10 +331,12 @@ def main(*argv):
             setLed()
             print("Sending Arduino command")
             try:
+
+                #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
                 re_data = client_socket.recvfrom(512)
                 #print(bytes.decode(re_data[0]))  # Debug
                 if bytes.decode(re_data[0]) == "r":
-                        #print("Received packet")  # Debug
+                    #print("Received packet")  # Debug
                     if paused:
                         outVals = list(map(getZero, actionList))
                     else:
@@ -334,12 +344,15 @@ def main(*argv):
                     outVals = list(map(str, outVals))
                     outString = ",".join(outVals)
                     if dsMode == "manual":
+                        #print("Into the DSManual Mode")
                         client_socket.sendto(bytes(outString,"utf-8"), address)
+                        #print("After Sending The Commands To The Socket")
                         print(outString)
                     else:
                         print("Not in manual mode")
             except:
                 print("Send failed")
+                #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
                
 if __name__ == '__main__':
     t1 = Thread(target = main)

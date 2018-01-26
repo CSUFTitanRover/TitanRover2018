@@ -9,34 +9,62 @@
 #include <conio.h>
 #include <vector>
 
-// angle of rotation for the camera direction
-float angle = 0.0f;
-// actual vector representing the camera's direction
-float lx = 0.0f, lz = -1.0f, ly = 0.0f;
-// XZ position of the camera
-float x = 0.0f, z = 5.0f, y = 1.75f;
+//void _openGLBuffers()
+//{
+//	GLuint bufferID;
+//	// Generate a buffer ID
+//	glGenBuffers(1, &bufferID);
+//	// Make this the current UNPACK buffer (OpenGL is state-based)
+//	glBindBuffer(GL_PIXEL_UNPACK_BUFFER, bufferID);
+//	// Allocate data for the buffer
+//	glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * 4,NULL, GL_DYNAMIC_COPY);
+//}
 
-// the key states. These variables will be zero
-//when no key is being presses
-float deltaAngle = 0.0f;
-float deltaMove = 0;
-int xOrigin = -1;
+struct _openGL_CAMERA_VALUES_
+{
+	// angle of rotation for the camera direction
+	GLfloat angle = 0.0f;
+	// actual vector representing the camera's direction
+	GLfloat lx = 0.0f, lz = -1.0f, ly = 0.0f;
+	// XZ position of the camera
+	GLfloat x = 0.0f, z = 5.0f, y = 1.75f;
+}_openGLCV_;
 
-// width and height of the window
-int h, w;
 
-// variables to compute frames per second
-int frame;
-long timebase;
-char s[50];
+struct _openGL_KEY_STATES_
+{
+	// the key states. These variables will be zero
+	//when no key is being presses
+	GLfloat deltaAngle = 0.0f;
+	GLfloat deltaMove  = 0;
+	GLint xOrigin      = -1;
+}_openGLKS_;
 
-// variables to hold window identifiers
-int mainWindow, PovWindow, TopDownWindow, SideViewWindow;
-//border between subwindows
-int border = 6;
 
-std::vector<double> past_x;
-std::vector<double> past_z;
+struct _openGL_MAINWINDOW_VALUES_
+{
+	// width and height of the window
+	GLint height;
+	GLint width;
+	// variables to hold window identifiers
+	GLint mainWindow;
+	GLint TopDownWindow;
+	//border between subwindows
+	GLint border = 6;
+}_openGLMV_;
+
+
+struct _openGL_ROVER_TRACKING_
+{
+	std::vector<double> past_x;
+	std::vector<double> past_z;
+}_openGLRT_;
+
+struct _openGL_ROVER_LINE_TRACKING_
+{
+	std::vector<double> line_x;
+	std::vector<double> line_z;
+}_openGLRLT_;
 
 void setProjection(int w1, int h1)
 {
@@ -61,15 +89,16 @@ void changeSize(int w1, int h1)
 	if (h1 == 0){ h1 = 1; }
 		
 	// we're keeping these values cause we'll need them latter
-	w = w1;
-	h = h1;
 
-	// set subwindow 2 as the active window
-	glutSetWindow(TopDownWindow);
+	_openGLMV_.width = w1;
+	_openGLMV_.height = h1;
+
+	// set topdownWindow as the active window
+	glutSetWindow(_openGLMV_.TopDownWindow);
 	// resize and reposition the sub window
-	glutPositionWindow(border, (h + border) / 2);
-	glutReshapeWindow(w / 2 - border * 3 / 2, h / 2 - border * 3 / 2);
-	setProjection(w / 2 - border * 3 / 2, h / 2 - border * 3 / 2);
+	glutPositionWindow(_openGLMV_.border, (_openGLMV_.height + _openGLMV_.border) / 2);
+	glutReshapeWindow(_openGLMV_.width / 2 - _openGLMV_.border * 3 / 2, _openGLMV_.height / 2 - _openGLMV_.border * 3 / 2);
+	setProjection(_openGLMV_.width / 2 - _openGLMV_.border * 3 / 2, _openGLMV_.height / 2 - _openGLMV_.border * 3 / 2);
 }
 //---------------------------------------------------------------------------------
 
@@ -89,76 +118,74 @@ void drawCircle()
 //Static Drawcube object for rendering.
 void drawCube() 
 {
-
 	//Generic cube size
 	double cube_size = 0.6;
 
-	// White side - BACK
-	glBegin(GL_POLYGON);
-	glColor3f(1.0, 1.0, 1.0); // Color representation of the polygon section.
-	glVertex3f(cube_size, -cube_size, cube_size);
-	glVertex3f(cube_size, cube_size, cube_size);
-	glVertex3f(-cube_size, cube_size, cube_size);
-	glVertex3f(-cube_size, -cube_size, cube_size);
-	glEnd();
+	// Purple side - BACK
+	//glBegin(GL_POLYGON);
+	//glColor3f(1.0, 0.0, 1.0); // Color representation of the polygon section.
+	//glVertex3f(cube_size, -cube_size, cube_size);
+	//glVertex3f(cube_size, cube_size, cube_size);
+	//glVertex3f(-cube_size, cube_size, cube_size);
+	//glVertex3f(-cube_size, -cube_size, cube_size);
+	//glEnd();
 
 	// Purple side - RIGHT
-	glBegin(GL_POLYGON);
-	glColor3f(1.0, 0.0, 1.0);
-	glVertex3f(cube_size, -cube_size, -cube_size);
-	glVertex3f(cube_size, cube_size, -cube_size);
-	glVertex3f(cube_size, cube_size, cube_size);
-	glVertex3f(cube_size, -cube_size, cube_size);
-	glEnd();
+	//glBegin(GL_POLYGON);
+	//glColor3f(1.0, 0.0, 1.0);
+	//glVertex3f(cube_size, -cube_size, -cube_size);
+	//glVertex3f(cube_size, cube_size, -cube_size);
+	//glVertex3f(cube_size, cube_size, cube_size);
+	//glVertex3f(cube_size, -cube_size, cube_size);
+	//glEnd();
 
-	// Green side - LEFT
-	glBegin(GL_POLYGON);
-	glColor3f(0.0, 1.0, 0.0);
-	glVertex3f(-cube_size, -cube_size, cube_size);
-	glVertex3f(-cube_size, cube_size, cube_size);
-	glVertex3f(-cube_size, cube_size, -cube_size);
-	glVertex3f(-cube_size, -cube_size, -cube_size);
-	glEnd();
+	// Purple side - LEFT
+	//glBegin(GL_POLYGON);
+	//glColor3f(1.0, 0.0, 1.0);
+	//glVertex3f(-cube_size, -cube_size, cube_size);
+	//glVertex3f(-cube_size, cube_size, cube_size);
+	//glVertex3f(-cube_size, cube_size, -cube_size);
+	//glVertex3f(-cube_size, -cube_size, -cube_size);
+	//glEnd();
 
-	// Blue side - TOP
-	glBegin(GL_POLYGON);
-	glColor3f(0.0, 0.0, 1.0);
-	glVertex3f(cube_size, cube_size, cube_size);
-	glVertex3f(cube_size, cube_size, -cube_size);
-	glVertex3f(-cube_size, cube_size, -cube_size);
-	glVertex3f(-cube_size, cube_size, cube_size);
-	glEnd();
-
-	// Red side - BOTTOM
+	// Red side - TOP
 	glBegin(GL_POLYGON);
 	glColor3f(1.0, 0.0, 0.0);
-	glVertex3f(cube_size, -cube_size, -cube_size);
-	glVertex3f(cube_size, -cube_size, cube_size);
-	glVertex3f(-cube_size, -cube_size, cube_size);
-	glVertex3f(-cube_size, -cube_size, -cube_size);
+	glVertex3f(cube_size, cube_size, cube_size);
+	glVertex3f(cube_size, cube_size, -cube_size);
+	glVertex3f(-cube_size, cube_size, -cube_size);
+	glVertex3f(-cube_size, cube_size, cube_size);
 	glEnd();
+
+	//glBegin(GL_POLYGON);
+	//glColor3f(1.0, 0.0, 0.0);
+	//glVertex3f(cube_size, -cube_size, -cube_size);
+	//glVertex3f(cube_size, -cube_size, cube_size);
+	//glVertex3f(-cube_size, -cube_size, cube_size);
+	//glVertex3f(-cube_size, -cube_size, -cube_size);
+	//glEnd();
 }
 //END OF DRAW CUBE
 //----------------------------------------------------------------------------------
 
 void renderBitmapString(
-	float x,
-	float y,
-	float z,
+	GLfloat x,
+	GLfloat y,
+	GLfloat z,
 	void *font,
 	char *string) 
 {
 
 	char *c;
 	glRasterPos3f(x, y, z);
-	for (c = string; *c != '\0'; c++) {
+	for (c = string; *c != '\0'; c++)
+	{
 		glutBitmapCharacter(font, *c);
 	}
 }
 
 void restorePerspectiveProjection() 
 {
-
 	glMatrixMode(GL_PROJECTION);
 	// restore previous projection matrix
 	glPopMatrix();
@@ -167,8 +194,9 @@ void restorePerspectiveProjection()
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void setOrthographicProjection() {
 
+void setOrthographicProjection() 
+{
 	// switch to projection mode
 	glMatrixMode(GL_PROJECTION);
 
@@ -180,41 +208,39 @@ void setOrthographicProjection() {
 	glLoadIdentity();
 
 	// set a 2D orthographic projection
-	gluOrtho2D(0, w, h, 0);
+	gluOrtho2D(0, _openGLMV_.width, _openGLMV_.height, 0);
 
 	// switch back to modelview mode
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void computePos(float deltaMove) 
+
+void computePos(GLfloat deltaMove) 
 {
+	_openGLCV_.x += deltaMove * _openGLCV_.lx * 0.1f;
+	_openGLCV_.z += deltaMove * _openGLCV_.lz * 0.1f;
 
-	x += deltaMove * lx * 0.1f;
-	z += deltaMove * lz * 0.1f;
+	_openGLRT_.past_x.push_back(_openGLCV_.x);
+	_openGLRT_.past_z.push_back(_openGLCV_.z);
 
-	past_x.push_back(x);
-	past_z.push_back(z);
-
-	std::cout << "x pos = " << x << std::endl;
-	std::cout << "z pos = " << z << std::endl;
+	std::cout << "x pos = " << _openGLCV_.x << std::endl;
+	std::cout << "z pos = " << _openGLCV_.z << std::endl;
 }
 
-void computeDir(float deltaAngle) 
+void computeDir(GLfloat deltaAngle) 
 {
+	_openGLCV_.angle += deltaAngle;
+	_openGLCV_.lx = sin(_openGLCV_.angle);
+	_openGLCV_.lz = -cos(_openGLCV_.angle);
 
-	angle += deltaAngle;
-	lx = sin(angle);
-	lz = -cos(angle);
-
-	std::cout << "angle = " << angle << std::endl;
-	std::cout << "lx = " << lx << std::endl;
-	std::cout << "lz = " << lz << std::endl;
+	std::cout << "angle = " << _openGLCV_.angle << std::endl;
+	std::cout << "lx = " << _openGLCV_.lx << std::endl;
+	std::cout << "lz = " << _openGLCV_.lz << std::endl;
 }
 
 // Common Render Items for all subwindows
 void renderSubWindowScene() 
 {
-
 	double plain_size   = 100.0f;
 	double ground_level = 0.0f;
 
@@ -229,7 +255,6 @@ void renderSubWindowScene()
 
 	// Draw and placement.
 	double object_pos = 10.0f;
-
 	for (int i = -3; i < 3; i++)
 	{
 		for (int j = -3; j < 3; j++)
@@ -237,30 +262,15 @@ void renderSubWindowScene()
 			glPushMatrix();
 			glTranslatef(i * object_pos, 0.0f, j * object_pos);
 			drawCube();
-			drawCircle();
 			glPopMatrix();
 		}
 	}
-
-	// Draw and placement.
-	double cube_pos = 5.0f;
-	for (int i = -3; i < 3; i++)
-	{
-		for (int j = -3; j < 3; j++)
-		{
-			glPushMatrix();
-			glTranslatef(i * cube_pos, 0.0f, j * cube_pos);
-			drawCube();
-			glPopMatrix();
-		}
-	}
-
 }
 
 // Display function for main window.
 void renderScene() 
 {
-	glutSetWindow(mainWindow);
+	glutSetWindow(_openGLMV_.mainWindow);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glutSwapBuffers();
 }
@@ -268,48 +278,53 @@ void renderScene()
 // Display function for top-down view
 void renderTopDownScene() 
 {
-
-	glutSetWindow(TopDownWindow);
-
+	glutSetWindow(_openGLMV_.TopDownWindow);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glLoadIdentity();
 
+	int index = 0;
+
 	//Main Camera Position, starting position for top down view.
-	gluLookAt(x, y + 15, z, x, y - 1, z, lx, 0, lz);
+	gluLookAt(_openGLCV_.x, _openGLCV_.y + 15, _openGLCV_.z, _openGLCV_.x,
+	_openGLCV_.y - 1, _openGLCV_.z, _openGLCV_.lx, 0, _openGLCV_.lz);
 
 	// Draw red cone at the location of the main camera.
 	glPushMatrix();
 	glColor3f(1.0, 0.0, 0.0);
-	glTranslatef(x, y, z);
-	glRotatef(180 - (angle + deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
+	glTranslatef(_openGLCV_.x, _openGLCV_.y, _openGLCV_.z);
+	glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
 	glutSolidCone(0.2, 0.8f, 4, 4);
 	glPopMatrix();
 
-	for (int i = 0; i < past_x.size(); i++)
+	for (int i = 0; i < _openGLRT_.past_x.size(); i++)
 	{
-		if (i % 2 == 0)
+		if (i % 15 == 0)
 		{
+			_openGLRLT_.line_x.push_back(_openGLRT_.past_x[i]);
+			_openGLRLT_.line_z.push_back(_openGLRT_.past_z[i]);
+
 			glPushMatrix();
-			glTranslatef(past_x[i], 0.0f, past_z[i]);
+			glTranslatef(_openGLRT_.past_x[i], 0.0f, _openGLRT_.past_z[i]);
 			drawCircle();
 			glPopMatrix();
 			// limit the display trail and pass it to another tracking function.
 		}
-
 	}
 
-	//TEST
-	if (!past_x.empty() && !past_z.empty())
+	for (int i = 1; i < _openGLRLT_.line_x.size(); i++)
 	{
+		//P2 = P1 + V;
 		glPushMatrix();
-		glTranslatef(x*2, 0.0f, z*2);
-		drawCube();
+		glLineWidth(1.5);
+		glColor3f(1.0, 0.0, 0.0);
+		glBegin(GL_LINES);
+		glVertex3f(_openGLRLT_.line_x[i-1], 0.0f, _openGLRLT_.line_z[i-1]);
+		glVertex3f(_openGLRLT_.line_x[i], 0.0f , _openGLRLT_.line_z[i]);
+		glEnd();
 		glPopMatrix();
 	}
 
 	renderSubWindowScene();
-
 	glutSwapBuffers();
 }
 
@@ -319,18 +334,19 @@ void renderSceneAll()
 
 	// check for keyboard movement
 	// Up down movement reference check.
-	if (deltaMove) 
+	if (_openGLKS_.deltaMove)
 	{
-		computePos(deltaMove);
-		glutSetWindow(mainWindow);
+		computePos(_openGLKS_.deltaMove);
+		glutSetWindow(_openGLMV_.mainWindow);
 		glutPostRedisplay();
 	}
 
 	// Left right movement reference check.
-	if (deltaAngle)
+
+	if (_openGLKS_.deltaAngle)
 	{
-		computeDir(deltaAngle);
-		glutSetWindow(mainWindow);
+		computeDir(_openGLKS_.deltaAngle);
+		glutSetWindow(_openGLMV_.mainWindow);
 		glutPostRedisplay();
 	}
 	renderScene();
@@ -343,39 +359,38 @@ void renderSceneAll()
 //             KEYBOARD SECTION
 // --------------------------------------------------------------------------------
 
-void processNormalKeys(unsigned char key, int xx, int yy) {
 
-	if (key == 27) {
-		glutDestroyWindow(mainWindow);
+void processNormalKeys(unsigned char key, GLint xx, GLint yy) {
+
+	if (key == 27)
+	{
+		glutDestroyWindow(_openGLMV_.mainWindow);
 		exit(0);
 	}
 }
 
-void pressKey(int key, int xx, int yy) 
+void pressKey(GLint key, GLint xx, GLint yy) 
 {
-
 	switch (key) 
 	{
-		case GLUT_KEY_LEFT: deltaAngle = -0.01f; break;
-		case GLUT_KEY_RIGHT: deltaAngle = 0.01f; break;
-		case GLUT_KEY_UP: deltaMove = 0.5f; break;
-		case GLUT_KEY_DOWN: deltaMove = -0.5f; break;
+		case GLUT_KEY_LEFT: _openGLKS_.deltaAngle  = -0.01f; break;
+		case GLUT_KEY_RIGHT: _openGLKS_.deltaAngle = 0.01f; break;
+		case GLUT_KEY_UP: _openGLKS_.deltaMove     = 0.5f; break;
+		case GLUT_KEY_DOWN: _openGLKS_.deltaMove   = -0.5f; break;
 	}
 
-	glutSetWindow(mainWindow);
+	glutSetWindow(_openGLMV_.mainWindow);
 	glutPostRedisplay();
-
 }
 
 void releaseKey(int key, int x, int y) 
 {
-
 	switch (key) 
 	{
 		case GLUT_KEY_LEFT: std::cout << "Left Key Pressed" << std::endl; break;
-		case GLUT_KEY_RIGHT: std::cout << "Right Key Pressed" << std::endl; deltaAngle = 0.0f; break;
+		case GLUT_KEY_RIGHT: std::cout << "Right Key Pressed" << std::endl; _openGLKS_.deltaAngle = 0.0f; break;
 		case GLUT_KEY_UP: std::cout << "Up Key Pressed" << std::endl; break;
-		case GLUT_KEY_DOWN: std::cout << "Down Key Pressed" << std::endl; deltaMove = 0; break;
+		case GLUT_KEY_DOWN: std::cout << "Down Key Pressed" << std::endl; _openGLKS_.deltaMove = 0; break;
 	}
 }
 
@@ -383,39 +398,41 @@ void releaseKey(int key, int x, int y)
 //             MOUSE INPUT SECTION
 // --------------------------------------------------------------------------------
 
-void mouseMove(int x, int y) {
 
+void physicalCameraMove(int x, int y)
+{
 	// this will only be true when the left button is down
-	if (xOrigin >= 0) {
-
+	if (_openGLKS_.xOrigin >= 0)
+	{
 		// update deltaAngle
-		deltaAngle = (x - xOrigin) * 0.001f;
+		_openGLKS_.deltaAngle = (x - _openGLKS_.xOrigin) * 0.001f;
 
 		// update camera's direction
-		lx = sin(angle + deltaAngle);
-		lz = -cos(angle + deltaAngle);
+		_openGLCV_.lx = sin(_openGLCV_.angle + _openGLKS_.deltaAngle);
+		_openGLCV_.lz = -cos(_openGLCV_.angle + _openGLKS_.deltaAngle);
 
-		glutSetWindow(mainWindow);
+		glutSetWindow(_openGLMV_.mainWindow);
 		glutPostRedisplay();
 	}
 }
 
-void mouseButton(int button, int state, int x, int y) {
-
+// Will emulate physical camera switch to enable the physical movement of the
+// embedded camera.
+void mouseButton(int button, int state, int x, int y) 
+{
 	// only start motion if the left button is pressed
 	if (button == GLUT_LEFT_BUTTON) 
 	{
-
 		// when the button is released
 		if (state == GLUT_UP) 
 		{
-			angle += deltaAngle;
-			deltaAngle = 0.0f;
-			xOrigin = -1;
+			_openGLCV_.angle += _openGLKS_.deltaAngle;
+			_openGLKS_.deltaAngle = 0.0f;
+			_openGLKS_.xOrigin = -1;
 		}
 		else 
 		{
-			xOrigin = x;
+			_openGLKS_.xOrigin = x;
 		}
 	}
 }
@@ -426,7 +443,6 @@ void mouseButton(int button, int state, int x, int y) {
 
 void init() 
 {
-
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -436,32 +452,34 @@ void init()
 	glutSpecialFunc(pressKey);
 	glutIgnoreKeyRepeat(1);
 	glutSpecialUpFunc(releaseKey);
+	
+	//Physical Camera Movement functions;
 	glutMouseFunc(mouseButton);
-	glutMotionFunc(mouseMove);
+	glutMotionFunc(physicalCameraMove);
 }
 
-int main(int argc, char **argv) {
-
+int main(int argc, char **argv) 
+{
 	// Init of GLUT and main window creation.
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(800, 800);
-	mainWindow = glutCreateWindow("SLAM MAZE");
+	glutInitWindowSize(400, 400);
+	_openGLMV_.mainWindow = glutCreateWindow("SLAM MAZE");
 
-	//Callback processing for rendering all scenes.
-	//These scenes will include sub-set window views.
+	// Callback processing for rendering all scenes.
+	// These scenes will include sub-set window views.
 	glutDisplayFunc(renderSceneAll);
 	glutReshapeFunc(changeSize);
 
-	init();
-
+	//init();
 
 	//-----------------------------------------------------------------------------
 	//Top down view window decleration.
 	std::cout << "Registering callbacks for Top Down started..." << std::endl;
-	TopDownWindow = glutCreateSubWindow(mainWindow, border, (h + border) / 2, w / 2 - border * 3 / 2, h / 2 - border * 3 / 2);
+	_openGLMV_.TopDownWindow = glutCreateWindow("SLAM MAZE");
 	glutDisplayFunc(renderTopDownScene);
+
 	init();
 
 	std::cout << "All callbacks have been initialized..." << std::endl;
