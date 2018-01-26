@@ -11,8 +11,8 @@ const config = {
         },
         {
           type: 'react-component',
-          component: 'Counter',
-          title: 'Counter Component',
+          component: 'Chart',
+          title: 'Chart',
         },
       ],
     },

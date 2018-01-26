@@ -24,7 +24,32 @@ const chartTypes = ['line', 'spline', 'step', 'bar', 'area'];
 const flowDuration = 100;
 
 export default class Chart extends Component {
-  state = { active: true, chartType: this.props.chartType }
+  static propTypes = {
+    chartName: PropTypes.string.isRequired,
+    yLabel: PropTypes.string,
+    chartType: PropTypes.string,
+    maxPoints: PropTypes.number,
+    data: PropTypes.arrayOf(PropTypes.object),
+    timestampFormat: PropTypes.string,
+    tickFormat: PropTypes.string,
+    culling: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({ max: PropTypes.number })]),
+  };
+
+  static defaultProps = {
+    yLabel: 'data',
+    chartType: 'line',
+    data: [],
+    maxPoints: 8,
+    timestampFormat: '%Y-%m-%dT%H:%M:%S.%LZ',
+    tickFormat: '%H:%M:%S',
+    culling: false,
+  };
+
+  scrollPos = this.props.maxPoints * -1;
+  chart = null;
+  dataPoints = 0;
+  chartRef = null;
+  state = { active: true, chartType: this.props.chartType };
 
   // Create the C3 chart after mount
   componentDidMount() {
@@ -78,11 +103,6 @@ export default class Chart extends Component {
       to: this.scrollPos < 0 ? 0 : undefined,
     });
   }
-
-  scrollPos = -this.props.maxPoints;
-  chart = null
-  dataPoints = 0
-  chartRef = null
 
   // Enable/disable real-time data
   handleClick = () => {
@@ -163,25 +183,3 @@ export default class Chart extends Component {
     );
   }
 }
-
-// Validation
-Chart.propTypes = {
-  chartName: PropTypes.string.isRequired,
-  yLabel: PropTypes.string,
-  chartType: PropTypes.string,
-  maxPoints: PropTypes.number,
-  data: PropTypes.arrayOf(PropTypes.object),
-  timestampFormat: PropTypes.string,
-  tickFormat: PropTypes.string,
-  culling: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({ max: PropTypes.number })]),
-};
-
-Chart.defaultProps = {
-  yLabel: 'data',
-  chartType: 'line',
-  data: [],
-  maxPoints: 8,
-  timestampFormat: '%Y-%m-%dT%H:%M:%S.%LZ',
-  tickFormat: '%H:%M:%S',
-  culling: false,
-};
