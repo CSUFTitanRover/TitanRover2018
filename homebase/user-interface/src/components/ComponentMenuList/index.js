@@ -58,8 +58,33 @@ class ComponentMenuList extends Component {
             className={classes.nested}
             componentprops={{ cameraID: '1' }}
           />
-          <ComponentMenuItem title="Sensor #2" componentname="Counter" icon={<EqualizerIcon />} className={classes.nested} />
-          <ComponentMenuItem title="Sensor #3" componentname="Counter" icon={<EqualizerIcon />} className={classes.nested} />
+          <ComponentMenuItem
+            title="Camera #2"
+            componentname="Camera"
+            icon={<VideocamIcon />}
+            className={classes.nested}
+            componentprops={{ cameraID: '2' }}
+          />
+          <ComponentMenuItem
+            title="Camera #3"
+            componentname="Camera"
+            icon={<VideocamIcon />}
+            className={classes.nested}
+            componentprops={{ cameraID: '3' }}
+          />
+          <ComponentMenuItem
+            title="Camera #4"
+            componentname="Camera"
+            icon={<VideocamIcon />}
+            className={classes.nested}
+            componentprops={{ cameraID: '4' }}
+          />
+          <ComponentMenuItem
+            title="Counter Example"
+            componentname="Counter"
+            icon={<EqualizerIcon />}
+            className={classes.nested}
+          />
         </Collapse>
       </List>
     );
