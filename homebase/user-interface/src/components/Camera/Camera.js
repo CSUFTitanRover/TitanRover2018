@@ -11,6 +11,8 @@ const resizableStyles = {
   background: 'lightgray',
 };
 
+const aspectRatio = 4 / 3;
+
 class Camera extends PureComponent {
   static propTypes = {
     /** The unique camera ID */
@@ -29,12 +31,13 @@ class Camera extends PureComponent {
   }
 
   state = {
-    width: 300,
-    height: 300,
+    width: 640,
+    height: 480,
     resizing: false,
     savedWidth: null,
     savedHeight: null,
     fullsize: false,
+    lockAspectRatio: false,
   };
 
   cameraUUID = uuidv4();
@@ -45,6 +48,7 @@ class Camera extends PureComponent {
 
   handleOnResizeStop = (e, direction, ref, d) => {
     const { width, height } = this.state;
+
     this.setState({
       width: width + d.width,
       height: height + d.height,
@@ -71,15 +75,13 @@ class Camera extends PureComponent {
     }
   }
 
-  handleSaveImage = () => {
-    const { baseIP, basePort, cameraID } = this.props;
-    fetch(`${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
-    console.info(`Image from Camera #${cameraID} should be saved to /var/lib/motion directory.`);
+  handleLockRatio = () => {
+    this.setState(prevState => ({ lockAspectRatio: !prevState.lockAspectRatio }));
   }
 
   render() {
     const { baseIP, basePort, cameraID } = this.props;
-    const { width, height, resizing, fullsize } = this.state;
+    const { width, height, resizing, fullsize, lockAspectRatio } = this.state;
     const computedPort = `${basePort.slice(0, -1)}${cameraID}`;
     return (
       <React.Fragment>
@@ -93,6 +95,7 @@ class Camera extends PureComponent {
             height={height}
             onResizeStart={this.handleOnResizeStart}
             onResizeStop={this.handleOnResizeStop}
+            lockAspectRatio={lockAspectRatio && aspectRatio}
           >
             <img src={`${baseIP}:${computedPort}`} alt="camera stream" width="100%" className="camera-stream" />
           </Resizable>
@@ -104,8 +107,9 @@ class Camera extends PureComponent {
             {fullsize && <CheckIcon />}
           </MenuItem>
           <MenuItem divider />
-          <MenuItem onClick={this.handleSaveImage}>
-            Save Image to Rover
+          <MenuItem onClick={this.handleLockRatio}>
+            Lock aspect ratio to (4:3)
+            {lockAspectRatio && <CheckIcon />}
           </MenuItem>
         </ContextMenu>
       </React.Fragment>

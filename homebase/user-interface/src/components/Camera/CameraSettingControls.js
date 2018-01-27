@@ -4,12 +4,15 @@ import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
+import Button from 'material-ui/Button';
+import SaveIcon from 'material-ui-icons/Save';
 import Select from 'material-ui/Select';
 import { MenuItem } from 'material-ui/Menu';
 import { InputLabel } from 'material-ui/Input';
 import { FormControl, FormControlLabel } from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
 import green from 'material-ui/colors/green';
+import grey from 'material-ui/colors/grey';
 import uuidv4 from 'uuid/v4';
 import appSettings from '../../app-settings.json';
 
@@ -17,7 +20,11 @@ const styles = theme => ({
   root: {
     width: '100%',
   },
+  appbar: {
+    backgroundColor: '#222',
+  },
   cameraLabel: {
+    color: grey[200],
     paddingRight: 10,
   },
   formControl: {
@@ -116,15 +123,22 @@ class CameraSettingControls extends PureComponent {
     }
   }
 
+  handleSaveImage = () => {
+    const { baseIP, basePort, cameraID } = this.props;
+    fetch(`${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
+    console.info(`Image from Camera #${cameraID} should be saved to /var/lib/motion directory.`);
+  }
+
+
   render() {
     const { classes, cameraID } = this.props;
     const { streamQuality, streamOnline } = this.state;
 
     return (
       <div className={classes.root}>
-        <AppBar position="static" color="default">
+        <AppBar position="static" color="default" className={classes.appbar} square elevation={0}>
           <Toolbar>
-            <Typography type="body2" color="inherit" className={classes.cameraLabel}>
+            <Typography type="body2" className={classes.cameraLabel}>
               {`Camera #${cameraID} Settings`}
             </Typography>
             <FormControl className={classes.formControl}>
@@ -156,6 +170,12 @@ class CameraSettingControls extends PureComponent {
                     aria-label="Stream Activity Switch"
                   />}
               />
+            </FormControl>
+            <FormControl className={classes.formControl}>
+              <Button raised dense color="primary" onClick={this.handleSaveImage}>
+                <SaveIcon />
+                Save image to rover
+              </Button>
             </FormControl>
           </Toolbar>
         </AppBar>
