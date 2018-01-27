@@ -6,8 +6,8 @@ import Toolbar from 'material-ui/Toolbar';
 import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
-import Typography from 'material-ui/Typography';
 import { openLeftMenu } from '../../actions/menu';
+import Stopwatch from '../../components/Stopwatch/';
 
 const propTypes = {
   /** handles dispatching the method to open the left menu */
@@ -55,9 +55,7 @@ class TopBar extends Component {
               <MenuIcon />
             </IconButton>
           </Tooltip>
-          <Typography type="title" color="inherit" >
-            Mission Elapsed Time
-          </Typography>
+          <Stopwatch />
         </Toolbar>
       </AppBar >
     );

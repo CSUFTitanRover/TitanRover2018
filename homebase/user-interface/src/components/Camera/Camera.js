@@ -11,10 +11,6 @@ const resizableStyles = {
   background: 'lightgray',
 };
 
-const fullscreenImageStyles = {
-  height: '-webkit-fill-available',
-};
-
 class Camera extends PureComponent {
   static propTypes = {
     /** The unique camera ID */
@@ -87,7 +83,7 @@ class Camera extends PureComponent {
     const computedPort = `${basePort.slice(0, -1)}${cameraID}`;
     return (
       <React.Fragment>
-        <ContextMenuTrigger id={`camera-${this.cameraUUID}`} ref={(node) => { this.node = node; }}>
+        <ContextMenuTrigger id={`camera-${this.cameraUUID}`} ref={(node) => { this.node = node; }} style={{ width: 'inherit', height: 'inherit' }}>
           <Resizable
             style={{
               ...resizableStyles,
@@ -98,7 +94,7 @@ class Camera extends PureComponent {
             onResizeStart={this.handleOnResizeStart}
             onResizeStop={this.handleOnResizeStop}
           >
-            <img src={`${baseIP}:${computedPort}`} alt="camera" width={width} height={height} style={fullsize ? fullscreenImageStyles : null} />
+            <img src={`${baseIP}:${computedPort}`} alt="camera stream" width="100%" className="camera-stream" />
           </Resizable>
         </ContextMenuTrigger>
 

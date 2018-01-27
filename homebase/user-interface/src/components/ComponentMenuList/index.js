@@ -85,6 +85,7 @@ class ComponentMenuList extends Component {
             componentname="Chart"
             icon={<ShowChartIcon />}
             className={classes.nested}
+            componentprops={{ chartName: 'chart' }}
           />
           <ComponentMenuItem
             title="Counter Example"

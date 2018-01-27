@@ -3,7 +3,36 @@ import Button from 'material-ui/Button';
 import Grid from 'material-ui/Grid';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
+import green from 'material-ui/colors/green';
+import red from 'material-ui/colors/red';
+import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import classNames from 'classnames';
 import { withDeepstreamState } from '../../utils/deepstream';
+
+const styles = theme => ({
+  paper: {
+    padding: '4px',
+  },
+  stopwatchTriggerButton: {
+    transition: theme.transitions.create(['background'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+  },
+  startButton: {
+    background: green[500],
+    '&:hover': {
+      background: green[700],
+    },
+  },
+  stopButton: {
+    background: red[500],
+    '&:hover': {
+      background: red[700],
+    },
+  },
+});
 
 /** Adds leading zeros to a number, plus an ending character */
 const padZeros = (number, length, ending) => (`${number}`).padStart(length, '0') + ending;
@@ -26,7 +55,11 @@ const formatTime = (elapsed) => {
  * Stopwatch component
  * Keeps track of elapsed mission time.
  */
-export default class Stopwatch extends Component {
+class Stopwatch extends Component {
+  static propTypes = {
+    classes: PropTypes.object.isRequired,
+  }
+
   /**
    * state:
    *  time: displayed time value (string)
@@ -85,31 +118,38 @@ export default class Stopwatch extends Component {
   }
 
   render() {
+    const { classes } = this.props;
+    const { active } = this.state;
     return (
-      <Paper style={{ display: 'inline-block', padding: '8px' }}>
-        <Grid item container spacing={16} align={'center'}>
-          <Grid item style={{ width: '300px', padding: '4px' }}>
-            <Typography type="title">Rover Mission Timer</Typography>
-          </Grid>
-          <Grid item>
-            <Paper style={{ width: '200px', padding: '4px' }}><Typography type="subheading">{this.state.time}</Typography>
-            </Paper></Grid>
-          <Grid item>
-            <Button raised color="primary" onClick={this.handleStartAndStop}>
-              {this.state.active ? 'Stop' : 'Start'}
-            </Button></Grid>
-          <Grid item>
-            <Button raised color="accent" onClick={this.handleClear}>
-              Clear
-            </Button></Grid>
+      <Grid container spacing={16} alignItems="center">
+        <Grid item xs={2}>
+          <Typography type="title" color="inherit">Mission Stopwatch</Typography>
         </Grid>
-      </Paper>
+        <Grid item xs={2}>
+          <Paper className={classes.paper}>
+            <Typography>{this.state.time}</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={1}>
+          <Button raised color="primary" className={classNames(classes.stopwatchTriggerButton, (active ? classes.stopButton : classes.startButton))} onClick={this.handleStartAndStop}>
+            {this.state.active ? 'Stop' : 'Start'}
+          </Button>
+        </Grid>
+        <Grid item xs={1}>
+          <Button raised color="default" onClick={this.handleClear}>
+            Clear
+          </Button>
+        </Grid>
+      </Grid>
     );
   }
 }
+
+const StopwatchWithStyles = withStyles(styles)(Stopwatch);
+export default StopwatchWithStyles;
 
 /** This is a class that allows Stopwatch to be synchronized
  *  across all devices connected to deepstream.  The data is stored
  *  under the record 'ui/stopwatch'.
  */
-export const DeepstreamStopwatch = withDeepstreamState(Stopwatch, 'ui/stopwatch', ['active', 'startTime', 'accTime']);
+export const DeepstreamStopwatch = withDeepstreamState(StopwatchWithStyles, 'ui/stopwatch', ['active', 'startTime', 'accTime']);

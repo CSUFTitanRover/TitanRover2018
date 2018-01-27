@@ -40,7 +40,7 @@ class LayoutMenuList extends Component {
 
     return (
       <List dense>
-        <ListItem button onClick={this.handleSubmenuClick}>
+        <ListItem button onClick={this.handleSubmenuClick} disabled>
           <ListItemIcon>
             <StarIcon />
           </ListItemIcon>

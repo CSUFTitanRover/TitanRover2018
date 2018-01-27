@@ -13,6 +13,7 @@ const config = {
           type: 'react-component',
           component: 'Chart',
           title: 'Chart',
+          props: { chartName: 'Chart' },
         },
       ],
     },

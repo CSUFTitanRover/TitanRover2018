@@ -77,3 +77,9 @@ padding: 0;
   content: attr(data-count);
   display: block;
 }
+
+.camera-stream {
+  height: 100%;
+  height: -webkit-fill-available;
+  height: -moz-available;
+}
