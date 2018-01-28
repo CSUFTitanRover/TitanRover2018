@@ -23,12 +23,12 @@ describe('testing reducer logic', () => {
     expect(result).toEqual(expectedResult);
   });
 
-  test('testing adding golden layout', () => {
+  test('testing adding playground', () => {
     const state = {};
-    const action = { type: 'ADD_GOLDEN_LAYOUT', glLayout: '<GL_CONFIG>' };
+    const action = { type: 'ADD_PLAYGROUND', playground: '<Playground>' };
     const result = appStore(state, action);
     const expectedResult = {
-      glLayout: '<GL_CONFIG>',
+      playground: '<Playground>',
     };
 
     expect(result).toEqual(expectedResult);

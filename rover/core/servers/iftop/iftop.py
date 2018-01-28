@@ -7,7 +7,7 @@ import subprocess, re
 
 print("Loading: iftop")
 recordName = "speed"
-interface = "wlp3s0"
+interface = "eth0"
 
 # Number in seconds to switch to autonomous/manual Mode
 elapsedTimout = 16
@@ -18,7 +18,7 @@ success = ""
 while success == "":
    try:
        success = post(obj, recordName)
-       success = post({"mode": "manual"}, "mode")
+       #success = post({"mode": "manual"}, "mode")
    except:
        print("Not connected to deepstream")
    sleep(1)
@@ -56,7 +56,7 @@ def getUpDownData():
                     upload = upload * 1000000
                 if downloadArr[0][1] == "Mb":
                     download = download * 1000000
-                obj = {"upload": upload, "download": download, "ip": ipAddress, "elapsed": elapsedTime}
+                obj = {"upload": upload, "download": download, "ip": ipAddress}
                 #print "upload: {} {} download: {} {} ip: {}".format(upload, uploadArr[0][1], download , downloadArr[0][1], ipAddress)
                 dsSuccess = post(obj, recordName)
                 print(obj)
@@ -86,7 +86,7 @@ def checkElapsedTime():
         sleep(1)
 
 t1 = Thread(target=getUpDownData)
-t2 = Thread(target=checkElapsedTime)
+#t2 = Thread(target=checkElapsedTime)
 
 t1.start()
-t2.start()
+#t2.start()

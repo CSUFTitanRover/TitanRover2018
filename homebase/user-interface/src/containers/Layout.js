@@ -24,10 +24,11 @@ const defaultProps = {
 
 const mapStateToProps = state => ({ leftMenuActive: state.leftMenuActive });
 
-const drawerWidth = 300;
+const drawerWidth = 250;
 
 const styles = theme => ({
   topBar: {
+    height: 65,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -35,15 +36,13 @@ const styles = theme => ({
   },
   topBarShift: {
     marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
+    width: '100%',
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
   drawerPaper: {
-    position: 'relative',
-    height: '100%',
     width: drawerWidth,
   },
   content: {
@@ -55,7 +54,6 @@ const styles = theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    height: '100vh',
   },
   contentShift: {
     marginLeft: drawerWidth,
@@ -78,7 +76,7 @@ class Layout extends Component {
       <Grid container spacing={0}>
         <Grid item xs={12}>
           <TopBar classNames={classNames(classes.topBar, leftMenuActive && classes.topBarShift)} />
-          <LeftMenu classNames={classNames(classes.drawerPaper)} />
+          <LeftMenu drawerPaperClassNames={classNames(classes.drawerPaper)} />
         </Grid>
 
         <Grid item xs={12}>

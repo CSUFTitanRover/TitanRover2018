@@ -1,4 +1,4 @@
-import { openLeftMenu, closeLeftMenu, addGoldenLayoutToStore } from './index';
+import { openLeftMenu, closeLeftMenu } from './menu';
 
 describe('testing actions', () => {
   test('testing openLeftMenu action', () => {
@@ -14,16 +14,6 @@ describe('testing actions', () => {
     const result = closeLeftMenu();
     const expectedResult = {
       type: 'CLOSE_LEFT_MENU',
-    };
-
-    expect(result).toEqual(expectedResult);
-  });
-
-  test('testing addGoldenLayoutToStore action', () => {
-    const result = addGoldenLayoutToStore('<GL_LAYOUT>');
-    const expectedResult = {
-      type: 'ADD_GOLDEN_LAYOUT',
-      glLayout: '<GL_LAYOUT>',
     };
 
     expect(result).toEqual(expectedResult);
