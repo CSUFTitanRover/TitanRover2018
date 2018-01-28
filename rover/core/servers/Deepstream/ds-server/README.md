@@ -42,7 +42,50 @@ I like to keep deepstream in my Documents folder:
 cd ~/Documents/;
 git clone https://github.com/deepstreamIO/deepstream.io;
 cd deepstream.io/;
-git submodule update --init 
+git submodule update --init
+```
+if, after the submodule update, you get an error:
+```
+Permission denied (publickey).
+fatal: Could not read from remote repository.
+```
+You will need to add your ssh key to github, so let's do that, first we should see if you already have one:
+```
+cat ~/.ssh/id_rsa.pub
+# if you get "No such file or directory" do this:
+ssh-keygen;
+# otherwise, continue to the next step, and skip these comments
+# Just enter through, DO NOT add a pswword to your ssh-key.
+# if you add a password to your ssh key, it will complicate things. So
+# when prompted for a password TWICE, just keep hitting enter.
+# Once you see the RSA random characters you can print your public ssh key:
+cat ~/.ssh/id_rsa.pub
+```
+
+Once you have printed your ssh key (looks like this):
+```
+ssh-rsa AAAAB3Nz...........
+```
+
+highlight, and copy it from your terminal. You should have NO SPACES copied, and you need to include the **ssh-rsa .....**
+part of the string.
+
+Finally, Go to your browser, Open Settings on your github Account,  On the left you will see alink:
+
+**SSH and GPG keys**
+
+click it, and click the bright green button **Add SSH key**, give your key a name like *myLaptop* or something,
+then paste your ssh key in the big text block area.
+now you can re-run:
+```
+git submodule update --init
+# and you will not have ANY errors.
+# I think this has to do with SSL over the school network, so some people will have this problem, and some wont.
+```
+
+Now you can do this from within your deepstream.io/ folder
+
+```
 npm i;
 npm start;
 ```
