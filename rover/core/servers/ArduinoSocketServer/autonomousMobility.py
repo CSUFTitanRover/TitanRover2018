@@ -10,10 +10,11 @@ import math
 import sys
 from time import sleep
 from deepstream import post, get
+
 import numpy as np
 
 # Arduino address and connection info
-address = ("192.168.1.10", 5000)
+address = ("192.168.1.178", 5000)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(0.5)
 
@@ -25,8 +26,6 @@ global clockwise
 global distance 
 global destinationWaypoint
 global targetHeading
-gps = {}
-imu = {}
 destinationWaypoint = (33.88210346, -117.88163178)
 waypoints = [destinationWaypoint]
 
@@ -38,9 +37,6 @@ forwardY = [25, 45]
 
 # Initialize connection to Arduino
 client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,4", "utf-8"), address)
-
-# 11.88 in Fullerton, 15 in Hanksville
-magneticDeclination = 11.88
 
 # If clockwise, return True, else return False (counterclockwise)
 def shouldTurnClockwise(heading, targetHeading):
@@ -58,7 +54,7 @@ def getDeepstreamData():  # Thread
     try:
         newGps = get("gps")
         gps = (newGps["lat"], newGps["lon"])
-        imu = get({"imu" : "heading"}, "imu") + magneticDeclination
+        imu = get("imu")["heading"]
     except:
         print("Deepstream failed")
     sleep(0.5)
@@ -145,8 +141,10 @@ def generateNewWaypoints():
     print("If obstacle, create new waypoints and add to waypoints list")
     
 #def main():
+t1 = Thread(target = getDeepstreamData)
+t1.start()
+
 while waypoints:
-    checkStop()
     destinationWaypoint = waypoints.pop(0)
     distance = getDistance(gps, destinationWaypoint)
     while(distance > 5):
@@ -164,5 +162,3 @@ while waypoints:
 
 #if __name__ == 'main':
     #main()
-t1 = Thread(target = getDeepstreamData)
-t1.start()
