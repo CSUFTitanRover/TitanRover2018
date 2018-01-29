@@ -6,8 +6,8 @@
 '''
 from socket import *
 from threading import Thread
-import math
 import sys
+import math
 from time import sleep
 from deepstream import post, get
 
@@ -18,16 +18,13 @@ address = ("192.168.1.178", 5000)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(0.5)
 
-global heading
 global gps
-global imu
+global heading
 global deltaDirection 
 global clockwise
 global distance 
-global destinationWaypoint
 global targetHeading
-destinationWaypoint = (33.88210346, -117.88163178)
-waypoints = [destinationWaypoint]
+waypoints = [(33.88210346, -117.88163178)]
 
 # For every x input (x == deltaDirection), y output returns speed
 distanceX = [5, 15, 25]  
@@ -50,11 +47,11 @@ def getHeadingDifference(heading, targetHeading):  # Double check (0, 180)
     return abs(headingDifference + 360) if headingDifference < -180 else abs(headingDifference)
 
 def getDeepstreamData():  # Thread 
-    global imu, gps
+    global heading, gps
     try:
         newGps = get("gps")
         gps = (newGps["lat"], newGps["lon"])
-        imu = get("imu")["heading"]
+        heading = get("imu")["heading"]
     except:
         print("Deepstream failed")
     sleep(0.5)
@@ -115,10 +112,10 @@ def getDistance(origin, destination):
 
     return d * 1000
 
-# Use deepstream thread and helper function calculateHeading to obtain current heading
-def getHeading():
-    global heading, gps, destinationWaypoint
-    heading = calculateHeading(gps, destinationWaypoint)
+# Uses deepstream thread updates and helper function calculateHeading
+def getTargetHeading():
+    global gps, destinationWaypoint
+    return calculateHeading(gps, destinationWaypoint)
 
 def setMotors(motor1, motor2):
     try:
@@ -147,6 +144,7 @@ t1.start()
 while waypoints:
     destinationWaypoint = waypoints.pop(0)
     distance = getDistance(gps, destinationWaypoint)
+    targetHeading = getTargetHeading()
     while(distance > 5):
         deltaDirection = getHeadingDifference(heading, targetHeading)
         clockwise = shouldTurnClockwise(heading, targetHeading)
