@@ -23,11 +23,14 @@ class Camera extends PureComponent {
     /** The base port of all camera strings. (e.g. 8080)
      *  Defaults to the option in app-settings.json if no prop is received */
     basePort: PropTypes.string,
+    /** Refers to the protocol transport used (e.g. http or https) */
+    protocol: PropTypes.string,
   }
 
   static defaultProps = {
     baseIP: appSettings.cameras.base_ip,
     basePort: appSettings.cameras.base_port,
+    protocol: 'http',
   }
 
   state = {
@@ -80,7 +83,7 @@ class Camera extends PureComponent {
   }
 
   render() {
-    const { baseIP, basePort, cameraID } = this.props;
+    const { baseIP, basePort, cameraID, protocol } = this.props;
     const { width, height, resizing, fullsize, lockAspectRatio } = this.state;
     const computedPort = `${basePort.slice(0, -1)}${cameraID}`;
     return (
@@ -97,7 +100,7 @@ class Camera extends PureComponent {
             onResizeStop={this.handleOnResizeStop}
             lockAspectRatio={lockAspectRatio && aspectRatio}
           >
-            <img src={`${baseIP}:${computedPort}`} alt="camera stream" width="100%" className="camera-stream" />
+            <img src={`${protocol}://${baseIP}:${computedPort}`} alt="camera stream" width="100%" className="camera-stream" />
           </Resizable>
         </ContextMenuTrigger>
 

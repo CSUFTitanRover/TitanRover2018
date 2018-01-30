@@ -10,7 +10,7 @@
     }
   },
   "cameras": {
-    "base_ip": "http://localhost",
+    "base_ip": "localhost",
     "base_port": "8080"
   }
 }

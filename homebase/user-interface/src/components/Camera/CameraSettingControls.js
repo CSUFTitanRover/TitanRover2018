@@ -11,6 +11,7 @@ import { MenuItem } from 'material-ui/Menu';
 import { InputLabel } from 'material-ui/Input';
 import { FormControl, FormControlLabel } from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
+import TextField from 'material-ui/TextField';
 import green from 'material-ui/colors/green';
 import grey from 'material-ui/colors/grey';
 import uuidv4 from 'uuid/v4';
@@ -52,16 +53,23 @@ class CameraSettingControls extends PureComponent {
     /** The base port of all camera strings. (e.g. 8080)
      *  Defaults to the option in app-settings.json if no prop is received */
     basePort: PropTypes.string,
+    /** Refers to the protocol transport used (e.g. http or https) */
+    protocol: PropTypes.string,
+    /** Handles changing the base IP of the camera stream source in the Camera Component */
+    cameraWrapperBaseIPChange: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     baseIP: appSettings.cameras.base_ip,
     basePort: appSettings.cameras.base_port,
+    protocol: 'http',
   }
 
   state = {
     streamQuality: 'mid',
     streamOnline: true,
+    baseIP: this.props.baseIP,
+    protocol: this.props.protocol,
   }
   cameraSettingControlsUUID = uuidv4();
 
@@ -71,7 +79,8 @@ class CameraSettingControls extends PureComponent {
   }
 
   modifyVideoStream = (value) => {
-    const { baseIP, basePort, cameraID } = this.props;
+    const { basePort, cameraID } = this.props;
+    const { baseIP, protocol } = this.state;
     let motionStreamQuality;
     let motionStreamMaxrate;
 
@@ -99,8 +108,8 @@ class CameraSettingControls extends PureComponent {
         break;
     }
 
-    fetch(`${baseIP}:${basePort}/${cameraID}/config/set?stream_quality=${motionStreamQuality}`, { mode: 'no-cors' });
-    fetch(`${baseIP}:${basePort}/${cameraID}/config/set?stream_maxrate=${motionStreamMaxrate}`, { mode: 'no-cors' });
+    fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_quality=${motionStreamQuality}`, { mode: 'no-cors' });
+    fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_maxrate=${motionStreamMaxrate}`, { mode: 'no-cors' });
   }
 
   handleVideoActivityChange = () => {
@@ -111,36 +120,66 @@ class CameraSettingControls extends PureComponent {
   }
 
   toggleVideoStreamActivity = (streamOnline) => {
-    const { baseIP, basePort, cameraID } = this.props;
+    const { basePort, cameraID } = this.props;
+    const { baseIP, protocol } = this.state;
 
     if (streamOnline) {
       // turn the stream off
-      fetch(`${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
+      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
     } else {
       // turn the stream on
       const newStreamPort = `${basePort.slice(0, -1)}${cameraID}`;
-      fetch(`${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
+      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
     }
   }
 
   handleSaveImage = () => {
-    const { baseIP, basePort, cameraID } = this.props;
-    fetch(`${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
+    const { basePort, cameraID } = this.props;
+    const { baseIP, protocol } = this.state;
+    fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
     console.info(`Image from Camera #${cameraID} should be saved to /var/lib/motion directory.`);
   }
 
+  handleBaseIPChange = ({ target }) => {
+    this.setState({ baseIP: target.value });
+    this.props.cameraWrapperBaseIPChange(target.value);
+  }
+
+  handleProtocolChange = ({ target }) => {
+    this.setState({ protocol: target.value });
+  }
 
   render() {
     const { classes, cameraID } = this.props;
-    const { streamQuality, streamOnline } = this.state;
+    const { streamQuality, streamOnline, baseIP, protocol } = this.state;
 
     return (
       <div className={classes.root}>
-        <AppBar position="static" color="default" className={classes.appbar} square elevation={0}>
+        <AppBar position="static" color="default" square elevation={0}>
           <Toolbar>
-            <Typography type="body2" className={classes.cameraLabel}>
+            <Typography type="body2">
               {`Camera #${cameraID} Settings`}
             </Typography>
+            <TextField
+              id="baseIP"
+              label="Base IP"
+              value={baseIP}
+              onChange={this.handleBaseIPChange}
+              className={classes.formControl}
+            />
+            <FormControl className={classes.formControl}>
+              <InputLabel htmlFor={`camera-protocol-${this.cameraSettingControlsUUID}`}>Stream Protocol</InputLabel>
+              <Select
+                value={protocol}
+                onChange={this.handleProtocolChange}
+                inputProps={{
+                  id: `camera-protocol-${this.cameraSettingControlsUUID}`,
+                }}
+              >
+                <MenuItem value="http">http</MenuItem>
+                <MenuItem value="https">https</MenuItem>
+              </Select>
+            </FormControl>
             <FormControl className={classes.formControl}>
               <InputLabel htmlFor={`camera-quality-${this.cameraSettingControlsUUID}`}>Stream Quality</InputLabel>
               <Select
@@ -171,12 +210,10 @@ class CameraSettingControls extends PureComponent {
                   />}
               />
             </FormControl>
-            <FormControl className={classes.formControl}>
-              <Button raised dense color="primary" onClick={this.handleSaveImage}>
-                <SaveIcon />
-                Save image to rover
-              </Button>
-            </FormControl>
+            <Button raised dense color="primary" onClick={this.handleSaveImage}>
+              <SaveIcon />
+              Save image to rover
+            </Button>
           </Toolbar>
         </AppBar>
       </div>
