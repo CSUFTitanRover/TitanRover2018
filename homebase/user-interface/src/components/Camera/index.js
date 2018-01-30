@@ -12,7 +12,10 @@ class CameraWrapper extends PureComponent {
   render() {
     return (
       <React.Fragment>
-        <CameraSettingControls {...this.props} cameraWrapperBaseIPChange={this.cameraWrapperBaseIPChange} />
+        <CameraSettingControls
+          {...this.props}
+          cameraWrapperBaseIPChange={this.cameraWrapperBaseIPChange}
+        />
         <Camera {...this.props} baseIP={this.state.baseIP} />
       </React.Fragment>
     );
