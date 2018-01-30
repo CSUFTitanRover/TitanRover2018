@@ -19,6 +19,7 @@
     "react-resizable-box": "^2.1.0",
     "react-scripts": "1.0.11",
     "redux": "^3.7.2",
+    "serve": "^6.4.9",
     "socket.io-client": "^2.0.4",
     "typeface-roboto": "0.0.35",
     "uuid": "^3.2.1"
@@ -32,7 +33,8 @@
     "styleguide:build": "styleguidist build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "report-coverage": "codecov --token=fc200a62-2cb4-4cd6-a15d-9f5f41d6189d"
+    "report-coverage": "codecov --token=fc200a62-2cb4-4cd6-a15d-9f5f41d6189d",
+    "serve": "node ./serve.js"
   },
   "devDependencies": {
     "codecov": "^2.3.1",
