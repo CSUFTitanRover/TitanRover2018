@@ -1,20 +1,20 @@
-SLAM CONCEPT STRUCTURE
+#SLAM CONCEPT STRUCTURE
 
-REQUIRED DOWNLOADS
+##REQUIRED DOWNLOADS
 The required download for openGL structure is Glew and FreeGlut to compliment the openGL system with assistance. These openGL extensions can be downloaded within visual studio’s manage packet segment or can be downloaded via Internet. Simplified required downloads annotation is listed below:
 Glew
 FreeGlut
 
-REQUIRED HEADINGS
+##REQUIRED HEADINGS
 The required headings are on par with the required installation segments.
 The required headings have to be in order for it to work properly with openGL. The heading order is demonstrated below with the required downloaded assistance.
 #include "GL\glew.h"
 #include "GL\freeglut.h"
 
-OPENGL DRAWING CONCEPT(S)
+##OPENGL DRAWING CONCEPT(S)
 OpenGL uses polygon and vertex rendering to apply triangle shapes to compute complex objects as a drawn or rendered model(s). These concepts require additional knowledge of calculus and physics to demonstrate a 3D plain that involves <x,y,z> with optimal addition to t as time if needed.
 
-DYNAMIC RENDERING
+##DYNAMIC RENDERING
 Dynamic rendering will be a concept of visually placing static objects into the vertex grid to align with the incoming lidar data. The rendering of the dynamic structure or rather shape is coherent at its early stages as initial scale and accuracy is more abstract to follow. The dynamic rendering will be presented with variety of functions that will make up with original data rendering possible.
 Example function:
 vector<size_t>dynamic_render(size_t x, size_t y);
