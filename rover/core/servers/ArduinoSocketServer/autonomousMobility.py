@@ -37,10 +37,12 @@ client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,4", "utf-8"), address)
 
 # If clockwise, return True, else return False (counterclockwise)
 def shouldTurnClockwise(heading, targetHeading):
-    if heading == targetHeading:
-        return True if abs(heading - targetHeading) <= 180 else False 
-    else:
-        return False if abs(heading - targetHeading) < 180 else True
+    myDict = {}
+    myDict[abs(targetHeading - heading)] = targetHeading - heading
+    myDict[abs(targetHeading - heading + 360)] = targetHeading - heading + 360 
+    myDict[abs(targetHeading - heading - 360)] = targetHeading - heading - 360 
+    b = myDict[min(myDict.keys())]
+    return True if b < 0 else False
 
 def getHeadingDifference(heading, targetHeading):  # Double check (0, 180)
     headingDifference = (targetHeading - heading + 180) % 360 - 180
