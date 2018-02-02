@@ -42,7 +42,7 @@ def shouldTurnClockwise(heading, targetHeading):
     myDict[abs(targetHeading - heading + 360)] = targetHeading - heading + 360 
     myDict[abs(targetHeading - heading - 360)] = targetHeading - heading - 360 
     b = myDict[min(myDict.keys())]
-    return True if b < 0 else False
+    return True if b > 0 else False
 
 def getHeadingDifference(heading, targetHeading):  # Double check (0, 180)
     headingDifference = (targetHeading - heading + 180) % 360 - 180
