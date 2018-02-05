@@ -137,5 +137,30 @@ def shutdown():
     shutdown_server()
     return 'Server shutting down...'
 
+@app.route('/restartTheRover', methods=['GET'])
+def restartTheRover():
+    Popen(["init", "6"], stdout=PIPE, stderr=PIPE).communicate()
+    return '{ "status": "SUCCESS" }'
+
+@app.route('/shutdownTheRover', methods=['GET'])
+def shutdownTheRover():
+    print("shutting down the rover..")
+    Popen(["init", "0"], stdout=PIPE, stderr=PIPE).communicate()
+    return '{ "status": "SUCCESS" }'
+
+@app.route('/syncMotion', methods=['GET'])
+def syncMotion():
+    try:
+        Popen(["rsync", "-prav", "-e", "ssh", "--delete", "/var/lib/motion", "root@192.168.1.3:/home/pi/Images"], stdout=PIPE, stderr=PIPE).communicate()
+        o, e = Propen(["ssh", "root@192.168.1.3", "\"chown -R pi:pi /home/pi/images/\""], stdout=PIPE, stderr=PIPE).communicate()
+        o = o.decode("utf-8")
+        e = e.decode("utf-8")
+        print("out:", c.YELLOW, o, c.DEFAULT)
+        print("err", c.RED, e, c.DEFAULT)
+    if e == "":
+        return '{ "status": "SUCCESS" }'
+    else:
+        return '{ "status": "FAIL" }'
+
 if __name__ == '__main__':
     app.run(debug=True)
