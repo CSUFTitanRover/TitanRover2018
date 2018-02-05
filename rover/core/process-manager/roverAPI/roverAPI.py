@@ -93,7 +93,7 @@ def getLogFromSession(screenName, lines):
     return ""
     
 
-def shutdown_server():
+def shutdown_APIServer():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
@@ -132,9 +132,9 @@ def getLogs(filename):
     else:
         return('{ "status": "FAIL" }')
 
-@app.route('/shutdown', methods=['GET'])
-def shutdown():
-    shutdown_server()
+@app.route('/killAPI', methods=['GET'])
+def killAPI():
+    shutdown_APIServer()
     return 'Server shutting down...'
 
 @app.route('/restartTheRover', methods=['GET'])
@@ -151,8 +151,8 @@ def shutdownTheRover():
 @app.route('/syncMotion', methods=['GET'])
 def syncMotion():
     try:
-        Popen(["rsync", "-prav", "-e", "ssh", "--delete", "/var/lib/motion", "root@192.168.1.3:/home/pi/Images"], stdout=PIPE, stderr=PIPE).communicate()
-        o, e = Propen(["ssh", "root@192.168.1.3", "\"chown -R pi:pi /home/pi/images/\""], stdout=PIPE, stderr=PIPE).communicate()
+        Popen(["rsync", "-prav", "-e", "ssh", "--delete", "/var/lib/motion", "root@192.168.1.3:/home/homebase-computer/Pictures/motion"], stdout=PIPE, stderr=PIPE).communicate()
+        o, e = Propen(["ssh", "root@192.168.1.3", "\"chown -R homebase-computer:homebase-computer /home/hombase-computer/Pictures/motion\""], stdout=PIPE, stderr=PIPE).communicate()
         o = o.decode("utf-8")
         e = e.decode("utf-8")
         print("out:", c.YELLOW, o, c.DEFAULT)
