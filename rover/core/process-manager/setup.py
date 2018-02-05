@@ -51,6 +51,7 @@ else:
     p5 = Popen([ "whereis", "nmap" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     p6 = Popen([ "whereis", "arp-scan" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     p7 = Popen([ "whereis", "pip3" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p8 = Popen([ "whereis", "flask" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     
     # automatically install dependencies if it does not exists.
     if p1[8:] == "":
@@ -89,6 +90,8 @@ else:
         Popen([ "sudo", "pip3", "install", "pygame"], stdout=PIPE, stderr=PIPE).communicate()
         Popen([ "sudo", "pip3", "install", "pyserial"], stdout=PIPE, stderr=PIPE).communicate()
     
+    if p8[7:] == "":
+        Popen([ "sudo", "pip3", "install", "flask"], stdout=PIPE, stderr=PIPE).communicate()
 
     # Always copy the motion config files (for now), as updates in the future may change
     try:
