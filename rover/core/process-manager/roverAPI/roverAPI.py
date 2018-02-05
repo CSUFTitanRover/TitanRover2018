@@ -157,9 +157,11 @@ def syncMotion():
         e = e.decode("utf-8")
         print("out:", c.YELLOW, o, c.DEFAULT)
         print("err", c.RED, e, c.DEFAULT)
-    if e == "":
-        return '{ "status": "SUCCESS" }'
-    else:
+        if e == "":
+            return '{ "status": "SUCCESS" }'
+        else:
+            return '{ "status": "FAIL" }'
+    except:
         return '{ "status": "FAIL" }'
 
 if __name__ == '__main__':
