@@ -65,6 +65,7 @@ Here is an example of the **processes.json** file where each process is an objec
     }
 
 ]
+
 ```
 There are three processes in this example above. All you need to do is add your process to the file.
 
