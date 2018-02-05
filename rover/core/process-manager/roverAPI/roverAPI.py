@@ -67,16 +67,16 @@ def restartSession(sessionName):
     for item in processes:
         if item["screenName"] == sessionName and sessionName != "roverAPI":
             fullPath = path["path"] + item["path"]
-            #os.chdir(fullpath)
-            command = '"'+ item["python"] + " "+ item["script"]  +'\\015"' 
+            os.chdir(fullPath)
+            command = item["python"] + " "+ item["script"]  +'\\015' 
             print(command)
             o = Popen(["screen", "-S", item["screenName"], "-X", "kill"], stdout=PIPE, stderr=PIPE).communicate()[0].decode('utf-8')
             print(o)
             o = Popen(["screen", "-dmLS", item["screenName"]], stdout=PIPE, stderr=PIPE).communicate()[0].decode('utf-8')
-            Popen( ["screen", "-S", sessionName, "-X", "stuff", command ], stdout=PIPE, stderr=PIPE, cwd=fullPath).communicate()
+            Popen( ["screen", "-S", sessionName, "-X", "stuff", command ], cwd=fullPath, stdout=PIPE, stderr=PIPE).communicate()
             print(c.YELLOW+"Restarted process:", item["screenName"]+c.DEFAULT)
             print(os.getcwd())
-            #os.chdir(mainDir)
+            os.chdir(mainDir)
             return True
     return False 
 
@@ -89,7 +89,7 @@ def getLogFromSession(screenName, lines):
             p = p.split("\r\n")
             #print(p)
             p = p[(-1*(1+lines)):]
-            return '<br>\n'.join(p).replace("\"", "'").replace("#", "\n")
+            return '<br>'.join(p).replace("\"", "'") + '\n'
     return ""
     
 
