@@ -1,6 +1,7 @@
 import Counter from '../../components/Counter';
 import Camera from '../../components/Camera/';
 import Chart from '../../components/Chart/';
+import RoverApiSettings from '../../components/RoverApiSettings/'
 
 
 /**
@@ -40,6 +41,7 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('Counter', Counter);
   glNode.registerComponent('Camera', Camera);
   glNode.registerComponent('Chart', Chart);
+  glNode.registerComponent('RoverApiSettings', RoverApiSettings)
 }
 
 export function initializeGL(glNode) {

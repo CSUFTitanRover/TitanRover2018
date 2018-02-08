@@ -15,6 +15,11 @@ const config = {
           title: 'Chart',
           props: { chartName: 'Chart' },
         },
+        {
+          type: 'react-component',
+          component: 'RoverApiSettings',
+          title: 'RoverApiSettings',
+        },
       ],
     },
   ],
