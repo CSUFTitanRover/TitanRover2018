@@ -7,8 +7,8 @@ import Divider from 'material-ui/Divider';
 import InboxIcon from 'material-ui-icons/Inbox';
 import DraftsIcon from 'material-ui-icons/Drafts';
 
-const { roverAPI } = appSettings
-const { base_ip, base_port } = roverAPI
+const { roverAPI } = appSettings;
+const { base_ip, base_port } = roverAPI;
 
 const styles = theme => ({
   root: {
@@ -24,14 +24,13 @@ class RoverApiSettings extends Component {
 
   fetchAPI = async (apiName) => {
     try {
-      let response = await fetch(`//${base_ip}:${base_port}/${apiName}`)
-      response = JSON.parse(response)
+      let response = await fetch(`//${base_ip}:${base_port}${apiName}`);
+      response = response.json();
       if (response.status === 'SUCCESS') {
-        console.log('request succeeded')
+        console.log('request succeeded');
       }
-    }
-    catch (err) {
-      console.error(err)
+    } catch (err) {
+      console.error(err);
     }
   }
 
@@ -41,25 +40,25 @@ class RoverApiSettings extends Component {
     return (
       <div className={classes.root}>
         <List component="nav" subheader={<ListSubheader component="div">Rover Api Settings</ListSubheader>}>
-          <ListItem button>
+          <ListItem button onClick={() => { this.fetchAPI('/clearLogFiles'); }}>
             <ListItemIcon>
               <InboxIcon />
             </ListItemIcon>
             <ListItemText primary="Clear Log Files" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => { this.fetchAPI('/restartTheRover'); }}>
             <ListItemIcon>
               <DraftsIcon />
             </ListItemIcon>
             <ListItemText primary="Restart Rover" />
           </ListItem>
-          <ListItem button>
+          <ListItem button onClick={() => { this.fetchAPI('/shutdownTheRover'); }}>
             <ListItemIcon>
               <DraftsIcon />
             </ListItemIcon>
             <ListItemText primary="Shutdown Rover" />
           </ListItem>
-          <ListItem button onClick={(e) => console.log(e.target)}>
+          <ListItem button onClick={() => { this.fetchAPI('/syncMotion'); }}>
             <ListItemIcon>
               <DraftsIcon />
             </ListItemIcon>
@@ -67,8 +66,8 @@ class RoverApiSettings extends Component {
           </ListItem>
         </List>
       </div>
-    )
+    );
   }
 }
 
-export default withStyles(styles)(RoverApiSettings)
+export default withStyles(styles)(RoverApiSettings);
