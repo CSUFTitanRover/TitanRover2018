@@ -15,3 +15,10 @@ Ports the DS rover server will listen on:
 First install dependencies: `npm install`
 
 Start the server: `npm start`
+
+---- 
+
+References
+
+- https://deepstreamhub.com/open-source/install/npm/#using-the-deepstream-client-in-node-js
+- https://www.npmjs.com/package/deepstream.io-storage-mongodb
