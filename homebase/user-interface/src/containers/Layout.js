@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import Grid from 'material-ui/Grid';
 import TopBar from './TopBar/';
 import LeftMenu from './LeftMenu/';
+import { ToastContainer, toast } from 'react-toastify';
 
 const propTypes = {
   /** Any child element that is renderable e.g. Text, HTML, etc. */
@@ -74,6 +75,8 @@ class Layout extends Component {
 
     return (
       <Grid container spacing={0}>
+        <ToastContainer pauseOnHover={false} position={toast.POSITION.TOP_CENTER} />
+
         <Grid item xs={12}>
           <TopBar classNames={classNames(classes.topBar, leftMenuActive && classes.topBarShift)} />
           <LeftMenu drawerPaperClassNames={classNames(classes.drawerPaper)} />
