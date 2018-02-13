@@ -1,21 +1,29 @@
 '''
+    Code Compiled By:
+        Billy Dang
 
     Description:
-        - Detect and calculates distance to ball triangle similarity
+        - Detect and calculates both distance to ball via triangle similarity and angle offset, 
           Sadly, there are some false postives so its not perfect. 
           Needs Improvement..
 
     References: 
         - https://www.pyimagesearch.com/2015/01/19/find-distance-camera-objectmarker-using-python-opencv/
+        - https://hackaday.io/project/21218-raspberrypetdog/log/63685-tracking-tennis-ball-code
+        - https://stackoverflow.com/questions/14038002/opencv-how-to-calculate-distance-between-camera-and-object-using-image
         
     HEAVILY "Borrowed" Code:
         - https://github.com/kd8bxp/find_distance_with_pixycam/blob/master/distance_using_pixycam.ino
         - https://pastebin.com/WVhfmphS
-        - https://stackoverflow.com/questions/14038002/opencv-how-to-calculate-distance-between-camera-and-object-using-image
 
     Formulas:
         Distnace = object_real_world_mm * focal-length_mm / object_image_sensor_mm
         FocalLength = (pixels * knowdistanceininches) / widthOfObject
+
+    Current Issue:
+        On Windows
+
+         
 
 
     PS: If you wanted to add other color spectrums
@@ -34,6 +42,7 @@
 
 # packages
 import numpy as np
+import math
 import imutils
 import cv2
 
@@ -45,8 +54,7 @@ import cv2
 #Calibrated width reading
 calWidth = 40
 
-# initialize the known distance from the camera to the object, which
-# in this case is 24 inches
+# initialize the known distance from the camera to the object, which in this case is 24 inches
 KNOWN_DISTANCE = 24.0
 
 # initialize the known object width
@@ -83,8 +91,8 @@ while True:
     blurred = cv2.GaussianBlur(frame, (11, 11), 0)
     hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-    # for each color in dictionary check if object in frame matches with 
-    # one of the colors
+    # for each color in dictionary, check if object in frame matches with 
+    # one of the colors in dictionary
     for key, value in upper.items():
         # construct a mask for the color from our dictionary of colors, then perform
         # a series of dilations and erosions to remove any small
@@ -110,12 +118,24 @@ while True:
 
             ((x, y), radius) = cv2.minEnclosingCircle(c)
 
+            # Use image moment to calculate the area and center of mass of ball
             M = cv2.moments(c)
-
             center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
 
+            # Compute the distance
             inches = (KNOWN_WIDTH * focalLength) / radius
+
+
+            # Compute the offset angle theta and convert to degrees
+            theta = math.degrees(math.atan(y/x))
+            #print("Init Angle: ", round(theta,3))
+
+            offSet = 90 - theta
+            #print("Offset Angle: ", (round(offSet, 3)))
+
+
+
  
        
             # only proceed if the radius meets a minimum size. Correct this value for your obect's size
@@ -128,7 +148,9 @@ while True:
 
                 # Add distance HUD
                 cv2.putText(frame, "%.2fft" % (inches / 12), (frame.shape[1] - 200, frame.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 255, 0), 3)
- 
+
+                # Add Offset to HUD
+                cv2.putText(frame, "{:.2f}deg".format(offSet), (10,550), cv2.FONT_HERSHEY_SIMPLEX, 2.0,(255,255,255), 2, cv2.LINE_AA)
      
     # show the frame to our screen
     cv2.imshow("Frame", frame)
