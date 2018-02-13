@@ -9,6 +9,7 @@ import InboxIcon from 'material-ui-icons/Inbox';
 import VideocamIcon from 'material-ui-icons/Videocam';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
+import SettingsIcon from 'material-ui-icons/Settings';
 import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {
@@ -86,6 +87,12 @@ class ComponentMenuList extends Component {
             icon={<ShowChartIcon />}
             className={classes.nested}
             componentprops={{ chartName: 'chart' }}
+          />
+          <ComponentMenuItem
+            title="Rover API Settings"
+            componentname="RoverApiSettings"
+            icon={<SettingsIcon />}
+            className={classes.nested}
           />
           <ComponentMenuItem
             title="Counter Example"
