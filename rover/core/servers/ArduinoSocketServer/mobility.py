@@ -20,10 +20,12 @@ import time
 import pygame
 import numpy as np
 import sys
+import os
 
-uname = Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+uname = str(Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode("utf-8"))
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
 isNvidia = True if uname == "arm64\n" else False
+
 
 if isPi:
     import RPi.GPIO as GPIO
@@ -45,6 +47,7 @@ client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(0.5)
 
 # Initialize pygame and joysticks
+os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.init()
 pygame.joystick.init()
 
@@ -57,13 +60,9 @@ global mode  # Current set name (string) in use
 global modeNames  # List of set names (strings) from .txt file
 global actionTime  # Seconds needed to trigger pause / mode change
 global pausedLEDs  # LED settings for paused mode
-global dsMode  # Deepstream mode 
-global dsButton
 paused = False
 modeNum = 0
 actionTime = 3
-dsMode = "manual"  
-dsButton = False
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
@@ -88,7 +87,7 @@ def setRoverActions():
     roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to support "mode" action
     roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
     roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0}  # Added to support button throttle
-    roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
+    #roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
 
 setRoverActions()  # Initiate roverActions to enter loop
 
@@ -119,7 +118,6 @@ def stop():
     global paused
     paused = True
 
-# Helper funcs for rate multipliers. Funcs take zero, one, or more arguments as needed
 def getZero(*arg):
     return 0
 
@@ -164,6 +162,7 @@ def setLed():
         GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
         GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
 
+'''
 def checkDsButton():
     global dsButton, roverActions
     if (not roverActions["auto"]["held"] and roverActions["auto"]["value"]):  # New button press
@@ -171,6 +170,7 @@ def checkDsButton():
         roverActions["auto"]["lastpress"] = datetime.now()
     if (roverActions["auto"]["held"] and not roverActions["auto"]["value"]):  # Button held, but now released
         roverActions["auto"]["held"] = False
+        dsButton = False
     if (roverActions["auto"]["held"] and roverActions["auto"]["value"] and (
         datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
@@ -182,7 +182,7 @@ def requestControl():
         print("Updated mode record")
     except:
         print("Cannot access mode record")
-        pass
+'''
 
 def checkPause():
     global paused, roverActions
@@ -214,22 +214,21 @@ def checkModes():
         roverActions["mode"]["set"] = modeNum
         roverActions["ledMode"]["value"] = controls[mode]["ledCode"]
 
-def checkButtons():
+def checkButtons(currentJoystick):
     global roverActions
-    events = pygame.event.get([ pygame.JOYBUTTONDOWN, pygame.JOYBUTTONUP ] )  # Only check buttons that have changed state
-    for event in events:
-        currentJoystick = pygame.joystick.Joystick(event.joy)
-        name = pygame.joystick.Joystick(event.joy).get_name()
-        joyForSet = controls[mode].get(name)  # Get joystick in current set
-        if (joyForSet):
-            typeForJoy = joyForSet.get("buttons")  # Get joystick control type
-            if (typeForJoy):
-                control_input = typeForJoy.get(event.button)  # Check if input defined for controller
+    name = currentJoystick.get_name()
+    joyForSet = controls[mode].get(name)  # Get joystick in current set
+    if (joyForSet):
+        typeForJoy = joyForSet.get("buttons")  # Get joystick control type
+        if (typeForJoy):
+            buttons = currentJoystick.get_numbuttons()
+            for i in range(buttons):
+                control_input = typeForJoy.get(i)  # Check if input defined for controller
                 if (control_input):
-                    val = currentJoystick.get_button(event.button)  # Read button value, assign to roverActions
-                    roverActions[control_input[0]]["value"] = val
-                    roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
-    discard = pygame.event.get()
+                    val = currentJoystick.get_button(i)  # Read button value, assign to roverActions
+                    if (val == 0 and roverActions[control_input[0]]["direction"] == control_input[1]) or val != 0:
+                        roverActions[control_input[0]]["value"] = val
+                        roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
 
 def checkAxes(currentJoystick):
     global roverActions
@@ -263,30 +262,39 @@ def checkHats(currentJoystick):
                         roverActions[control_input[0]]["value"] = val[y]
                         roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
 
+'''
+def sendToDeepstream():
+    global dsMode
+    while True:
+        try:
+            post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
+            dsMode = get("mode")["mode"]
+        except:
+            print("Cannot send to Deepstream")
+            pass 
+        time.sleep(1)
+'''
+
 def main(*argv):
-    global paused, dsButton, dsMode
+    global paused
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
         pygame.joystick.Joystick(i).init()
-
 
     while True:
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
             stop()
-        checkButtons()
         for i in range(joystick_count):
             joystick = pygame.joystick.Joystick(i)
             checkAxes(joystick)
             checkHats(joystick)
+            checkButtons(joystick)
             throttleStep()
             checkPause()
             checkModes()
-            checkDsButton()
-            if dsButton:
-                requestControl()
             setLed()
             print("Sending Arduino command")
             try:
@@ -300,28 +308,16 @@ def main(*argv):
                         outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
                     outVals = list(map(str, outVals))
                     outString = ",".join(outVals)
-                    if dsMode == "manual":
-                        client_socket.sendto(bytes(outString,"utf-8"), address)
-                        print(outString)
-                    else:
-                        print("Not in manual mode")
+                    client_socket.sendto(bytes(outString,"utf-8"), address)
+                    print(outString)
             except:
                 print("Send failed")
-                pass
-
-def sendToDeepstream():
-    global dsMode
-    while True:
-        try:
-            post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
-            dsMode = get("mode")["mode"]
-        except:
-            print("Cannot send to Deepstream")
-            pass 
-        time.sleep(1)
 
 if __name__ == '__main__':
+    main()
+'''
     t1 = Thread(target = main)
     t2 = Thread(target = sendToDeepstream)
     t1.start()
     t2.start()
+'''
