@@ -70,7 +70,7 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
-EthernetUDPBase Udp_Base;  //customize communication===========================================
+EthernetUDP Udp_Base;  //customize communication===========================================
 
 // Protection from loss of communication using millis()
 unsigned long interval = 500;
