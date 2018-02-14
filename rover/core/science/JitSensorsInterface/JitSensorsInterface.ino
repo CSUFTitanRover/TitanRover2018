@@ -73,7 +73,7 @@ void loop() {
   loopTempSensor();
 
   /* Code for 5TE Sensor */
-  loop5TE();
+  loopSoilSensor_5TE();
 
   
 
@@ -88,11 +88,9 @@ void loop() {
 
 //Get Measurement from 5TE Device by sending SDI queries
 char* get_measurement(){
-  char* service_request = sdi_serial_connection.sdi_query("?M!",150);
-  //you can use the time returned above to wait for the service_request_complete
-  char* service_request_complete = sdi_serial_connection.wait_for_response(150);
-  //dont worry about waiting too long it will return once it gets a response
-  return sdi_serial_connection.sdi_query("?D0!",150);
+  char* service_request = sdi_serial_connection.sdi_query("?M!",1000); //sending our query via connection
+  char* service_request_complete = sdi_serial_connection.wait_for_response(1000); //waiting for the response from the sensor
+  return sdi_serial_connection.sdi_query("?D0!", 1000); //it'll return as soon as we get a clean response  
 }
 
 //Setup code for 5TE
@@ -211,62 +209,30 @@ void loopUVLight(){
 }
 
 
-
-
-//Loop code for 5TE
-void loop5TE(){
+//Loop code for 5TE Decagon
+void loopSoilSensor_5TE() {
+  int plusCounter = 0;
+    
+  char* response = get_measurement();
   
-  //Variable declarations
-  String VWC;   //volumetric water content
-  String EC;    // electrical conductivity
-  String TEMP;  // temperature
-  char *FTEvalue=new char[20];
-
+  if (response) {
+    char* something = strtok(response, "+");   
+    
+    while(something != NULL) {
+      
+      if(plusCounter != 0) {
+        Serial.write(something);
+        Serial.write('\n');     
+      }
+      
+      something = strtok (NULL, "+"); //Increments to next value after +
+      plusCounter++;
+    }//While loop ends  
+    
+  }//If response ends
   
-  char* response = get_measurement(); // get measurement data
-  String FTE=response;
-  char tmp1='+';  
-  int tmp2=FTE.indexOf(tmp1);
-   
-  while(tmp2!=1)
-  {
-    char* response = get_measurement(); // get measurement data
-    FTE=response;
-    tmp2=FTE.indexOf(tmp1);
-  }
-   
-  int FTElength=FTE.length();
-  
-  FTE.toCharArray(FTEvalue,FTElength);
-  int plustest=FTEvalue[5];
-  if (plustest=43)
-    {          
-      VWC= String(FTEvalue[2])+String(FTEvalue[3])+String(FTEvalue[4]);
-      EC= String(FTEvalue[6])+String(FTEvalue[7])+String(FTEvalue[8])+String(FTEvalue[9]);
-      TEMP= String(FTEvalue[11])+String(FTEvalue[12])+String(FTEvalue[13])+String(FTEvalue[14]);
-    }
-    else
-    {
-      VWC= String(FTEvalue[2])+String(FTEvalue[3])+String(FTEvalue[4])+String(FTEvalue[5]);
-      EC= String(FTEvalue[7])+String(FTEvalue[8])+String(FTEvalue[9])+String(FTEvalue[10]);
-      TEMP= String(FTEvalue[12])+String(FTEvalue[13])+String(FTEvalue[14])+String(FTEvalue[15]);
-    }
-  float VWCvalue=VWC.toInt()/100;
-
-  char ECchar[10];
-  EC.toCharArray(ECchar,10);
-
-  char TEMPchar[10];
-  TEMP.toCharArray(TEMPchar,10);
-  
-  //Serial.println("VWCvalue      EC       TEMP");  
-  Serial.write(getCharFromFloat(VWCvalue));  
-  Serial.write('\n');
-  //Serial.print("         ");
-  Serial.write(ECchar);  
-  Serial.write('\n');
-  //Serial.print("       ");
-  Serial.write(TEMPchar);  
-  Serial.write('\n');
-  //delay(2000);
 }
+
+
+
+
