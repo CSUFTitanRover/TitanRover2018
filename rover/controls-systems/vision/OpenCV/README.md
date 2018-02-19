@@ -11,7 +11,7 @@ Is the xml sheet that results from the training of the data it is used for the h
 This folder is the where the stages of the training populate.
 ### getImgs.py 
 
-(do in this order to run as well)
+(do in this order to recreate as well)
 #### def store_raw_images():
  
 This file is an image scrapper it takes images from a specified url. It also creates a neg folder if not already, it also recises the image and renames the image allowing for multiple images to be downloaded with different names.
@@ -40,6 +40,8 @@ opencv_traincascade -data data -vec positives.vec -bg bg.txt -numPos 1400 -numNe
 ```
 This begins the training for the Haar cascade. It utilizes both positives.vec file and bg.txt file to gain information on the pictures being compared. From the information it grabs 1400 positives and negs. 700 (The standard is to do a 2 to 1 ratio of positives and negatives) and trains them for 10 stages to reconize a 20x20.
 
+## To Run
+run python script reconball.py
 
 ## Developer's Notes
 For this code I utilized a https://pythonprogramming.net/haar-cascade-object-detection-python-opencv-tutorial/ a bunch, most of the code can be attributed to this tutorials. I had to make some changes in the command line such as .jpg instead of pngoutput. If any issues utilize the tutorial as a ref. Training may also need to be redone, it will recognize the ball in only certain angles. I think this maybe to a couple of differnet issues including angle skewing and utilizing a low amount of artificial pos. I will try to adjust both, it was given an instruction to train 10 stages yet only trained for 6 due to the low acceptance ratio. This may be further evidence to my earllier point of low img count or skewing. 
