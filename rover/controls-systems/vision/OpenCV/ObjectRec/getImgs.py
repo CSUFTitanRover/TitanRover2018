@@ -57,6 +57,3 @@ create_pos_n_neg()
 #find_uglies()
 #store_raw_images()
 
-opencv_createsamples -img ball2.jpg -bg bg.txt -info info/info.lst -jpgoutput info -maxxangle 0.5 -maxyangle 0.5 -maxzangle 0.5 -num 1600
-opencv_createsamples -info info/info.lst -num 1600 -w 20 -h 20 -vec positives.vec
-opencv_traincascade -data data -vec positives.vec -bg bg.txt -numPos 1400 -numNeg 700 -numStages 10 -w 20 -h 20
