@@ -39,3 +39,7 @@ This command will actually create the positives.vec file of grabing 1600 of the 
 opencv_traincascade -data data -vec positives.vec -bg bg.txt -numPos 1400 -numNeg 700 -numStages 10 -w 20 -h 20
 ```
 This begins the training for the Haar cascade. It utilizes both positives.vec file and bg.txt file to gain information on the pictures being compared. From the information it grabs 1400 positives and negs. 700 (The standard is to do a 2 to 1 ratio of positives and negatives) and trains them for 10 stages to reconize a 20x20.
+
+
+## Developer's Notes
+For this code I utilized a https://pythonprogramming.net/haar-cascade-object-detection-python-opencv-tutorial/ a bunch, most of the code can be attributed to this tutorials. I had to make some changes in the command line such as .jpg instead of pngoutput. If any issues utilize the tutorial as a ref. Training may also need to be redone, it will recognize the ball in only certain angles. I think this maybe to a couple of differnet issues including angle skewing and utilizing a low amount of artificial pos. I will try to adjust both, it was given an instruction to train 10 stages yet only trained for 6 due to the low acceptance ratio. This may be further evidence to my earllier point of low img count or skewing. 
