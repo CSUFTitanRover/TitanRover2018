@@ -1,8 +1,7 @@
-import Counter from '../../components/Counter';
 import Camera from '../../components/Camera/';
 import Chart from '../../components/Chart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
-
+import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
@@ -38,10 +37,10 @@ export function connectDragSources(glNode) {
  * @param {GoldenLayout} glNode
  */
 export function registerGLComponents(glNode) {
-  glNode.registerComponent('Counter', Counter);
   glNode.registerComponent('Camera', Camera);
   glNode.registerComponent('Chart', Chart);
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
+  glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
 }
 
 export function initializeGL(glNode) {

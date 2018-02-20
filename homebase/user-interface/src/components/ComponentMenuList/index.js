@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
 import Collapse from 'material-ui/transitions/Collapse';
-import EqualizerIcon from 'material-ui-icons/Equalizer';
 import ShowChartIcon from 'material-ui-icons/ShowChart';
 import InboxIcon from 'material-ui-icons/Inbox';
 import VideocamIcon from 'material-ui-icons/Videocam';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import SettingsIcon from 'material-ui-icons/Settings';
+import GpsFixedIcon from 'material-ui-icons/GpsFixed';
 import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {
@@ -95,9 +95,9 @@ class ComponentMenuList extends Component {
             className={classes.nested}
           />
           <ComponentMenuItem
-            title="Counter Example"
-            componentname="Counter"
-            icon={<EqualizerIcon />}
+            title="Start Autonomy"
+            componentname="StartAutonomyButton"
+            icon={<GpsFixedIcon />}
             className={classes.nested}
           />
         </Collapse>
