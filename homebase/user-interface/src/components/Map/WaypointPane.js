@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import List from 'material-ui/List';
 import Button from 'material-ui/Button';
 import Grid from 'material-ui/Grid';
-
 import WaypointModal from './WaypointModal';
 import WaypointListItem from './WaypointListItem';
 

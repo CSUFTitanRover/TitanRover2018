@@ -1,3 +1,3 @@
 ```js
-<Map />
+<Map mapWidth={400} mapHeight={400} />
 ```

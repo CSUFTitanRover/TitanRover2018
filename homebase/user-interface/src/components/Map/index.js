@@ -16,10 +16,11 @@ import ReactMapGL, { NavigationControl } from 'react-map-gl';
 import WaypointMarker from './WaypointMarker';
 import WaypointPane from './WaypointPane';
 
-const roverSettings = require('../../utils/roverSettings.json');
+const appSettings = require('../../app-settings.json');
 
 // Test data - remove later
-const TEST_WAYPOINTS = [{ title: 'Waypoint 1', latitude: 47.3769, longitude: 8.5417 },
+const TEST_WAYPOINTS = [
+  { title: 'Waypoint 1', latitude: 47.3769, longitude: 8.5417 },
   { title: 'Waypoint 2', latitude: -34.603722, longitude: -58.381592 },
   { title: 'Waypoint 3', latitude: -54.603722, longitude: -36.381592 },
   { title: 'Waypoint 4', latitude: -32.603722, longitude: -56.381592 },
@@ -29,22 +30,33 @@ const TEST_WAYPOINTS = [{ title: 'Waypoint 1', latitude: 47.3769, longitude: 8.5
   { title: 'Waypoint 8', latitude: -75.603722, longitude: -67.381592 },
 ];
 
-const DEFAULT_VIEWPORT = {
-  latitude: 37.785164,
-  longitude: -100,
-  zoom: 0,
-  bearing: 0,
-  pitch: 0,
-  width: this.props.mapWidth,
-  height: this.props.mapHeight,
-};
 
 /** Displays a map with waypoints, and a pane that can add, remove, and edit waypoints */
 export default class Map extends Component {
+  static defaultProps = {
+    mapWidth: 400,
+    mapHeight: 400,
+  };
+
+  static propTypes = {
+    mapWidth: PropTypes.number,
+    mapHeight: PropTypes.number,
+  };
+
+  DEFAULT_VIEWPORT = {
+    latitude: 37.785164,
+    longitude: -100,
+    zoom: 0,
+    bearing: 0,
+    pitch: 0,
+    width: this.props.mapWidth,
+    height: this.props.mapHeight,
+  };
+
   state = {
     selectedWaypoint: undefined,
     waypoints: TEST_WAYPOINTS,
-    viewport: DEFAULT_VIEWPORT,
+    viewport: this.DEFAULT_VIEWPORT,
   };
 
   /** Change the viewport state */
@@ -72,8 +84,8 @@ export default class Map extends Component {
             { /* Map object */}
             <ReactMapGL
               {...this.state.viewport}
-              mapStyle={roverSettings.map.style}
-              mapboxApiAccessToken={roverSettings.map.mapboxToken}
+              mapStyle={appSettings.map.style}
+              mapboxApiAccessToken={appSettings.map.mapboxToken}
               onViewportChange={this._updateViewport}
             >
               { /* All the waypoint markers */}
@@ -96,8 +108,8 @@ export default class Map extends Component {
             { /* Right side pane */}
             <Grid item>
               <WaypointPane
-                selectWaypoint={this._selectWaypoint}
-                updateWaypoints={this._updateWaypoints}
+                onSelectWaypoint={this._selectWaypoint}
+                onUpdateWaypoints={this._updateWaypoints}
                 selectedWaypoint={this.state.selectedWaypoint}
                 waypoints={this.state.waypoints}
               />
@@ -108,13 +120,3 @@ export default class Map extends Component {
     );
   }
 }
-
-Map.propTypes = {
-  mapWidth: PropTypes.number,
-  mapHeight: PropTypes.number,
-};
-
-Map.defaultProps = {
-  mapWidth: 400,
-  mapHeight: 400,
-};
