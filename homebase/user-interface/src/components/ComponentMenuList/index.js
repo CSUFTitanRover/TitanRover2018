@@ -10,6 +10,7 @@ import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import SettingsIcon from 'material-ui-icons/Settings';
 import GpsFixedIcon from 'material-ui-icons/GpsFixed';
+import NavigationIcon from 'material-ui-icons/Navigation';
 import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {
@@ -98,6 +99,12 @@ class ComponentMenuList extends Component {
             title="Start Autonomy"
             componentname="StartAutonomyButton"
             icon={<GpsFixedIcon />}
+            className={classes.nested}
+          />
+          <ComponentMenuItem
+            title="Map"
+            componentname="Map"
+            icon={<NavigationIcon />}
             className={classes.nested}
           />
         </Collapse>

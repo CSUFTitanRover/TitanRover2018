@@ -18,7 +18,7 @@
     "base_port": "5000"
   },
   "map": {
-    "style": "//localhost:5000/styles/klokantech-basic/style.json",
+    "style": "http://localhost:5000/styles/klokantech-basic/style.json",
     "mapboxToken": "unused"
   }
 }

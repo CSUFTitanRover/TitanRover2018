@@ -107,12 +107,13 @@ export default class Map extends Component {
 
             { /* Right side pane */}
             <Grid item>
-              <WaypointPane
+            {/* WaypointPane was causing infinite render issues */}
+              {/* <WaypointPane
                 onSelectWaypoint={this._selectWaypoint}
                 onUpdateWaypoints={this._updateWaypoints}
                 selectedWaypoint={this.state.selectedWaypoint}
                 waypoints={this.state.waypoints}
-              />
+              /> */}
             </Grid>
           </Grid>
         </Grid>

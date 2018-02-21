@@ -31,6 +31,6 @@ export default class WaypointListItem extends Component {
 WaypointListItem.propTypes = {
   onClick: PropTypes.func.isRequired,
   waypoint: PropTypes.object.isRequired,
-  selected: PropTypes.object.isRequired,
+  selected: PropTypes.bool.isRequired,
 };
 

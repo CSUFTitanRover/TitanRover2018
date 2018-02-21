@@ -29,7 +29,7 @@ var opts = require('nomnom')
   })
   .option('port', {
     abbr: 'p',
-    default: 8080,
+    default: 5000,
     help: 'Port'
   })
   .option('cors', {

@@ -2,6 +2,7 @@ import Camera from '../../components/Camera/';
 import Chart from '../../components/Chart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
+import Map from '../../components/Map/';
 
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
@@ -41,6 +42,8 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('Chart', Chart);
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
+  glNode.registerComponent('Map', Map);
+  
 }
 
 export function initializeGL(glNode) {
