@@ -5,6 +5,7 @@
  * Use withStyles?
  *  FIXME:
  * Scroll position gets messed up when tab is switched
+ * Auto cull based off of chart width and number of ticks
  */
 
 import React, { Component } from 'react';
