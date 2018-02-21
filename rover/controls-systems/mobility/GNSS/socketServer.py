@@ -7,7 +7,7 @@ import serial
 def startListening():
     while True:
         try:
-            ser = serial.Serial('/dev/tty-emlid', baudrate=115200)
+            ser = serial.Serial('/dev/serial/by-id/usb-Intel_Edison_0d596f3a49235bf708548e85ce65ec94-if02', baudrate=115200)
             break
         except:
             print("Not Connected to the Reach on /dev/ttyACM*")
@@ -30,7 +30,7 @@ def startListening():
 
     while True:
         try:
-            ser = serial.Serial('/dev/tty-emlid', baudrate=115200)
+            ser = serial.Serial('/dev/serial/by-id/usb-Intel_Edison_0d596f3a49235bf708548e85ce65ec94-if02', baudrate=115200)
             data = conn.recv(1024)
             if not data:
                 print("No data Received. Check Connection on Base Reach")
