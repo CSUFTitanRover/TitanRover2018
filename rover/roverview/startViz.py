@@ -29,7 +29,11 @@ post({"motor1": self.motor1, "motor2": self.motor2, "currentHeading": self.headi
 '''
 while True:
     sleep(0.3)
-    data = get("roverViz") # get data payload
+    data = {}
+    try:
+        data = get("roverViz")  # get data payload
+    except:
+        print("rViz could not get deepstream data")
     #Then break it out into components and convert types as necessary.
     motor1 = float(data["motor1"])
     motor2 = float(data["motor2"])
