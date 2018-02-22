@@ -72,6 +72,32 @@ class Viewer:
 
     def convertAngle(self, targetHeading):
         return (90 - targetHeading) % 360
+    
+    def flashArrivalMsg(self, point, arrivalTime):
+        flashFont = pg.font.SysFont('Calibri', 50, True, False)
+        arrivalText = flashFont.render("ARRIVED!", True, BLACK)
+        pointText = flashFont.render("Waypoint: " + str(point), True, BLACK)
+        timeText = flashFont.render("Time: " + str(arrivalTime), True, BLACK)
+        for i in range(6):
+            screen.fill(RED)
+            screen.blit(arrivalText, [10, 0])
+            screen.blit(pointText, [10, 60])
+            screen.blit(timeText, [10, 120])
+            pg.display.flip()
+            time.sleep(0.25)
+
+            screen.fill(WHITE)
+            screen.blit(arrivalText, [10, 0])
+            screen.blit(pointText, [10, 60])
+            screen.blit(timeText, [10, 120])
+            pg.display.flip()
+            time.sleep(0.25)
+        time.sleep(1)
+
+        # This limits the while loop to a max of 60 times per second.
+        # Leave this out and we will use all CPU we can.
+        clock.tick(60)
+
 
     #refresh the screen
     def refreshScreen(self, motor1, motor2, currentHeading, targetDistance, targetHeading, shouldCW):
