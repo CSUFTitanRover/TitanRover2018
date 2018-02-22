@@ -14,7 +14,7 @@ def getHeadingDifference(heading, targetHeading):  # Double check (0, 180)
 def getTFFromString(str):
     return True if str == "True" else False
 
-lastWaypoint = None
+lastWaypoint, arrival = None
 while True:
     sleep(0.3)
     data = {}
@@ -23,7 +23,7 @@ while True:
         arrival = get("arrival")
     except:
         print("rViz could not get deepstream data")
-    if lastWaypoint and arrival["Waypoint"] != lastWaypoint:
+    if arrival and lastWaypoint and arrival["Waypoint"] != lastWaypoint:
         myViewer.flashArrivalMsg(arrival["Waypoint"], arrival["arrivalTime"])
     if data == {}:
         continue
