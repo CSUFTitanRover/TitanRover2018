@@ -1,0 +1,27 @@
+# the deepstream endpoints the mock-sensors will use to pump data into
+deepstream:
+    websocket: localhost:3020
+    http: localhost:3080 # currently is not used by any mocked sensor
+
+# the sensors which will be mocked and
+# how the fake data will look
+sensors:
+    Decagon-5TE:
+        path: science/decagon # the path where the data is pushed into deepstream e.g science/decagon
+        timeDelay: 2500 # the amount of wait time in ms before emitting
+        debug: true # outputs generated data to the console
+        ec: 
+            min: 7 # the min number the generated value will be 
+            max: 12 # the max number the generated value will be 
+            floatingPoint: true # controls if it's generated as a floating number
+        humidity:
+            min: 17
+            max: 22
+            floatingPoint: false
+    IR-Temperature:
+        path: science/ir
+        debug: true
+        temp: 
+            min: 91
+            max: 101
+            floatingPoint: false

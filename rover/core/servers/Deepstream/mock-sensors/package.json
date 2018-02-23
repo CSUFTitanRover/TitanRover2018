@@ -1,0 +1,17 @@
+{
+  "name": "mock-sensors",
+  "version": "1.0.0",
+  "description": "Testing platform to mock sensors on the rover and pump fake data into the rover deesptream server.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michael Negrete",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.3.1",
+    "deepstream.io-client-js": "2.3.0",
+    "js-yaml": "^3.10.0"
+  }
+}
