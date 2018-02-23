@@ -1,3 +1,4 @@
+var format = require('date-fns/format')
 const { getRandomIntInclusive, getRandomFloatInclusive } = require('./util')
 const { getClient } = require('./deepstream')
 const chalk = require('chalk')
@@ -18,7 +19,6 @@ class Sensor {
     }
 
     async start() {
-        log(this.path)
         try {
             this._ds = await getClient()
 
@@ -53,7 +53,7 @@ class Sensor {
             payload[key] = data
 
             if (this.debug) {
-                log(chalk.yellow(`${this.name} - Generated value for ${key}: ${data}`))
+                log(chalk.yellow(`${format(Date.now(), 'HH:mm:ss.SSS A')} - ${this.name} [${this.path}] - Generated value for ${key}: ${data}`))
             }
         })
         this._ds.record.setData(this.path, payload)

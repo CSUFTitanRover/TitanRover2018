@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^2.3.1",
+    "date-fns": "^1.29.0",
     "deepstream.io-client-js": "2.3.0",
     "js-yaml": "^3.10.0"
   }
