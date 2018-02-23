@@ -105,11 +105,11 @@ export default class WaypointPane extends Component {
           </Grid>
 
           <Grid item container justify="space-around">
-            <Button raised onClick={this._handleAdd}>Add</Button>
-            <Button raised disabled={!this.props.selectedWaypoint} onClick={this._handleEdit} color="secondary">
+            <Button variant="raised" onClick={this._handleAdd}>Add</Button>
+            <Button variant="raised" disabled={!this.props.selectedWaypoint} onClick={this._handleEdit} color="secondary">
               Edit
             </Button>
-            <Button raised disabled={!this.props.selectedWaypoint} onClick={this._handleDelete}>
+            <Button variant="raised" disabled={!this.props.selectedWaypoint} onClick={this._handleDelete}>
               Delete
             </Button>
           </Grid>

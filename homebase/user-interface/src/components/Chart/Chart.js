@@ -1,12 +1,4 @@
-/** TODO:
- * Allow new data to be loaded by first setting data as []
- * Ability to scroll back and forth, and adjust window
- * Ability to change the chart legend
- *  FIXME:
- * Scroll position gets messed up when tab is switched
- * Auto cull based off of chart width and number of ticks
- */
-
+/* eslint-disable */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Grid from 'material-ui/Grid';
@@ -19,6 +11,7 @@ import { MenuItem } from 'material-ui/Menu';
 import { withStyles } from 'material-ui/styles';
 import grey from 'material-ui/colors/grey';
 import blueGrey from 'material-ui/colors/blueGrey';
+import uuidv4 from 'uuid/v4';
 import c3 from 'c3';
 import 'c3/c3.css';
 
@@ -40,105 +33,32 @@ const styles = theme => ({
 
 class Chart extends Component {
   static propTypes = {
-    chartName: PropTypes.string.isRequired,
+    chartName: PropTypes.string,
     yLabel: PropTypes.string,
     chartType: PropTypes.string,
     maxPoints: PropTypes.number,
-    data: PropTypes.arrayOf(PropTypes.object),
+    chartData: PropTypes.arrayOf(PropTypes.object),
     timestampFormat: PropTypes.string,
     tickFormat: PropTypes.string,
     culling: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({ max: PropTypes.number })]),
     classes: PropTypes.object.isRequired,
-  };
+    withDeepstream: PropTypes.bool,
+    Toolbar: PropTypes.node,
+  }
 
   static defaultProps = {
     yLabel: 'data',
     chartType: 'line',
-    data: [],
+    chartData: [],
     maxPoints: 8,
     timestampFormat: '%Y-%m-%dT%H:%M:%S.%LZ',
     tickFormat: '%H:%M:%S',
     culling: false,
+    withDeepstream: false,
   };
 
-  scrollPos = this.props.maxPoints * -1;
-  chart = null;
-  dataPoints = 0;
-  chartRef = null;
-  state = { active: true, chartType: this.props.chartType };
-
-  // Create the C3 chart after mount
-  componentDidMount() {
-    const { data } = this.props;
-    let keys;
-    let graphValues;
-
-    if (data.length > 0) {
-      // Extract applicable keys
-      keys = Object.keys(data);
-      graphValues = keys.filter(value => (value !== 'timestamp'));
-    }
-    // Bind the chart to the element in chartRef, and load it with the data
-    this.chart = c3.generate({
-      bindto: this.chartRef,
-      data: {
-        json: data,
-        keys: { value: graphValues, x: 'timestamp' },
-        xFormat: this.props.timestampFormat, // TODO: time zone
-      },
-      axis: {
-        x: {
-          type: 'timeseries',
-          tick: {
-            format: this.props.tickFormat,
-            culling: this.props.culling,
-          },
-        },
-        y: {
-          label: this.props.yLabel,
-        },
-      },
-    });
-  }
-
-  // If the props are changed, update the C3 chart
-  componentWillReceiveProps(newProps) {
-    // TODO: Use load instead of flow if data was previously empty
-    // TODO: Reset if data is empty
-
-    // Return if real-time data is inactive
-    if (!this.state.active) {
-      return;
-    }
-
-    // Extract applicable keys
-    const keys = Object.keys(newProps.data[0] || {});
-    const graphValues = keys.filter(value => (value !== 'timestamp'));
-    this.scrollPos += newProps.data.length;
-
-    // Add the new data to the chart and scroll to a new position
-    this.chart.flow({
-      json: newProps.data,
-      keys: { value: graphValues, x: 'timestamp' },
-      duration: flowDuration,
-      to: this.scrollPos < 0 ? 0 : undefined,
-    });
-  }
-
-  // Enable/disable real-time data
-  handleClick = () => {
-    this.setState(prevState => ({ active: !prevState.active }));
-  }
-
-  // Change chart type when a different chart is selected
-  handleSelect = (e) => {
-    const type = e.target.value;
-
-    this.setState({
-      chartType: type,
-    });
-
-    this.chart.transform(type);
+  renderToolbar = () => {
+    const { } = this.props;
   }
 
   render() {
@@ -166,11 +86,7 @@ class Chart extends Component {
                 {active ? 'Listening' : 'Not listening'}
               </Button>
 
-              <Select
-                value={chartType}
-                onChange={this.handleSelect}
-                className={classes.toolbarItemSpacing}
-              >
+              <Select value={chartType} onChange={this.handleSelect} className={classes.toolbarItemSpacing}>
                 {chartTypes.map(type =>
                   <MenuItem value={type} key={type}>{type}</MenuItem>,
                 )}

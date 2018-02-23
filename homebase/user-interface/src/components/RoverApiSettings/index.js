@@ -155,7 +155,7 @@ class RoverApiSettings extends Component {
               ))}
             </Select>
           </FormControl>
-          <Button raised color="primary" onClick={this.restartScreen}>
+          <Button variant="raised" color="primary" onClick={this.restartScreen}>
             Restart Session
           </Button>
         </div>

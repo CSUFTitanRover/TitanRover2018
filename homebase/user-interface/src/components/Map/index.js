@@ -14,7 +14,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import ReactMapGL, { NavigationControl } from 'react-map-gl';
 
 import WaypointMarker from './WaypointMarker';
-import WaypointPane from './WaypointPane';
+// import WaypointPane from './WaypointPane';
 
 const appSettings = require('../../app-settings.json');
 
@@ -107,7 +107,7 @@ export default class Map extends Component {
 
             { /* Right side pane */}
             <Grid item>
-            {/* WaypointPane was causing infinite render issues */}
+              {/* WaypointPane was causing infinite render issues */}
               {/* <WaypointPane
                 onSelectWaypoint={this._selectWaypoint}
                 onUpdateWaypoints={this._updateWaypoints}

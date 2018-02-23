@@ -58,14 +58,14 @@ class LeftMenu extends Component {
 
     return (
       <Drawer
-        type="persistent"
+        variant="persistent"
         open={leftMenuActive}
         classes={{
           paper: drawerPaperClassNames,
         }}
       >
         <div style={styles.drawerHeader}>
-          <Typography type="headline">Titan Rover</Typography>
+          <Typography variant="headline">Titan Rover</Typography>
           <Tooltip title="Close Menu" placement="bottom">
             <IconButton aria-label="Close Menu" onClick={handleOnClick} >
               <ChevronLeftIcon />

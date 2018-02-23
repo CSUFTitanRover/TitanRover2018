@@ -157,7 +157,7 @@ class CameraSettingControls extends PureComponent {
       <div className={classes.root}>
         <AppBar position="static" color="default" square elevation={0}>
           <Toolbar>
-            <Typography type="body2">
+            <Typography variant="body2">
               {`Camera #${cameraID} Settings`}
             </Typography>
             <TextField
@@ -210,7 +210,7 @@ class CameraSettingControls extends PureComponent {
                   />}
               />
             </FormControl>
-            <Button raised dense color="primary" onClick={this.handleSaveImage}>
+            <Button variant="raised" dense color="primary" onClick={this.handleSaveImage}>
               <SaveIcon />
               Save image to rover
             </Button>

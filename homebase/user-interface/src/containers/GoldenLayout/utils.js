@@ -1,5 +1,6 @@
 import Camera from '../../components/Camera/';
 import Chart from '../../components/Chart/';
+import ChartWithDeepstream from '../../components/Chart/ChartWithDeepstream';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 import Map from '../../components/Map/';
@@ -43,7 +44,7 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
   glNode.registerComponent('Map', Map);
-  
+  glNode.registerComponent('ChartWithDeepstream', ChartWithDeepstream);
 }
 
 export function initializeGL(glNode) {

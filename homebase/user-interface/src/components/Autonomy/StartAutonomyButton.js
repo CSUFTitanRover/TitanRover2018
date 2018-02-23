@@ -46,7 +46,7 @@ class StartAutonomyButton extends Component {
 
     return (
       <React.Fragment>
-        <Button raised onClick={this.startAutonomy} color="secondary">
+        <Button variant="raised" onClick={this.startAutonomy} color="secondary">
           Start Autonomy
         </Button>
         <div>
@@ -80,7 +80,7 @@ class StartAutonomyButton extends Component {
                     </Grid>
 
                     <Grid item>
-                      <Button raised onClick={this.handleModalClose}>Dismiss</Button>
+                      <Button variant="raised" onClick={this.handleModalClose}>Dismiss</Button>
                     </Grid>
                   </Grid>
                 </div>

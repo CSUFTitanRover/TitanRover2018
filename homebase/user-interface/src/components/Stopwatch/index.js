@@ -123,7 +123,7 @@ class Stopwatch extends Component {
     return (
       <Grid container spacing={16} alignItems="center">
         <Grid item xs={2}>
-          <Typography type="title" color="inherit">Mission Stopwatch</Typography>
+          <Typography variant="title" color="inherit">Mission Stopwatch</Typography>
         </Grid>
         <Grid item xs={2}>
           <Paper className={classes.paper}>
@@ -131,12 +131,12 @@ class Stopwatch extends Component {
           </Paper>
         </Grid>
         <Grid item xs={1}>
-          <Button raised color="primary" className={classNames(classes.stopwatchTriggerButton, (active ? classes.stopButton : classes.startButton))} onClick={this.handleStartAndStop}>
+          <Button variant="raised" color="primary" className={classNames(classes.stopwatchTriggerButton, (active ? classes.stopButton : classes.startButton))} onClick={this.handleStartAndStop}>
             {this.state.active ? 'Stop' : 'Start'}
           </Button>
         </Grid>
         <Grid item xs={1}>
-          <Button raised color="default" onClick={this.handleClear}>
+          <Button variant="raised" color="default" onClick={this.handleClear}>
             Clear
           </Button>
         </Grid>

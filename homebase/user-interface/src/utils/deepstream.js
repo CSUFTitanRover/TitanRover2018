@@ -1,6 +1,8 @@
 /* eslint-disable react/no-multi-comp */
 
 import React, { Component } from 'react';
+import PropTypes from 'prop-types'
+  ;
 
 const deepstream = require('deepstream.io-client-js');
 const appSettings = require('../app-settings.json');
@@ -36,6 +38,20 @@ export function getClient(socket) {
         }
       });
     }
+  });
+}
+
+/**
+ *
+ * @param {DeepstreamClient} client - working deepstream client
+ * @param {string} path - path to where the record lvies
+ * @returns {DeepstreamRecord} - a ready record
+ */
+export function getRecord(client, path) {
+  return new Promise((resolve) => {
+    client.record.getRecord(path).whenReady((record) => {
+      resolve(record);
+    });
   });
 }
 
@@ -170,4 +186,69 @@ export function withDeepstreamProps(WrappedComponent, recordName) {
       );
     }
   };
+}
+
+export class DeepstreamRecordProvider extends Component {
+  static propTypes = {
+    recordPath: PropTypes.string.isRequired,
+    children: PropTypes.func.isRequired,
+  }
+
+  client = null
+  record = null
+
+  state = { active: true }
+
+  async componentDidMount() {
+    try {
+      const { recordPath } = this.props;
+      this.client = await getClient();
+      this.record = await getRecord(this.client, recordPath);
+
+      // automatically start subscribing to changes
+      this._subscribe();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  _subscribe = () => {
+    this.record.subscribe((data) => {
+      console.log(data);
+      this.setState({ data });
+    });
+  }
+
+  subscribeToUpdates = () => {
+    const { subscribed } = this.state;
+
+    if (!subscribed) {
+      this.setState({ subscribed: true });
+      this._subscribe();
+    }
+  }
+
+  unsubscribeToUpdates = () => {
+    const { subscribed } = this.state;
+
+    if (subscribed) {
+      this.setState({ subscribed: false });
+
+      this.record.discard();
+    }
+  }
+
+  componentWillUnmount() {
+    this.record.discard();
+    this.client.close();
+  }
+
+  render() {
+    const { data } = this.state;
+    const { children } = this.props;
+
+    return (
+      children(data, this.subscribeToUpdates, this.unsubscribeToUpdates)
+    );
+  }
 }
