@@ -192,4 +192,6 @@ class Chart extends Component {
   }
 }
 
-export default withStyles(styles)(Chart);
+// export default withStyles(styles)(Chart);
+
+export default () => (<div>Hi</div>);
