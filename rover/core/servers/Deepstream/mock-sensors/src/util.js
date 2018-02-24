@@ -8,8 +8,8 @@ function getRandomIntInclusive(min, max) {
 }
 
 function getRandomFloatInclusive(min, max) {
-    let r = Math.random() < 0.5 ? ((1-Math.random()) * (max-min) + min) : (Math.random() * (max-min) + min);
-    return r.toFixed(4) // round to 4 decimal places
+    let r = Math.random() < 0.5 ? ((1 - Math.random()) * (max - min) + min) : (Math.random() * (max - min) + min);
+    return Number(r.toFixed(4)) // round to 4 decimal places
 }
 
 function getDeepstreamEndpoints() {

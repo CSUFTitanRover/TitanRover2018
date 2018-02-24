@@ -5,12 +5,13 @@ const chalk = require('chalk')
 const log = console.log
 
 class Sensor {
-    constructor(name, path, props, timeDelay = 1000, debug = false) {
+    constructor(name, path, props, timeDelay = 1000, debug = false, verbose = false) {
         this.name = name
         this.path = path
         this.props = Object.entries(props)
         this.timeDelay = timeDelay
         this.debug = debug
+        this.verbose = verbose
         this._ds = null
         this._interval = null
         this.start = this.start.bind(this)
@@ -25,7 +26,8 @@ class Sensor {
             let startMessage = `Starting ${this.name} sensor... `
 
             if (this.debug) {
-                startMessage += 'with debugging turned on.'
+                const debuggingType = this.verbose ? 'verbose debugging' : 'normal debugging'
+                startMessage += `with ${chalk.underline.green(debuggingType)} turned on.`
             }
 
             log(chalk.green(startMessage))
@@ -45,7 +47,9 @@ class Sensor {
     }
 
     emit() {
-        let payload = {}
+        let timestamp = Date.now()
+        let payload = { timestamp }
+        const timestampedPath = `${this.path}/${timestamp}`
 
         // load data into the payload
         this.props.forEach(([key, val]) => {
@@ -53,10 +57,15 @@ class Sensor {
             payload[key] = data
 
             if (this.debug) {
-                log(chalk.yellow(`${format(Date.now(), 'HH:mm:ss.SSS A')} - ${this.name} [${this.path}] - Generated value for ${key}: ${data}`))
+                log(chalk.yellow(`${format(timestamp, 'HH:mm:ss.SSS A')} - ${this.name} [${timestampedPath}] - Generated value for ${key}: ${data}`))
             }
         })
-        this._ds.record.setData(this.path, payload)
+
+        this._ds.record.setData(timestampedPath, payload)
+
+        if (this.debug && this.verbose) {
+            log(chalk.cyan(JSON.stringify(payload, null, 4)))
+        }
 
         log('---------------')
     }

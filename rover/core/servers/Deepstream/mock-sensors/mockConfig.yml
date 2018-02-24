@@ -8,8 +8,9 @@ deepstream:
 sensors:
     Decagon-5TE:
         path: science/decagon # the path where the data is pushed into deepstream e.g science/decagon
-        timeDelay: 2500 # the amount of wait time in ms before emitting
+        timeDelay: 500 # the amount of wait time in ms before emitting
         debug: true # outputs generated data to the console
+        verbose: true # if debug is true, this prints out the raw data generated
         ec: 
             min: 7 # the min number the generated value will be 
             max: 12 # the max number the generated value will be 
@@ -18,10 +19,10 @@ sensors:
             min: 17
             max: 22
             floatingPoint: false
-    IR-Temperature:
-        path: science/ir
-        debug: true
-        temp: 
-            min: 91
-            max: 101
-            floatingPoint: false
+    # IR-Temperature:
+    #     path: science/ir
+    #     debug: true
+    #     temp: 
+    #         min: 91
+    #         max: 101
+    #         floatingPoint: false
