@@ -99,16 +99,16 @@ class DefaultChart extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     // we need to check if changes occured for
     // 'data' and 'chartType' to apply those
     // changes to the chart using the c3 api
 
-    const { chartType } = this.props;
+    const { chartType, data } = this.props;
 
-    if (chartType !== nextProps.chartType) {
+    if (chartType !== prevProps.chartType) {
       // change the chart type via c3
-      this.chart.transform(nextProps.chartType);
+      this.chart.transform(chartType);
     }
 
     // unfortunately it can take a lot of resources to compare
@@ -120,7 +120,7 @@ class DefaultChart extends Component {
     // of optimizing when to render.
     this.chart.load({
       unload: true, // unload any data currently in the chart
-      json: nextProps.data,
+      json: data,
     });
   }
 
