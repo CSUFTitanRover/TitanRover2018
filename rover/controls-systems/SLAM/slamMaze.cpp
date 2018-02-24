@@ -11,12 +11,15 @@
 #include <vector>
 #include <atomic>
 #include <mutex>
+#include <math.h>
 #define WINVER 0x0500
 #include <windows.h>
 
 #pragma region Global_Data_Objects
 
 std::mutex mtx;
+int flag_tennis = 0;
+int flag_obs    = 0;
 
 struct _openGL_CAMERA_VALUES_
 {
@@ -47,6 +50,7 @@ struct _openGL_MAINWINDOW_VALUES_
 	// variables to hold window identifiers
 	GLint mainWindow;
 	GLint TopDownWindow;
+	GLint TopPanelWindow;
 	//border between subwindows
 	GLint border = 6;
 }_openGLMV_;
@@ -56,6 +60,10 @@ struct _openGL_ROVER_TRACKING_
 {
 	std::vector<double> past_x;
 	std::vector<double> past_z;
+
+	std::vector<double> past_track_x;
+	std::vector<double> past_track_z;
+
 }_openGLRT_;
 
 struct _openGL_ROVER_LINE_TRACKING_
@@ -64,12 +72,16 @@ struct _openGL_ROVER_LINE_TRACKING_
 	std::vector<double> line_z;
 }_openGLRLT_;
 
-#pragma endregion Global_Data_Objects
-
 
 std::vector<GLfloat> past_x;
 std::vector<GLfloat> past_y;
 std::vector<GLfloat> past_z;
+
+
+#pragma endregion Global_Data_Objects
+
+
+#pragma region Static_Render
 
 void setProjection(GLint w1, GLint h1)
 {
@@ -103,11 +115,13 @@ void changeSize(GLint w1, GLint h1)
 	// set topdownWindow as the active window
 	glutSetWindow(_openGLMV_.TopDownWindow);
 	// resize and reposition the sub window
-	glutPositionWindow(_openGLMV_.border, (_openGLMV_.height + _openGLMV_.border) / 8);
-	//glutReshapeWindow(_openGLMV_.width / 2 - _openGLMV_.border * 3 / 2, _openGLMV_.height / 2 - _openGLMV_.border * 3 / 2);
+	glutPositionWindow(_openGLMV_.border, (_openGLMV_.height + _openGLMV_.border) / 40);
 	glutReshapeWindow(_openGLMV_.width-20, _openGLMV_.height-20);
 	setProjection(_openGLMV_.width / 2 - _openGLMV_.border * 3 / 2, _openGLMV_.height / 2 - _openGLMV_.border * 3 / 2);
 }
+
+#pragma endregion Static_Render
+
 //---------------------------------------------------------------------------------
 
 // --------------------------------------------------------------------------------
@@ -115,6 +129,20 @@ void changeSize(GLint w1, GLint h1)
 // --------------------------------------------------------------------------------
 //Static Drawcube object for rendering.
 #pragma region Static_Objects
+
+//Parallelize
+void drawRadCircle()
+{
+	GLfloat pi_short = 3.14159f;
+	GLfloat rad_short = 1000.0;
+
+	glBegin(GL_POINTS);
+	for (int i = 0; i < (int)rad_short; ++i)
+	{
+		glVertex3f(cos(pi_short*i / rad_short), 0.0, sin(pi_short*i / rad_short));
+	}
+	glEnd();
+}
 
 void drawCircle()
 {
@@ -130,8 +158,6 @@ void drawCircle()
 void drawTennisBall()
 {
 	mtx.lock();
-	glColor3f(1.0, 1.0, 0.0); // <R,G,B>
-
 	//Circle
 	glTranslatef(0.0f, 0.75f, 0.0f);
 	glutSolidSphere(0.10f, 5, 5);
@@ -139,12 +165,12 @@ void drawTennisBall()
 }
 
 //Static Drawcube object for rendering.
-void drawCube() 
+void drawRock() 
 {
 	//Generic cube size
 	mtx.lock();
 	std::atomic<GLdouble> cube_size;
-	cube_size.store(0.10,std::memory_order_relaxed);
+	cube_size.store(0.20,std::memory_order_relaxed);
 	mtx.unlock();
 
 	// Red side - TOP
@@ -163,10 +189,7 @@ void drawCube()
 //END OF STATIC OBJECTS
 //----------------------------------------------------------------------------------
 
-void renderBitmapString(
-	GLfloat x,
-	GLfloat y,
-	GLfloat z,
+void renderBitmapString(GLfloat x, GLfloat y, GLfloat z,
 	void *font,
 	char *string) 
 {
@@ -216,14 +239,14 @@ void renderSubWindowScene()
 	std::atomic<GLdouble> ground_level;
 	std::atomic<GLdouble> object_pos;
 
-	plain_size.store(100.0f, std::memory_order_relaxed);
+	plain_size.store(200.0f, std::memory_order_relaxed);
 	ground_level.store(0.0f, std::memory_order_relaxed);
 	object_pos.store(10.0f, std::memory_order_relaxed);
 	mtx.unlock();
 
 	// Draw ground
 	mtx.lock();
-	glColor3f(0.647059f, 0.164706f, 0.164706f); //<R,G,B>
+	glColor3f(0.5f, 0.5f, 0.5f); //<R,G,B>
 
 	GLuint tex;
 	glGenTextures(1, &tex);
@@ -235,35 +258,31 @@ void renderSubWindowScene()
 	glVertex3f(plain_size, ground_level, -plain_size);
 	glEnd();
 	mtx.unlock();
-
-	// Draw and placement.
-	std::atomic<int> i;
-	#pragma omp parrallel
-	{
-		for (i.store(-3, std::memory_order_relaxed); i.load() < 3; i++)
-		{
-			#pragma omp for
-			for (std::atomic<int> j = -3; j.load() < 3; j++)
-			{
-				glPushMatrix();
-				glColor3f(1.0, 0.0, 0.0); //<R,G,B>
-				glTranslatef(i.load() * object_pos.load(), 0.0f, j.load() * object_pos.load());
-				drawCube();
-				glPopMatrix();
-			}
-		}
-	}
-
 }
+
+#pragma region Position_Computation
 
 void computePos(GLfloat deltaMove)
 {
-	_openGLCV_.x += deltaMove * _openGLCV_.lx * 0.1f;
-	_openGLCV_.z += deltaMove * _openGLCV_.lz * 0.1f;
+	#pragma omp parallel num_threads(2)
+	{
+		#pragma omp sections
+		{
+			#pragma omp section
+			{
+				_openGLCV_.x += deltaMove * _openGLCV_.lx * 0.1f;
+				
+			}
+			#pragma omp section
+			{
+				_openGLCV_.z += deltaMove * _openGLCV_.lz * 0.1f;
+			}
+		}
+		#pragma omp barrier
+	}
 
 	_openGLRT_.past_x.push_back(_openGLCV_.x);
 	_openGLRT_.past_z.push_back(_openGLCV_.z);
-
 	std::cout << "x pos = " << _openGLCV_.x << std::endl;
 	std::cout << "z pos = " << _openGLCV_.z << std::endl;
 }
@@ -278,7 +297,10 @@ void computeDir(GLfloat deltaAngle)
 	std::cout << "lx = " << _openGLCV_.lx << std::endl;
 	std::cout << "lz = " << _openGLCV_.lz << std::endl;
 }
+#pragma endregion Position_Computation
 
+
+#pragma region Scene_Render
 // Display function for main window.
 void renderScene() 
 {
@@ -301,69 +323,114 @@ void renderTopDownScene()
 	gluLookAt(_openGLCV_.x, _openGLCV_.y + 15, _openGLCV_.z, _openGLCV_.x,
 		_openGLCV_.y - 1, _openGLCV_.z, _openGLCV_.lx, 0, _openGLCV_.lz);
 
-	// Draw red cone at the location of the main camera.
-	glPushMatrix();
-	glColor3f(0.0, 0.0, 1.0); //<R,G,B>
-	glTranslatef(_openGLCV_.x, _openGLCV_.y, _openGLCV_.z);
-	glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
-	glutSolidCone(0.2, 0.5f, 2, 2);
-	glPopMatrix();
+	#pragma omp parallel // starts a new team
+	{
+		#pragma omp sections // divides the team into sections
+		{
+			#pragma omp section
+			{
+				// Main object, main camera.
+				glPushMatrix();
+				glColor3f(0.0, 0.0, 1.0); //<R,G,B>
+				glTranslatef(_openGLCV_.x, _openGLCV_.y, _openGLCV_.z);
+				glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
+				glutSolidCone(0.2, 0.5f, 2, 2);
+				drawRadCircle();
+				glPopMatrix();
+			}
+			#pragma omp section
+			{
+				// Renders a static tennis ball
+				glPushMatrix();
+				glTranslatef(1.6, 0.0f, -1.6);
 
-	//Grabs the Current location of the main object.
-	GLfloat matrixMV[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, matrixMV);
-	GLdouble xCenterTriangle = matrixMV[12];
-	GLdouble yCenterTriangle = matrixMV[13];
-	GLdouble zCenterTriangle = matrixMV[14];
+				if(flag_tennis == 0)
+					glColor3f(0.5f, 0.5f, 0.5f); //<R,G,B>
+				
+				if(flag_tennis == -1)
+					glColor3f(1.0, 1.0, 0.0); //<R,G,B>
+				
+				drawTennisBall();
+				std::string temp_x = " Tennis Ball";
+				char *cstr_x = &temp_x[0u];
+				renderBitmapString(1.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
+				glPopMatrix();
+			}
+			#pragma omp section
+			{
+				//Renders a static rock ball
+				glPushMatrix();
+				glTranslatef(0.6, 0.0f, -0.0);
 
-	//Renders a static tennis ball
-	glPushMatrix();
-	glTranslatef(1.6, 0.0f, -1.6);
-	past_x.push_back(1.6);
-	past_y.push_back(0.0f);
-	past_z.push_back(-1.6);
+				if (flag_obs == 0)
+					glColor3f(0.5f, 0.5f, 0.5f); //<R,G,B>
 
-	if(!_openGLRT_.past_x.empty())
-		//glTranslatef(_openGLCV_.x, _openGLCV_.y, _openGLCV_.z);
-	glColor3f(1.0, 1.0, 0.0); //<R,G,B>
-	drawTennisBall();
+				if (flag_obs == -1)
+					glColor3f(1.0, 0.0, 0.0); //<R,G,B>
 
-	std::string temp_x = " Tennis Ball";
-	char *cstr_x = &temp_x[0u];
-	renderBitmapString(1.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
-	glPopMatrix();
+				drawRock();
+				std::string temp_x = " Obstacle Detected";
+				char *cstr_x = &temp_x[0u];
+				renderBitmapString(1.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
+				glPopMatrix();
+			}
+		}
+		#pragma omp barrier
+	}
 
+	//#pragma omp parallel for private(i)
+	#pragma omp parallel for ordered schedule(dynamic)
 	for (int i = 0; i < _openGLRT_.past_x.size(); i++)
 	{
-		if (i % 15 == 0)
+		#pragma omp ordered
 		{
-			_openGLRLT_.line_x.push_back(_openGLRT_.past_x[i]);
-			_openGLRLT_.line_z.push_back(_openGLRT_.past_z[i]);
+			if (i % 15 == 0)
+			{
+				#pragma omp atomic
+				_openGLRLT_.line_x.push_back(_openGLRT_.past_x[i]);
+				#pragma omp atomic
+				_openGLRLT_.line_z.push_back(_openGLRT_.past_z[i]);
 
-			glPushMatrix();
-			glTranslatef(_openGLRT_.past_x[i], 0.0f, _openGLRT_.past_z[i]);
-			glColor3f(1.0, 0.0, 0.0); //<R,G,B>
-			std::string temp_x = " x: " + std::to_string(_openGLRT_.past_x[i]) + " y: " + std::to_string(_openGLRT_.past_z[i]);
-			char *cstr_x = &temp_x[0u];
-			renderBitmapString(0, 0.0f, 0, GLUT_BITMAP_HELVETICA_12, cstr_x);
-			
-			drawCircle();
-			glPopMatrix();
-			// limit the display trail and pass it to another tracking function.
+				glPushMatrix();
+				glTranslatef(_openGLRT_.past_x[i], 0.0f, _openGLRT_.past_z[i]);
+				glColor3f(1.0, 0.0, 0.0); //<R,G,B>
+				std::string temp_x = " x: " + std::to_string(_openGLRT_.past_x[i]) + " y: " + std::to_string(_openGLRT_.past_z[i]);
+				char *cstr_x = &temp_x[0u];
+				renderBitmapString(0, 0.0f, 0, GLUT_BITMAP_HELVETICA_12, cstr_x);
+
+				drawCircle();
+				glPopMatrix();
+				
+				_openGLRT_.past_track_x.push_back(_openGLRT_.past_x[i]);
+				_openGLRT_.past_track_z.push_back(_openGLRT_.past_z[i]);
+
+				if (_openGLRT_.past_x.size() > 15)
+				{
+					// limit the display trail and pass it to another tracking function.
+					//_openGLRT_.past_x.erase(_openGLRT_.past_x.begin());
+					//_openGLRT_.past_z.erase(_openGLRT_.past_z.begin());
+				}
+			}
 		}
 	}
 
 	//Draws the tracer red-line from the first point of view.
 	//Needs a better rework of the y direction calculation between matrices.
+	#pragma omp parallel for private(i)
 	for (int i = 1; i < _openGLRLT_.line_x.size(); i++)
 	{
 		glPushMatrix();
 		glLineWidth(1.0);
 		glColor3f(1.0, 0.0, 0.0); //<R,G,B>
 		glBegin(GL_LINES);
+
+		#pragma omp atomic
 		glVertex3f(_openGLRLT_.line_x[i-1], 0.0f, _openGLRLT_.line_z[i-1]);
 		glColor3f(0.0, 0.0, 1.0); //<R,G,B>
+		
+		#pragma omp atomic
 		glVertex3f(_openGLRLT_.line_x[i], 0.0f, _openGLRLT_.line_z[i]);
+		
 		glEnd();
 		glPopMatrix();
 	}
@@ -375,7 +442,6 @@ void renderTopDownScene()
 // Global render func
 void renderSceneAll() 
 {
-
 	// check for keyboard movement
 	// Up down movement reference check.
 	if (_openGLKS_.deltaMove)
@@ -397,6 +463,8 @@ void renderSceneAll()
 	//Sub-Render Scenes with multi-view camera angles.
 	renderTopDownScene();
 }
+#pragma endregion Scene_Render
+
 
 // --------------------------------------------------------------------------------
 //             KEYBOARD SECTION
@@ -417,80 +485,40 @@ void pressKey(GLint key, GLint xx, GLint yy)
 
 	switch (key) 
 	{
-		case GLUT_KEY_LEFT: _openGLKS_.deltaAngle  = -0.01f; break;
-		case GLUT_KEY_RIGHT: _openGLKS_.deltaAngle = 0.01f; break;
-		case GLUT_KEY_UP: _openGLKS_.deltaMove     = 0.5f; break;
-		case GLUT_KEY_DOWN: _openGLKS_.deltaMove   = -0.5f; break;
+		case GLUT_KEY_LEFT:  _openGLKS_.deltaAngle  = -0.01f; break;
+		case GLUT_KEY_RIGHT: _openGLKS_.deltaAngle  = 0.01f; break;
+		case GLUT_KEY_UP:    _openGLKS_.deltaMove   = 0.3f; break;
+		case GLUT_KEY_DOWN:  _openGLKS_.deltaMove   = -0.3f; break;
+		case GLUT_KEY_SHIFT_L: flag_tennis = -1; break;
+		case GLUT_KEY_SHIFT_R: flag_obs    = -1; break;
 	}
 
 	glutSetWindow(_openGLMV_.mainWindow);
 	glutPostRedisplay();
 }
 
-void simulate_automation()
-{
-	// input event.
-	INPUT ip;
-
-	// Set up a generic keyboard event.
-	ip.type = INPUT_KEYBOARD;
-	ip.ki.wScan = 0; // hardware scan code for key
-	ip.ki.time = 0;
-	ip.ki.dwExtraInfo = 0;
-
-	if (!past_x.empty())
-	{
-		if (_openGLCV_.z > past_z[0])
-		{
-			// Press the "Up" key
-			ip.ki.wVk = 0x26; // virtual-key code for the "Up" key
-			ip.ki.dwFlags = 0; // 0 for key press
-			SendInput(1, &ip, sizeof(INPUT));
-		}
-
-		if (_openGLCV_.z < past_z[0])
-		{
-			// Press the "Up" key
-			ip.ki.wVk = 0x28; // virtual-key code for the "Up" key
-			ip.ki.dwFlags = 0; // 0 for key press
-			SendInput(1, &ip, sizeof(INPUT));
-		}
-
-		if (_openGLCV_.x > past_x[0])
-		{
-			// Press the "Up" key
-			ip.ki.wVk = 0x25; // virtual-key code for the "Up" key
-			ip.ki.dwFlags = 0; // 0 for key press
-			SendInput(1, &ip, sizeof(INPUT));
-
-		}
-
-		if (_openGLCV_.x < past_x[0])
-		{
-			// Press the "Up" key
-			ip.ki.wVk = 0x27; // virtual-key code for the "Up" key
-			ip.ki.dwFlags = 0; // 0 for key press
-			SendInput(1, &ip, sizeof(INPUT));
-		}
-	}
-
-
-}
-
 void releaseKey(int key, int x, int y) 
 {
 	switch (key) 
 	{
-		case GLUT_KEY_LEFT: std::cout << "Left Key Pressed" << std::endl; break;
-		case GLUT_KEY_RIGHT: std::cout << "Right Key Pressed" << std::endl; _openGLKS_.deltaAngle = 0.0f; break;
-		case GLUT_KEY_UP: std::cout << "Up Key Pressed" << std::endl; break;
-		case GLUT_KEY_DOWN: std::cout << "Down Key Pressed" << std::endl; _openGLKS_.deltaMove = 0; break;
+		case GLUT_KEY_LEFT: 
+							//std::cout << "Left Key Pressed" << std::endl;
+							break;
+		case GLUT_KEY_RIGHT: 
+							//std::cout << "Right Key Pressed" << std::endl; 
+							_openGLKS_.deltaAngle = 0.0f; 
+							break;
+		case GLUT_KEY_UP: 
+							//std::cout << "Up Key Pressed" << std::endl; 
+							break;
+		case GLUT_KEY_DOWN: 
+							//std::cout << "Down Key Pressed" << std::endl;
+							_openGLKS_.deltaMove = 0; 
+							break;
+		case GLUT_KEY_SHIFT_L:
+							//std::cout << "Shift Key Pressed" << std::endl;
+							break;
 	}
-
-	//Can automate the guidance cycle here:
-	//
-	//---------
-	//simulate_automation();
 }
 
 #pragma endregion Keyboard_Section
@@ -550,15 +578,27 @@ void init()
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 
-	// register callbacks
-	glutKeyboardFunc(processNormalKeys);
-	glutSpecialFunc(pressKey);
-	glutIgnoreKeyRepeat(1);
-	glutSpecialUpFunc(releaseKey);
-	
-	//Physical Camera Movement functions;
-	glutMouseFunc(mouseButton);
-	glutMotionFunc(physicalCameraMove);
+	#pragma omp parallel num_threads(2) // starts a new team
+	{
+		#pragma omp sections
+		{
+			#pragma omp section
+			{
+				// register callbacks
+				glutKeyboardFunc(processNormalKeys);
+				glutSpecialFunc(pressKey);
+				glutIgnoreKeyRepeat(1);
+				glutSpecialUpFunc(releaseKey);
+			}
+			#pragma omp section
+			{
+				//Physical Camera Movement functions;
+				glutMouseFunc(mouseButton);
+				glutMotionFunc(physicalCameraMove);
+			}
+		}
+		#pragma omp barrier
+	}
 }
 
 int main(int argc, char **argv) 
@@ -580,10 +620,11 @@ int main(int argc, char **argv)
 	//-----------------------------------------------------------------------------
 	//Top down view window decleration.
 	std::cout << "Registering callbacks for Top Down started..." << std::endl;
-	_openGLMV_.TopDownWindow = glutCreateSubWindow(_openGLMV_.mainWindow, 10, 10, 350, 350);
+	_openGLMV_.TopDownWindow = glutCreateSubWindow(_openGLMV_.mainWindow, 10, 10, 400, 400);
 	glutDisplayFunc(renderTopDownScene);
 
 	init();
+
 
 	std::cout << "All callbacks have been initialized..." << std::endl;
 	std::cout << "--------------------------------------" << std::endl;
