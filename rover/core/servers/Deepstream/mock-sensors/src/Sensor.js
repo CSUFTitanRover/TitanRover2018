@@ -49,7 +49,6 @@ class Sensor {
     emit() {
         let timestamp = Date.now()
         let payload = { timestamp }
-        const timestampedPath = `${this.path}/${timestamp}`
 
         // load data into the payload
         this.props.forEach(([key, val]) => {
@@ -57,17 +56,20 @@ class Sensor {
             payload[key] = data
 
             if (this.debug) {
-                log(chalk.yellow(`${format(timestamp, 'HH:mm:ss.SSS A')} - ${this.name} [${timestampedPath}] - Generated value for ${key}: ${data}`))
+                log(chalk.yellow(`${format(timestamp, 'HH:mm:ss.SSS A')} - ${this.name} [${this.path}] - Generated value for ${key}: ${data}`))
             }
         })
 
-        this._ds.record.setData(timestampedPath, payload)
+        // emit the event to deepstream
+        this._ds.event.emit(this.path, payload)
 
-        if (this.debug && this.verbose) {
-            log(chalk.cyan(JSON.stringify(payload, null, 4)))
+        if (this.debug) {
+            if (this.verbose) {
+                log(chalk.cyan(JSON.stringify(payload, null, 4)))
+            }
+            log('---------------')
         }
 
-        log('---------------')
     }
 
     _generateData(d) {

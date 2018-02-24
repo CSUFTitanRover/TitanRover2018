@@ -7,22 +7,35 @@ deepstream:
 # how the fake data will look
 sensors:
     Decagon-5TE:
-        path: science/decagon # the path where the data is pushed into deepstream e.g science/decagon
-        timeDelay: 500 # the amount of wait time in ms before emitting
-        debug: true # outputs generated data to the console
-        verbose: true # if debug is true, this prints out the raw data generated
+        path: science/decagon # the path where the data is emitted to deepstream e.g science/decagon
+        timeDelay: 1500 # [optional] [default = 1000] the amount of wait time in ms before emitting
+        debug: false # [optional] [default = false] outputs generated data to the console
+        verbose: false # [optional] [default = false] if debug is true, this prints out the raw data generated
         ec: 
-            min: 7 # the min number the generated value will be 
-            max: 12 # the max number the generated value will be 
+            min: 0.85 # the min number the generated value will be 
+            max: 1.1 # the max number the generated value will be 
             floatingPoint: true # controls if it's generated as a floating number
         humidity:
-            min: 17
-            max: 22
+            min: 45
+            max: 50
+            floatingPoint: true
+        temperature:
+            min: 13
+            max: 18.5
+            floatingPoint: true
+    Atmospheric:
+        path: science/atmospheric
+        timeDelay: 2500
+        windspeed: 
+            min: 3
+            max: 6
             floatingPoint: false
-    # IR-Temperature:
-    #     path: science/ir
-    #     debug: true
-    #     temp: 
-    #         min: 91
-    #         max: 101
-    #         floatingPoint: false
+        barometer:
+            min: 28
+            max: 32.25
+            floatingPoint: true
+        uvIndex:
+            min: 0.9
+            max: 1.1
+            floatingPoint: true
+            

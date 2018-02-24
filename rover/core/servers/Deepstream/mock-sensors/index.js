@@ -5,11 +5,11 @@ const Sensor = require('./src/Sensor')
 const log = console.log;
 
 try {
-    console.log('Reading the mock config file...')
+    log('Reading the mock config file...')
     const mockConfig = yaml.safeLoad(fs.readFileSync('./mockConfig.yml', 'utf8'))
 
     const sensors = Object.entries(mockConfig.sensors)
-    console.log(chalk.green('Found the following sensor(s):'))
+    log(chalk.green('Found the following sensor(s):'))
 
     sensors.forEach(([key, val]) => {
         log(chalk.yellow(key))
