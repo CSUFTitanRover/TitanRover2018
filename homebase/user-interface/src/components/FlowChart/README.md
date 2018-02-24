@@ -1,3 +1,3 @@
 ```js
-  <FlowChartDemo />
+  <FlowChart chartName="A Flow Chart" />
 ```
