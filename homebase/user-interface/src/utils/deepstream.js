@@ -1,38 +1,33 @@
 /* eslint-disable react/no-multi-comp */
 
 import React, { Component } from 'react';
-import PropTypes from 'prop-types'
-  ;
+import PropTypes from 'prop-types';
 
 const deepstream = require('deepstream.io-client-js');
 const appSettings = require('../app-settings.json');
 
 const { rover } = appSettings.deepstream;
-const clients = {}; // singleton list of clients for each server URL
+let client; // singleton list of clients for each server URL
 
 /**
  * Returns a Promise that resolves a deepstream client object.
  *
- * socket: the URL of the deepstream server (defaults to rover.ws)
+ * @param {string} endpoint: the URL of the deepstream server (defaults to rover.ws)
  */
-export function getClient(socket) {
-  const url = socket || rover.ws;
-
+export function getClient(endpoint = rover.ws) {
   return new Promise((resolve, reject) => {
-    if (clients[url] !== undefined) {
-      // Return the client associated with this URL
-      resolve(clients[url]);
+    if (client !== undefined) {
+      resolve(client);
     } else {
-      // Create a new deepstream client
-      clients[url] = deepstream(url);
+      client = deepstream(endpoint);
 
-      clients[url].on('error', (error, event, topic) => {
-        reject(error, event, topic);
+      client.on('error', (error) => {
+        reject(error);
       });
 
-      clients[url].login({}, (success) => {
+      client.login({}, (success) => {
         if (success) {
-          resolve(clients[url]);
+          resolve(client);
         } else {
           reject('Deepstream Client Login was not successful.');
         }
@@ -41,16 +36,35 @@ export function getClient(socket) {
   });
 }
 
+// Closes the client connection to deepstream
+export function closeClient() {
+  client.close();
+}
+
 /**
  *
- * @param {DeepstreamClient} client - working deepstream client
+ * @param {DeepstreamClient} dsClient - working deepstream client
  * @param {string} path - path to where the record lvies
  * @returns {DeepstreamRecord} - a ready record
  */
-export function getRecord(client, path) {
+export function getRecord(dsClient, path) {
   return new Promise((resolve) => {
-    client.record.getRecord(path).whenReady((record) => {
+    dsClient.record.getRecord(path).whenReady((record) => {
       resolve(record);
+    });
+  });
+}
+
+/**
+ *
+ * @param {DeepstreamClient} dsClient - working deepstream client
+ * @param {string} path - path to where the record lvies
+ * @returns {DeepstreamRecord} - a ready record
+ */
+export function getRecordList(dsClient, path) {
+  return new Promise((resolve) => {
+    dsClient.record.getList(path).whenReady((list) => {
+      resolve(list);
     });
   });
 }
@@ -188,6 +202,16 @@ export function withDeepstreamProps(WrappedComponent, recordName) {
   };
 }
 
+/** A Higher Order Component that uses the renderProps technique to provide deepstream updates to
+ * a child component. The DeepstreamRecordProvider listens for a record being updated and will
+ * transfer new updates to a child component.
+ *
+ * In order to use this HOC, provide a function as the child component.
+ * There are 4 parameters that are then passed to the
+ * function: currentDataPoint, subscribed, subscribeToUpdates, unsubscribeToUpdates
+ *
+ * @see RealtimeChart.js for a working example
+ */
 export class DeepstreamRecordProvider extends Component {
   static propTypes = {
     recordPath: PropTypes.string.isRequired,
@@ -196,8 +220,7 @@ export class DeepstreamRecordProvider extends Component {
 
   client = null
   record = null
-
-  state = { active: true }
+  state = { subscribed: false, currentDataPoint: null }
 
   async componentDidMount() {
     try {
@@ -206,17 +229,10 @@ export class DeepstreamRecordProvider extends Component {
       this.record = await getRecord(this.client, recordPath);
 
       // automatically start subscribing to changes
-      this._subscribe();
+      this.subscribeToUpdates();
     } catch (e) {
       console.error(e);
     }
-  }
-
-  _subscribe = () => {
-    this.record.subscribe((data) => {
-      console.log(data);
-      this.setState({ data });
-    });
   }
 
   subscribeToUpdates = () => {
@@ -224,7 +240,9 @@ export class DeepstreamRecordProvider extends Component {
 
     if (!subscribed) {
       this.setState({ subscribed: true });
-      this._subscribe();
+      this.record.subscribe((payload) => {
+        this.setState({ currentDataPoint: payload });
+      });
     }
   }
 
@@ -233,22 +251,89 @@ export class DeepstreamRecordProvider extends Component {
 
     if (subscribed) {
       this.setState({ subscribed: false });
-
       this.record.discard();
     }
   }
 
   componentWillUnmount() {
     this.record.discard();
-    this.client.close();
   }
 
   render() {
-    const { data } = this.state;
+    const { currentDataPoint, subscribed } = this.state;
     const { children } = this.props;
 
     return (
-      children(data, this.subscribeToUpdates, this.unsubscribeToUpdates)
+      children(currentDataPoint, subscribed, this.subscribeToUpdates, this.unsubscribeToUpdates)
+    );
+  }
+}
+
+/** A Higher Order Component that uses the renderProps technique to provide deepstream updates to
+ * a child component. The DeepstreamSensorProvider listens for an event being published to and will
+ * transfer new updates to a child component.
+ *
+ * In order to use this HOC, provide a function as the child component.
+ * There are 4 parameters that are then passed to the
+ * function: currentDataPoint, subscribed, subscribeToUpdates, unsubscribeToUpdates
+ *
+ * @see RealtimeChart.js for a working example
+ */
+export class DeepstreamSensorProvider extends Component {
+  static propTypes = {
+    subscriptionPath: PropTypes.string.isRequired,
+    children: PropTypes.func.isRequired,
+  }
+
+  client = null
+  recordList = null
+
+  state = { subscribed: false, currentDataPoint: null }
+
+  async componentDidMount() {
+    try {
+      this.client = await getClient();
+      // automatically start subscribing to changes
+      this.subscribeToUpdates();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  handleUpdates = (newDataPoint) => {
+    this.setState({ currentDataPoint: newDataPoint });
+  }
+
+  subscribeToUpdates = () => {
+    const { subscribed } = this.state;
+    const { subscriptionPath } = this.props;
+
+    if (!subscribed) {
+      this.setState({ subscribed: true });
+      this.client.event.subscribe(subscriptionPath, this.handleUpdates);
+    }
+  }
+
+  unsubscribeToUpdates = () => {
+    const { subscriptionPath } = this.props;
+    const { subscribed } = this.state;
+
+    if (subscribed) {
+      this.setState({ subscribed: false });
+      client.event.unsubscribe(subscriptionPath, this.handleUpdates);
+    }
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeToUpdates();
+  }
+
+  render() {
+    const { currentDataPoint, subscribed } = this.state;
+    const { children } = this.props;
+
+    return (
+      children(currentDataPoint, subscribed, this.subscribeToUpdates, this.unsubscribeToUpdates)
     );
   }
 }

@@ -1,6 +1,6 @@
 import Camera from '../../components/Camera/';
-import Chart from '../../components/Chart/';
-import ChartWithDeepstream from '../../components/Chart/ChartWithDeepstream';
+import DefaultChart from '../../components/DefaultChart/';
+import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 import Map from '../../components/Map/';
@@ -40,11 +40,11 @@ export function connectDragSources(glNode) {
  */
 export function registerGLComponents(glNode) {
   glNode.registerComponent('Camera', Camera);
-  glNode.registerComponent('Chart', Chart);
+  glNode.registerComponent('DefaultChart', DefaultChart);
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
   glNode.registerComponent('Map', Map);
-  glNode.registerComponent('ChartWithDeepstream', ChartWithDeepstream);
+  glNode.registerComponent('RealtimeChart', RealtimeChart);
 }
 
 export function initializeGL(glNode) {

@@ -19,7 +19,10 @@ class FlowChart extends Component {
      *
      * @see Available types can be found here: http://c3js.org/reference.html#data-type
     */
-    chartType: PropTypes.string,
+    chartType: PropTypes.oneOf([
+      'line', 'spline', 'step', 'area', 'area-spline',
+      'area-step', 'bar', 'scatter', 'pie', 'donut', 'gauge',
+    ]),
     /** This is the data point that will be constantly
      * updated via Deepstream or some other measure. */
     currentDataPoint: PropTypes.object,
@@ -31,6 +34,8 @@ class FlowChart extends Component {
     culling: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({ max: PropTypes.number })]),
     /** The y-axis label name */
     yLabel: PropTypes.string,
+    /** The x-axis label name */
+    xLabel: PropTypes.string,
     /** Controls the number of data points rendered on the chart at a given time. */
     maxPointsRendered: PropTypes.number,
     /** The animation time in ms it takes to flow in a new data point. */
@@ -44,24 +49,19 @@ class FlowChart extends Component {
     timestampFormat: '%Y-%m-%dT%H:%M:%S.%LZ',
     tickFormat: '%H:%M:%S',
     culling: false,
-    yLabel: 'data',
+    yLabel: 'Data',
+    xLabel: 'Time',
     maxPointsRendered: 8,
     flowDuration: 100,
   };
 
   scrollPos = this.props.maxPointsRendered * -1;
-  state = { data: [] }
 
   componentDidMount() {
-    const { chartType, timestampFormat, tickFormat, culling, yLabel } = this.props;
+    const { chartType, timestampFormat, tickFormat, culling, yLabel, xLabel } = this.props;
     const initialDataKeyNames = [];
     const initialData = [];
 
-    // check if data was passed on the initial mount
-    // if (data.length > 0) {
-    //   const k = Object.keys(data[0]);
-    //   dataKeyNames = k.filter(keyName => (keyName !== 'timestamp'));
-    // }
     // we do not need to grab data keys when we mount
     // since we can assume this chart will start empty
     // and fill up as new data points are passed into it
@@ -78,6 +78,7 @@ class FlowChart extends Component {
 
     const chartAxisProps = {
       x: {
+        label: xLabel,
         type: 'timeseries',
         tick: {
           format: tickFormat,
@@ -97,24 +98,27 @@ class FlowChart extends Component {
     });
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps) {
     // we need to check if changes occured for
-    // 'data' and 'chartType' to apply those
+    // 'currentDataPoint' and 'chartType' to apply those
     // changes to the chart using the c3 api
 
-    const { chartType, flowDuration, currentDataPoint } = this.props;
+    const { flowDuration, chartType, currentDataPoint } = this.props;
 
-    if (chartType !== nextProps.chartType) {
+    if (chartType !== prevProps.chartType) {
       // change the chart type via c3
-      this.chart.transform(nextProps.chartType);
+      this.chart.transform(chartType);
     }
 
     // flow a new data point into the chart and save it.
     // we can check for equality here since it's only 2 objects
     // to compare versues an entire array of objects
-    if (isEqual(currentDataPoint, nextProps.currentDataPoint)) {
+    if (isEqual(currentDataPoint, prevProps.currentDataPoint) === false) {
+      // update where the new data point will scroll to on the chart
+      this.scrollPos += 1;
+
       this.chart.flow({
-        json: currentDataPoint,
+        json: [currentDataPoint],
         keys: {
           value: this._extractDataPointKeys(currentDataPoint),
           x: 'timestamp',
@@ -139,6 +143,7 @@ class FlowChart extends Component {
     }
     return null;
   }
+
 
   render() {
     return (

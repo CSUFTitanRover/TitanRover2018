@@ -1,10 +1,4 @@
-
-### Purpose
-
-The DefaultChart is meant to be used when you want to load data in and have it displayed statically.
-The typical use case for this would be querying saved data from a database to load into the chart.
-
-Feel free to mess around with the example by adding in new data points or changing the chart type
+Feel free to mess around with the example by adding in new data points or changing the chart type.
 
 ```js
 const d = [

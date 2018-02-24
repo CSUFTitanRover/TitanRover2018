@@ -32,7 +32,7 @@ const TEST_WAYPOINTS = [
 
 
 /** Displays a map with waypoints, and a pane that can add, remove, and edit waypoints */
-export default class Map extends Component {
+class Map extends Component {
   static defaultProps = {
     mapWidth: 400,
     mapHeight: 400,
@@ -121,3 +121,6 @@ export default class Map extends Component {
     );
   }
 }
+
+
+export default Map;

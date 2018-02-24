@@ -7,8 +7,9 @@ import 'c3/c3.css';
 
 /**
  * This is a simple chart that allows data to be loaded into it.
- * The main usage for this DefaultChart is showing data that is stored
- * in the database that was collected from sensors after our tasks.
+ * The DefaultChart is meant to be used when you want to load data in
+ * and have it displayed statically. The typical use case for this
+ * would be querying saved data from a database to load into the chart.
  */
 class DefaultChart extends Component {
   static propTypes = {
@@ -18,7 +19,10 @@ class DefaultChart extends Component {
      *
      * @see Available types can be found here: http://c3js.org/reference.html#data-type
     */
-    chartType: PropTypes.string,
+    chartType: PropTypes.oneOf([
+      'line', 'spline', 'step', 'area', 'area-spline',
+      'area-step', 'bar', 'scatter', 'pie', 'donut', 'gauge',
+    ]),
     /** The chart data that will be loaded. */
     data: PropTypes.arrayOf(PropTypes.object),
     /** A valid timestamp format for each data point. */
@@ -29,6 +33,8 @@ class DefaultChart extends Component {
     culling: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({ max: PropTypes.number })]),
     /** The y-axis label name */
     yLabel: PropTypes.string,
+    /** The x-axis label name */
+    xLabel: PropTypes.string,
   }
 
   static defaultProps = {
@@ -38,11 +44,20 @@ class DefaultChart extends Component {
     timestampFormat: '%Y-%m-%dT%H:%M:%S.%LZ',
     tickFormat: '%H:%M:%S',
     culling: false,
-    yLabel: 'data',
+    yLabel: 'Data',
+    xLabel: 'Time',
   };
 
   componentDidMount() {
-    const { data, chartType, timestampFormat, tickFormat, culling, yLabel } = this.props;
+    const {
+      data,
+      chartType,
+      timestampFormat,
+      tickFormat,
+      culling,
+      yLabel,
+      xLabel,
+    } = this.props;
     let dataKeyNames = [];
 
     // check if data was passed on the initial mount
@@ -64,6 +79,7 @@ class DefaultChart extends Component {
 
     const chartAxisProps = {
       x: {
+        label: xLabel,
         type: 'timeseries',
         tick: {
           format: tickFormat,
@@ -103,7 +119,7 @@ class DefaultChart extends Component {
     // for differences and let React take care
     // of optimizing when to render.
     this.chart.load({
-      unload: true,
+      unload: true, // unload any data currently in the chart
       json: nextProps.data,
     });
   }

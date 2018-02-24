@@ -5,9 +5,9 @@ const config = {
       content: [
         {
           type: 'react-component',
-          component: 'ChartWithDeepstream',
-          title: 'Chart',
-          props: { chartName: 'my chart name' },
+          component: 'RealtimeChart',
+          title: 'Decagon Realtime Chart',
+          props: { chartName: 'Decagon-5TE', subscriptionPath: 'science/decagon' },
         },
         // {
         //   type: 'react-component',

@@ -83,11 +83,18 @@ class ComponentMenuList extends Component {
             componentprops={{ cameraID: '4' }}
           />
           <ComponentMenuItem
-            title="Chart"
-            componentname="Chart"
+            title="Decagon Realtime Chart"
+            componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'chart' }}
+            componentprops={{ chartName: 'Decagon-5TE', subscriptionPath: 'science/decagon' }}
+          />
+          <ComponentMenuItem
+            title="Atmospheric Realtime Chart"
+            componentname="RealtimeChart"
+            icon={<ShowChartIcon />}
+            className={classes.nested}
+            componentprops={{ chartName: 'Atmospheric', subscriptionPath: 'science/atmospheric' }}
           />
           <ComponentMenuItem
             title="Rover API Settings"
