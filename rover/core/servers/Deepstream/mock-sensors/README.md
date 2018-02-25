@@ -1,6 +1,6 @@
 # Mock Sensors for Rover Deepstream Server
 
-This serves as a testing platform for mocking sensors and emitting fake data to the deepstream server on the rover. You can easily have data pumped into the deepstream server for the homebase as well just by changing the port numbers.
+This serves as a testing platform for mocking sensors and emitting fake data to both deepstream servers: homebase and rover.
 
 ## Getting Started
 
@@ -25,6 +25,7 @@ For each sensor there are some required and optional fields to specify.
 - `debug`: Turns on printing output to the console. Default is `false`.
 - `verbose`: If debug is true, this option pretty prints the entire data payload to the console. Default is `false`.
 - `deepstreamServer`: Controls what deepstream server the sensor is emitting to. Can be `rover` or `homebase`. Default is `rover`
+- `sensorType`: The type of mock sensor to use. Can be `default` or `cycle`. Default is `default`
 - `<keyName>`: This is a key name that can be called whatever you want it to be. There can be as many keyNames as you want
 
 #### Sensor Types
@@ -49,7 +50,7 @@ A cycle sensor has the following required fields:
 
 - `min`: the min number the generated value will be 
 - `max`: the max number the generated value will be 
-- `step`: the value that is added to every generated value in the range
+- `step`: the distance between two values. (e.g.  if the step is `2`, then the generated values would look like: `1..3..5`)
 
 ## Example Config
 
