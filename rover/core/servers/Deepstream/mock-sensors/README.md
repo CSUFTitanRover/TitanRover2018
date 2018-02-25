@@ -6,7 +6,7 @@ This serves as a testing platform for mocking sensors and emitting fake data to 
 
 ## Getting Started
 
-The settings for where to configure the fake sensors can be found in: `mockConfig.yml`
+The settings for where to configure the fake sensors can be found in: `defaultMockConfig.yml`
 
 There are two required fields that need to be inside the config file: `deepstream` and `sensors`
 
