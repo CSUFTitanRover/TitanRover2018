@@ -3,8 +3,8 @@
 'use strict';
 
 var fs = require('fs'),
-    path = require('path'),
-    request = require('request');
+  path = require('path'),
+  request = require('request');
 
 var mbtiles = require('@mapbox/mbtiles');
 
@@ -14,7 +14,7 @@ var opts = require('nomnom')
   .option('mbtiles', {
     default: undefined,
     help: 'MBTiles file (uses demo configuration);\n' +
-          '\t    ignored if the configuration file is also specified',
+      '\t    ignored if the configuration file is also specified',
     position: 0
   })
   .option('config', {
@@ -29,7 +29,7 @@ var opts = require('nomnom')
   })
   .option('port', {
     abbr: 'p',
-    default: 5000,
+    default: 3050,
     help: 'Port'
   })
   .option('cors', {
@@ -45,7 +45,7 @@ var opts = require('nomnom')
     abbr: 'v',
     flag: true,
     help: 'Version info',
-    callback: function() {
+    callback: function () {
       return packageJson.name + ' v' + packageJson.version;
     }
   }).parse();
@@ -53,7 +53,7 @@ var opts = require('nomnom')
 
 console.log('Starting ' + packageJson.name + ' v' + packageJson.version);
 
-var startServer = function(configPath, config) {
+var startServer = function (configPath, config) {
   return require('tileserver-gl-light/src/server.js')({
     configPath: configPath,
     config: config,
@@ -63,7 +63,7 @@ var startServer = function(configPath, config) {
   });
 };
 
-var startWithMBTiles = function(mbtilesFile) {
+var startWithMBTiles = function (mbtilesFile) {
   console.log('Automatically creating config file for ' + mbtilesFile);
 
   mbtilesFile = path.resolve(process.cwd(), mbtilesFile);
@@ -73,12 +73,12 @@ var startWithMBTiles = function(mbtilesFile) {
     console.log('ERROR: Not valid MBTiles file: ' + mbtilesFile);
     process.exit(1);
   }
-  var instance = new mbtiles(mbtilesFile, function(err) {
-    instance.getInfo(function(err, info) {
+  var instance = new mbtiles(mbtilesFile, function (err) {
+    instance.getInfo(function (err, info) {
       if (err || !info) {
         console.log('ERROR: Metadata missing in the MBTiles.');
         console.log('       Make sure ' + path.basename(mbtilesFile) +
-                    ' is valid MBTiles.');
+          ' is valid MBTiles.');
         process.exit(1);
       }
       var bounds = info.bounds;
@@ -99,7 +99,7 @@ var startWithMBTiles = function(mbtilesFile) {
       };
 
       if (info.format == 'pbf' &&
-          info.name.toLowerCase().indexOf('openmaptiles') > -1) {
+        info.name.toLowerCase().indexOf('openmaptiles') > -1) {
         var omtV = (info.version || '').split('.');
 
         config['data']['v' + omtV[0]] = {
@@ -141,19 +141,19 @@ var startWithMBTiles = function(mbtilesFile) {
               config['styles'][styleName] = styleObject;
             } else {
               console.log('Style', styleName, 'requires OpenMapTiles version',
-              omtVersionCompatibility, 'but mbtiles is version', info.version);
+                omtVersionCompatibility, 'but mbtiles is version', info.version);
             }
           }
         }
       } else {
         console.log('WARN: MBTiles not in "openmaptiles" format. ' +
-                    'Serving raw data only...');
+          'Serving raw data only...');
         config['data'][(info.id || 'mbtiles')
-                           .replace(/\//g, '_')
-                           .replace(/\:/g, '_')
-                           .replace(/\?/g, '_')] = {
-          "mbtiles": path.basename(mbtilesFile)
-        };
+          .replace(/\//g, '_')
+          .replace(/\:/g, '_')
+          .replace(/\?/g, '_')] = {
+            "mbtiles": path.basename(mbtilesFile)
+          };
       }
 
       if (opts.verbose) {
@@ -167,13 +167,13 @@ var startWithMBTiles = function(mbtilesFile) {
   });
 };
 
-fs.stat(path.resolve(opts.config), function(err, stats) {
+fs.stat(path.resolve(opts.config), function (err, stats) {
   if (err || !stats.isFile() || stats.size === 0) {
     var mbtiles = opts.mbtiles;
     if (!mbtiles) {
       // try to find in the cwd
       var files = fs.readdirSync(process.cwd());
-      for (var i=0; i < files.length; i++) {
+      for (var i = 0; i < files.length; i++) {
         var filename = files[i];
         if (filename.endsWith('.mbtiles')) {
           var mbTilesStats = fs.statSync(filename);
@@ -191,7 +191,7 @@ fs.stat(path.resolve(opts.config), function(err, stats) {
         var filename = 'zurich_switzerland.mbtiles';
         var stream = fs.createWriteStream(filename);
         console.log('Downloading sample data (' + filename + ') from ' + url);
-        stream.on('finish', function() {
+        stream.on('finish', function () {
           return startWithMBTiles(filename);
         });
         return request.get(url).pipe(stream);
