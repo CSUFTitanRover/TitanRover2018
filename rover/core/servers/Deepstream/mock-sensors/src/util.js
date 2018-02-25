@@ -1,6 +1,7 @@
 const yaml = require('js-yaml')
 const fs = require('fs')
 const { take } = require('itertools')
+let configFilePath = './defaultMockConfig.yml' // singleton
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
@@ -15,7 +16,7 @@ function getRandomFloatInclusive(min, max) {
 
 function getDeepstreamEndpoints() {
     try {
-        const mockConfig = yaml.safeLoad(fs.readFileSync('./mockConfig.yml', 'utf8'))
+        const mockConfig = yaml.safeLoad(fs.readFileSync(configFilePath, 'utf8'))
         return mockConfig.deepstream
     }
     catch (e) {
@@ -28,6 +29,7 @@ function nextCycleItem(cycleIterator) {
 }
 
 module.exports = {
+    configFilePath,
     getRandomFloatInclusive,
     getRandomIntInclusive,
     getDeepstreamEndpoints,

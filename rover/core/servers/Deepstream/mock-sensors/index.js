@@ -1,15 +1,29 @@
 const yaml = require('js-yaml')
 const fs = require('fs')
 const chalk = require('chalk')
+const argv = require('minimist')(process.argv.slice(2))
 const { contains } = require('itertools')
 const DefaultSensor = require('./src/DefaultSensor')
 const CycleSensor = require('./src/CycleSensor')
 const { clients } = require('./src/deepstream')
+let { configFilePath } = require('./src/util')
 const log = console.log;
 
 try {
-    log('Reading the mock config file...')
-    const mockConfig = yaml.safeLoad(fs.readFileSync('./mockConfig.yml', 'utf8'))
+    let customConfigPath = argv.c || argv.config
+    let mockConfig;
+
+    if (customConfigPath) {
+        log(`Using a custom config file: ${customConfigPath}`)
+        log('Reading the mock config file...')
+        mockConfig = yaml.safeLoad(fs.readFileSync(customConfigPath, 'utf8'))
+        configFilePath = customConfigPath
+    }
+    else {
+        log('Using the default config file: defaultMockConfig.yml')
+        log('Reading the mock config file...')
+        mockConfig = yaml.safeLoad(fs.readFileSync('./defaultMockConfig.yml', 'utf8'))
+    }
 
     const sensors = Object.entries(mockConfig.sensors)
     log(chalk.green('Found the following sensor(s):'))

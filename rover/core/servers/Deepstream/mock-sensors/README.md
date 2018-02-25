@@ -129,3 +129,20 @@ sensors:
             max: 350
             step: 0.1
 ```
+
+## Using a custom config file
+
+If you would like to use a custom config file and pass it into the script, then you can do this by specifying the arg: `-c` or `--config`
+
+The value you supply to `-c` or `--config` is the relative path to the file starting from this project's directory.
+
+### custom config examples
+
+It's important you include the `--` in between `npm start` and the argument. Without it, npm will not pass the argument down to the file.
+```
+$ npm start -- --config ./customConfig.yml
+```
+
+```
+$ npm start -- -c ../../scienceConfig.yml
+```
