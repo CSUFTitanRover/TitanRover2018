@@ -1,3 +1,5 @@
+![Demo Screenshot](./demo-screenshot.png "Demo Screenshot")
+
 # Mock Sensors for Rover Deepstream Server
 
 This serves as a testing platform for mocking sensors and emitting fake data to both deepstream servers: homebase and rover.
@@ -7,6 +9,10 @@ This serves as a testing platform for mocking sensors and emitting fake data to 
 The settings for where to configure the fake sensors can be found in: `mockConfig.yml`
 
 There are two required fields that need to be inside the config file: `deepstream` and `sensors`
+
+In order to run the process, first install the required dependencies: `npm install`
+
+Then, start it up: `npm start
 
 ### Deepstream
 
