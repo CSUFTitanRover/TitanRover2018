@@ -4,14 +4,15 @@ const { getClient } = require('./deepstream')
 const chalk = require('chalk')
 const log = console.log
 
-class Sensor {
-    constructor(name, path, props, timeDelay = 1000, debug = false, verbose = false) {
+class DefaultSensor {
+    constructor(name, path, props, timeDelay = 1000, debug = false, verbose = false, deepstreamServer = 'rover') {
         this.name = name
         this.path = path
         this.props = Object.entries(props)
         this.timeDelay = timeDelay
         this.debug = debug
         this.verbose = verbose
+        this.deepstreamServer = deepstreamServer
         this._ds = null
         this._interval = null
         this.start = this.start.bind(this)
@@ -21,7 +22,7 @@ class Sensor {
 
     async start() {
         try {
-            this._ds = await getClient()
+            this._ds = await getClient(this.deepstreamServer)
 
             let startMessage = `Starting ${this.name} sensor... `
 
@@ -80,4 +81,4 @@ class Sensor {
     }
 }
 
-module.exports = Sensor
+module.exports = DefaultSensor

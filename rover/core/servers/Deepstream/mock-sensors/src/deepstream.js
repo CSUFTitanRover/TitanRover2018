@@ -1,28 +1,29 @@
 const deepstream = require('deepstream.io-client-js');
-const { getDeepstreamEndpoints} = require('./util');
+const { getDeepstreamEndpoints } = require('./util');
 
-
-let client;
+// singleton for deepstream clients
+// there's only ever going to be 2 clients: 1 for homebase server and 1 for rover server
+const clients = {}
 
 /**
  * Returns a Promise that resolves a deepstream client object.
  */
-async function getClient() {
-  let endpoint = getDeepstreamEndpoints().websocket
+async function getClient(deepstreamServer) {
+  let endpoint = getDeepstreamEndpoints()[deepstreamServer].websocket
 
   return new Promise((resolve, reject) => {
-    if (client !== undefined) {
-      resolve(client);
+    if (clients[deepstreamServer] !== undefined) {
+      resolve(clients[deepstreamServer]);
     } else {
-      client = deepstream(endpoint);
+      clients[deepstreamServer] = deepstream(endpoint);
 
-      client.on('error', (error, event, topic) => {
+      clients[deepstreamServer].on('error', (error, event, topic) => {
         reject(error);
       });
 
-      client.login({}, (success, data) => {
+      clients[deepstreamServer].login({}, (success, data) => {
         if (success) {
-          resolve(client);
+          resolve(clients[deepstreamServer]);
         } else {
           reject('Deepstream Client Login was not successful.');
         }
@@ -32,5 +33,6 @@ async function getClient() {
 }
 
 module.exports = {
+  clients,
   getClient
 }

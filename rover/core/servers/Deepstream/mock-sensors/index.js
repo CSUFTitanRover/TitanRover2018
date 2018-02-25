@@ -1,7 +1,10 @@
 const yaml = require('js-yaml')
 const fs = require('fs')
 const chalk = require('chalk')
-const Sensor = require('./src/Sensor')
+const { contains } = require('itertools')
+const DefaultSensor = require('./src/DefaultSensor')
+const CycleSensor = require('./src/CycleSensor')
+const { clients } = require('./src/deepstream')
 const log = console.log;
 
 try {
@@ -17,28 +20,39 @@ try {
         const sensorProps = Object.keys(val)
 
         sensorProps.forEach(prop => {
-            if (prop !== 'timeDelay' && prop !== 'debug' && prop !== 'path' && prop !== 'verbose') {
+            let isSettingsProp = contains(['timeDelay', 'debug', 'path', 'verbose', 'deepstreamServer', 'sensorType'], prop)
+
+            if (!isSettingsProp) {
                 log(chalk.cyan(`\t- ${prop}`))
             }
         })
     });
 
-    log('Mocking up sensors...')
+    log('\nMocking up sensors...')
 
     const mockedSensors = [];
 
     sensors.forEach(([key, val]) => {
-        const { timeDelay, debug, path, verbose } = val
+        const { timeDelay, debug, path, verbose, deepstreamServer, sensorType } = val
 
         // get a new copy of the props
-        // and delete the timeDelay & debug prop
+        // and delete the sensor settings
         const props = { ...val }
         delete props.path
         delete props.timeDelay
         delete props.debug
         delete props.verbose
+        delete props.deepstreamServer
+        delete props.sensorType
 
-        let sensor = new Sensor(key, path, props, timeDelay, debug, verbose)
+        let sensor;
+        if (sensorType === 'default' || sensorType === undefined || sensorType === null) {
+            sensor = new DefaultSensor(key, path, props, timeDelay, debug, verbose, deepstreamServer)
+        }
+        else if (sensorType === 'cycle') {
+            sensor = new CycleSensor(key, path, props, timeDelay, debug, verbose, deepstreamServer)
+        }
+
         mockedSensors.push(sensor)
     })
 
@@ -50,10 +64,18 @@ try {
 
     // setup a listener for ctrl-c
     process.on('SIGINT', () => {
-        log("\ngracefully shutting down from  SIGINT (Crtl-C)")
+        log("\nGracefully shutting down from  SIGINT (Crtl-C)")
+
         mockedSensors.forEach(mockSensor => {
+            log(chalk.yellow(`Stopping ${mockSensor.name}...`))
             mockSensor.stop()
         })
+
+        Object.entries(clients).forEach(([clientName, ds]) => {
+            log(chalk.yellow(`Closing deepstream client connection to the ${clientName} deepstream server`))
+            ds.close()
+        })
+        log(chalk.yellow("exiting..."))
         process.exit()
     })
 }

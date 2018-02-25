@@ -1,5 +1,6 @@
 const yaml = require('js-yaml')
 const fs = require('fs')
+const { take } = require('itertools')
 
 function getRandomIntInclusive(min, max) {
     min = Math.ceil(min);
@@ -9,7 +10,7 @@ function getRandomIntInclusive(min, max) {
 
 function getRandomFloatInclusive(min, max) {
     let r = Math.random() < 0.5 ? ((1 - Math.random()) * (max - min) + min) : (Math.random() * (max - min) + min);
-    return Number(r.toFixed(4)) // round to 4 decimal places
+    return Number(r.toFixed(7)) // round to 7 decimal places
 }
 
 function getDeepstreamEndpoints() {
@@ -22,8 +23,13 @@ function getDeepstreamEndpoints() {
     }
 }
 
+function nextCycleItem(cycleIterator) {
+    return take(1, cycleIterator)[0]
+}
+
 module.exports = {
     getRandomFloatInclusive,
     getRandomIntInclusive,
-    getDeepstreamEndpoints
+    getDeepstreamEndpoints,
+    nextCycleItem
 }
