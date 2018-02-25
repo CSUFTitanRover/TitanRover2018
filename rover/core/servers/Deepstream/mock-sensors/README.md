@@ -12,7 +12,7 @@ There are two required fields that need to be inside the config file: `deepstrea
 
 In order to run the process, first install the required dependencies: `npm install`
 
-Then, start it up: `npm start
+Then, start it up: `npm start`
 
 ### Deepstream
 
