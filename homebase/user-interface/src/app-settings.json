@@ -1,12 +1,12 @@
 {
   "deepstream": {
-    "rover": {
-      "http": "0.0.0.0:3080",
-      "ws": "0.0.0.0:3020"
+    "homebase": {
+      "http": "localhost:3080",
+      "ws": "localhost:3020"
     },
-    "roverr": {
-      "http": "0.0.0.0:4080",
-      "ws": "0.0.0.0:4020"
+    "rover": {
+      "http": "localhost:4080",
+      "ws": "localhost:4020"
     }
   },
   "cameras": {
@@ -18,7 +18,6 @@
     "base_port": "5000"
   },
   "map": {
-    "style": "http://localhost:5000/styles/klokantech-basic/style.json",
-    "mapboxToken": "unused"
+    "style": "http://localhost:5000/styles/klokantech-basic/style.json"
   }
 }

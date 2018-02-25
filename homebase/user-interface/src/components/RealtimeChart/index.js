@@ -71,8 +71,14 @@ class RealtimeChart extends Component {
   }
 
   render() {
-    const { classes, chartName, subscriptionPath } = this.props;
+    const { classes, subscriptionPath } = this.props;
     const { chartType } = this.state;
+
+    // make a copy of props for the flow chart but exclude the chart type and current data point
+    // since those are going to be managed by this component directly
+    const flowChartProps = { ...this.props };
+    delete flowChartProps.chartType;
+    delete flowChartProps.currentDataPoint;
 
     return (
       <DeepstreamSensorProvider subscriptionPath={subscriptionPath}>
@@ -117,7 +123,7 @@ class RealtimeChart extends Component {
 
             <Grid item xs={12}>
               <FlowChart
-                chartName={chartName}
+                {...flowChartProps}
                 chartType={chartType}
                 currentDataPoint={currentDataPoint}
               />

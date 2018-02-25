@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Resizable from 'react-resizable-box';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import CheckIcon from 'material-ui-icons/Check';
-import uuidv4 from 'uuid/v4';
+import shortid from 'shortid';
 import appSettings from '../../app-settings.json';
 import './styles.css';
 
@@ -43,7 +43,7 @@ class Camera extends PureComponent {
     lockAspectRatio: false,
   };
 
-  cameraUUID = uuidv4();
+  cameraID = shortid.generate();
 
   handleOnResizeStart = () => {
     this.setState({ resizing: true });
@@ -88,7 +88,7 @@ class Camera extends PureComponent {
     const computedPort = `${basePort.slice(0, -1)}${cameraID}`;
     return (
       <React.Fragment>
-        <ContextMenuTrigger id={`camera-${this.cameraUUID}`} ref={(node) => { this.node = node; }} style={{ width: 'inherit', height: 'inherit' }}>
+        <ContextMenuTrigger id={`camera-${this.cameraID}`} ref={(node) => { this.node = node; }} style={{ width: 'inherit', height: 'inherit' }}>
           <Resizable
             style={{
               ...resizableStyles,
@@ -104,7 +104,7 @@ class Camera extends PureComponent {
           </Resizable>
         </ContextMenuTrigger>
 
-        <ContextMenu id={`camera-${this.cameraUUID}`}>
+        <ContextMenu id={`camera-${this.cameraID}`}>
           <MenuItem onClick={this.handleToggleFullSize}>
             Toggle Fullsize
             {fullsize && <CheckIcon />}

@@ -3,7 +3,7 @@ import DefaultChart from '../../components/DefaultChart/';
 import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
-import Map from '../../components/Map/';
+import ResizeAwareMap from '../../components/ResizeAwareMap/';
 
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
@@ -39,11 +39,11 @@ export function connectDragSources(glNode) {
  * @param {GoldenLayout} glNode
  */
 export function registerGLComponents(glNode) {
+  glNode.registerComponent('ResizeAwareMap', ResizeAwareMap);
   glNode.registerComponent('Camera', Camera);
   glNode.registerComponent('DefaultChart', DefaultChart);
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
-  glNode.registerComponent('Map', Map);
   glNode.registerComponent('RealtimeChart', RealtimeChart);
 }
 

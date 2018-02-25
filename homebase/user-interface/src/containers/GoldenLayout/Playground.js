@@ -29,10 +29,12 @@ const mapDispatchToProps = dispatch => ({
  */
 class Playground extends Component {
   componentDidMount() {
-    const { config } = this.props;
-    const glNode = new GoldenLayout(config, this.node);
-    initializeGL(glNode);
-    this.props.handleAddPlaygroundToStore(glNode);
+    setTimeout(() => {
+      const { config } = this.props;
+      const glNode = new GoldenLayout(config, this.node);
+      initializeGL(glNode);
+      this.props.handleAddPlaygroundToStore(glNode);
+    }, 150);
   }
 
   render() {

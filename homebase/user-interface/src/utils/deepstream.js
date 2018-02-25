@@ -214,19 +214,46 @@ export function withDeepstreamProps(WrappedComponent, recordName) {
  */
 export class DeepstreamRecordProvider extends Component {
   static propTypes = {
-    recordPath: PropTypes.string.isRequired,
+    /** Can be a single or multiple record paths to subscribe to */
+    recordPath: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string)],
+    ).isRequired,
     children: PropTypes.func.isRequired,
   }
 
   client = null
   record = null
-  state = { subscribed: false, currentDataPoint: null }
+  records = null // used if multiple records are being subscribed to
+  multipleRecords = false
+  state = {
+    /** The provider has all subscriptions active or not */
+    subscribed: false,
+    /** A single object holding all of the latest payloads
+     * (e.g. aggregated data between multiple subscriptions)
+     */
+    currentDataPoint: null,
+  }
 
   async componentDidMount() {
     try {
       const { recordPath } = this.props;
       this.client = await getClient();
-      this.record = await getRecord(this.client, recordPath);
+
+      if (typeof recordPath === 'string') {
+        this.record = await getRecord(this.client, recordPath);
+      } else if (recordPath instanceof Array) {
+        this.records = [];
+        this.multipleRecords = true;
+
+        const resolvedRecords = await Promise.all(
+          recordPath.map(path => getRecord(this.client, path)),
+        );
+
+        resolvedRecords.forEach((record) => {
+          this.records.push(record);
+        });
+      }
 
       // automatically start subscribing to changes
       this.subscribeToUpdates();
@@ -235,14 +262,36 @@ export class DeepstreamRecordProvider extends Component {
     }
   }
 
+  _subscribe = (record) => {
+    record.subscribe((payload) => {
+      let { currentDataPoint } = this.state;
+
+      // overwrite the current data with the new payload
+      // this takes care of having subscriptions to multiple records
+      // and combing the data into 1 single object
+      currentDataPoint = { ...currentDataPoint, ...payload };
+
+      this.setState({ currentDataPoint });
+    });
+  }
+
+  _unsubscribe = (record) => {
+    record.discard();
+  }
+
   subscribeToUpdates = () => {
     const { subscribed } = this.state;
 
     if (!subscribed) {
       this.setState({ subscribed: true });
-      this.record.subscribe((payload) => {
-        this.setState({ currentDataPoint: payload });
-      });
+
+      if (!this.multipleRecords) {
+        this._subscribe(this.record);
+      } else {
+        this.records.forEach((record) => {
+          this._subscribe(record);
+        });
+      }
     }
   }
 
@@ -251,12 +300,25 @@ export class DeepstreamRecordProvider extends Component {
 
     if (subscribed) {
       this.setState({ subscribed: false });
-      this.record.discard();
+
+      if (!this.multipleRecords) {
+        this._unsubscribe(this.record);
+      } else {
+        this.records.forEach((record) => {
+          this._unsubscribe(record);
+        });
+      }
     }
   }
 
   componentWillUnmount() {
-    this.record.discard();
+    if (!this.multipleRecords) {
+      this._unsubscribe(this.record);
+    } else {
+      this.records.forEach((record) => {
+        this._unsubscribe(record);
+      });
+    }
   }
 
   render() {

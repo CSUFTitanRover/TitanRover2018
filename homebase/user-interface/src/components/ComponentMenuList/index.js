@@ -110,7 +110,7 @@ class ComponentMenuList extends Component {
           />
           <ComponentMenuItem
             title="Map"
-            componentname="Map"
+            componentname="ResizeAwareMap"
             icon={<NavigationIcon />}
             className={classes.nested}
           />

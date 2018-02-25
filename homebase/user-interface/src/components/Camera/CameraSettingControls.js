@@ -14,7 +14,7 @@ import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
 import green from 'material-ui/colors/green';
 import grey from 'material-ui/colors/grey';
-import uuidv4 from 'uuid/v4';
+import shortid from 'shortid';
 import appSettings from '../../app-settings.json';
 
 const styles = theme => ({
@@ -71,7 +71,7 @@ class CameraSettingControls extends PureComponent {
     baseIP: this.props.baseIP,
     protocol: this.props.protocol,
   }
-  cameraSettingControlsUUID = uuidv4();
+  cameraSettingControlsID = shortid.generate();
 
   handleSelectChange = ({ target }) => {
     this.setState({ streamQuality: target.value });
@@ -168,12 +168,12 @@ class CameraSettingControls extends PureComponent {
               className={classes.formControl}
             />
             <FormControl className={classes.formControl}>
-              <InputLabel htmlFor={`camera-protocol-${this.cameraSettingControlsUUID}`}>Stream Protocol</InputLabel>
+              <InputLabel htmlFor={`camera-protocol-${this.cameraSettingControlsID}`}>Stream Protocol</InputLabel>
               <Select
                 value={protocol}
                 onChange={this.handleProtocolChange}
                 inputProps={{
-                  id: `camera-protocol-${this.cameraSettingControlsUUID}`,
+                  id: `camera-protocol-${this.cameraSettingControlsID}`,
                 }}
               >
                 <MenuItem value="http">http</MenuItem>
@@ -181,12 +181,12 @@ class CameraSettingControls extends PureComponent {
               </Select>
             </FormControl>
             <FormControl className={classes.formControl}>
-              <InputLabel htmlFor={`camera-quality-${this.cameraSettingControlsUUID}`}>Stream Quality</InputLabel>
+              <InputLabel htmlFor={`camera-quality-${this.cameraSettingControlsID}`}>Stream Quality</InputLabel>
               <Select
                 value={streamQuality}
                 onChange={this.handleSelectChange}
                 inputProps={{
-                  id: `camera-setting-${this.cameraSettingControlsUUID}`,
+                  id: `camera-setting-${this.cameraSettingControlsID}`,
                 }}
               >
                 <MenuItem value="low">Low</MenuItem>
