@@ -35,7 +35,7 @@ const styles = theme => ({
 });
 
 /** The RealtimeChart hooks up into deepstream and displays sensor data
- * in real-time. All of the props that are valid for FlowChart can be passed
+ * in real-time. All of the props excluding chartType that are valid for FlowChart can be passed
  * to the RealtimeChart since any provided props will be passed down into the FlowChart.
 */
 class RealtimeChart extends Component {
