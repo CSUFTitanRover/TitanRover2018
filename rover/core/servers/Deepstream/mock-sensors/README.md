@@ -1,6 +1,6 @@
 ![Demo Screenshot](./demo-screenshot.png "Demo Screenshot")
 
-# Mock Sensors for Rover Deepstream Server
+# Mock Sensors for Deepstream 
 
 This serves as a testing platform for mocking sensors and emitting fake data to both deepstream servers: homebase and rover.
 
