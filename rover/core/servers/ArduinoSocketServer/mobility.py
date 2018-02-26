@@ -16,7 +16,9 @@ import subprocess
 from subprocess import Popen
 from threading import Thread
 from deepstream import post, get
-import time
+from time import sleep, time
+from relayFunctions import ep
+import serial
 import pygame
 import numpy as np
 import sys
@@ -39,10 +41,10 @@ if isPi:
     GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
 
 # System setup wait
-time.sleep(5)
+sleep(5)
 
-# Arduino address and connection info
-address = ("192.168.1.10", 5000)
+# Tx2 address and connection info
+address = ("192.168.1.16", 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(0.5)
 
@@ -267,12 +269,12 @@ def sendToDeepstream():
     global dsMode
     while True:
         try:
-            post({"mobilityTime": int(np.trunc(time.time()))}, "mobilityTime")
+            post({"mobilityTime": int(np.trunc(time()))}, "mobilityTime")
             dsMode = get("mode")["mode"]
         except:
             print("Cannot send to Deepstream")
             pass 
-        time.sleep(1)
+        sleep(1)
 '''
 
 def main(*argv):
@@ -296,7 +298,7 @@ def main(*argv):
             checkPause()
             checkModes()
             setLed()
-            print("Sending Arduino command")
+            print("Sending Tx2 command")
             try:
                 re_data = client_socket.recvfrom(512)
                 #print(bytes.decode(re_data[0]))  # Debug
@@ -307,7 +309,7 @@ def main(*argv):
                     else:
                         outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
                     outVals = list(map(str, outVals))
-                    outString = ",".join(outVals)
+                    outString = 'a' + ",".join(outVals) + ',' + str(ep()) + '#'
                     client_socket.sendto(bytes(outString,"utf-8"), address)
                     print(outString)
             except:
