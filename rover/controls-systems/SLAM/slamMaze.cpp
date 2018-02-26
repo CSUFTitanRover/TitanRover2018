@@ -151,7 +151,26 @@ void drawCircle()
 
 	//Circle
 	glTranslatef(0.0f, 0.75f, 0.0f);
-	glutSolidSphere(0.15f, 10, 10);
+	glutSolidSphere(0.10f, 10, 10);
+	mtx.unlock();
+}
+
+void drawLidarLine()
+{
+	//Generic cube size
+	mtx.lock();
+	std::atomic<GLdouble> cube_size;
+	cube_size.store(0.50, std::memory_order_relaxed);
+	mtx.unlock();
+
+	// Red side - TOP
+	mtx.lock();
+	glBegin(GL_POLYGON);
+	glVertex3f(cube_size.load(), cube_size.load(), cube_size.load());
+	glVertex3f(cube_size, cube_size, -cube_size);
+	glVertex3f(-cube_size, cube_size, -cube_size);
+	glVertex3f(-cube_size, cube_size, cube_size);
+	glEnd();
 	mtx.unlock();
 }
 
@@ -159,7 +178,7 @@ void drawTennisBall()
 {
 	mtx.lock();
 	//Circle
-	glTranslatef(0.0f, 0.75f, 0.0f);
+	glTranslatef(1.6f, 0.0f, 2.6f);
 	glutSolidSphere(0.10f, 5, 5);
 	mtx.unlock();
 }
@@ -246,16 +265,30 @@ void renderSubWindowScene()
 
 	// Draw ground
 	mtx.lock();
-	glColor3f(0.5f, 0.5f, 0.5f); //<R,G,B>
+
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
 	GLuint tex;
 	glGenTextures(1, &tex);
 
+	glColor3f(0.184, 0.310, 0.310); //<R,G,B>
 	glBegin(GL_QUADS);
 	glVertex3f(-plain_size, ground_level, -plain_size);
 	glVertex3f(-plain_size, ground_level, plain_size);
 	glVertex3f(plain_size, ground_level, plain_size);
 	glVertex3f(plain_size, ground_level, -plain_size);
+	glEnd();
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	glColor3f(0.545, 0.000, 0.545); //<R,G,B>
+	glutSolidSphere(10.0f, 20, 10);
+
+	glColor3f(0.294, 0.000, 0.510);
+	glRotatef(100 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
+	glutSolidSphere(10.0f, 20, 5);
+
 	glEnd();
 	mtx.unlock();
 }
@@ -290,8 +323,21 @@ void computePos(GLfloat deltaMove)
 void computeDir(GLfloat deltaAngle)
 {
 	_openGLCV_.angle += deltaAngle;
-	_openGLCV_.lx = sin(_openGLCV_.angle);
-	_openGLCV_.lz = -cos(_openGLCV_.angle);
+	//Angle calculation is required to move forward.
+	#pragma omp parallel num_threads(2)
+	{
+		#pragma omp sections
+		{
+			#pragma omp section
+			{
+				_openGLCV_.lx = sin(_openGLCV_.angle);
+			}
+			#pragma omp section
+			{
+				_openGLCV_.lz = -cos(_openGLCV_.angle);
+			}
+		}
+	}
 
 	std::cout << "angle = " << _openGLCV_.angle << std::endl;
 	std::cout << "lx = " << _openGLCV_.lx << std::endl;
@@ -340,45 +386,51 @@ void renderTopDownScene()
 			}
 			#pragma omp section
 			{
-				// Renders a static tennis ball
-				glPushMatrix();
-				glTranslatef(1.6, 0.0f, -1.6);
-
-				if(flag_tennis == 0)
-					glColor3f(0.5f, 0.5f, 0.5f); //<R,G,B>
+				if (flag_tennis == 0)
+				{
+					//TO-DO
+				}
 				
-				if(flag_tennis == -1)
+				if (flag_tennis == -1)
+				{
+					// Renders a static tennis ball
+					glPushMatrix();
+					glTranslatef(-0.6, 0.0f, -6.6);
 					glColor3f(1.0, 1.0, 0.0); //<R,G,B>
-				
-				drawTennisBall();
-				std::string temp_x = " Tennis Ball";
-				char *cstr_x = &temp_x[0u];
-				renderBitmapString(1.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
-				glPopMatrix();
+					drawTennisBall();
+					std::string temp_x = " Tennis Ball";
+					char *cstr_x = &temp_x[0u];
+					renderBitmapString(1.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
+					glPopMatrix();
+				}
+
 			}
 			#pragma omp section
 			{
-				//Renders a static rock ball
-				glPushMatrix();
-				glTranslatef(0.6, 0.0f, -0.0);
-
 				if (flag_obs == 0)
-					glColor3f(0.5f, 0.5f, 0.5f); //<R,G,B>
+				{
+					//TO-DO
+				}
 
 				if (flag_obs == -1)
+				{
+					//Renders a static rock obstacle
+					glPushMatrix();
 					glColor3f(1.0, 0.0, 0.0); //<R,G,B>
+					glTranslatef(0.0, 0.0f, -0.0);
+					drawRock();
+					std::string temp_x = " Obstacle Detected";
+					char *cstr_x = &temp_x[0u];
+					renderBitmapString(-0.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
+					glPopMatrix();
+				}
 
-				drawRock();
-				std::string temp_x = " Obstacle Detected";
-				char *cstr_x = &temp_x[0u];
-				renderBitmapString(1.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
-				glPopMatrix();
+
 			}
 		}
 		#pragma omp barrier
 	}
 
-	//#pragma omp parallel for private(i)
 	#pragma omp parallel for ordered schedule(dynamic)
 	for (int i = 0; i < _openGLRT_.past_x.size(); i++)
 	{
@@ -397,21 +449,23 @@ void renderTopDownScene()
 				std::string temp_x = " x: " + std::to_string(_openGLRT_.past_x[i]) + " y: " + std::to_string(_openGLRT_.past_z[i]);
 				char *cstr_x = &temp_x[0u];
 				renderBitmapString(0, 0.0f, 0, GLUT_BITMAP_HELVETICA_12, cstr_x);
-
 				drawCircle();
 				glPopMatrix();
 				
 				_openGLRT_.past_track_x.push_back(_openGLRT_.past_x[i]);
 				_openGLRT_.past_track_z.push_back(_openGLRT_.past_z[i]);
-
-				if (_openGLRT_.past_x.size() > 15)
-				{
-					// limit the display trail and pass it to another tracking function.
-					//_openGLRT_.past_x.erase(_openGLRT_.past_x.begin());
-					//_openGLRT_.past_z.erase(_openGLRT_.past_z.begin());
-				}
 			}
-		}
+		}//Pragma End
+
+		glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0); //<R,G,B>
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		glTranslatef(_openGLRT_.past_x[i], 0.0f, _openGLRT_.past_z[i]);
+		//glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
+		//drawRadCircle();
+		//drawLidarLine();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glPopMatrix();
 	}
 
 	//Draws the tracer red-line from the first point of view.
@@ -435,6 +489,7 @@ void renderTopDownScene()
 		glPopMatrix();
 	}
 
+	//Render Area
 	renderSubWindowScene();
 	glutSwapBuffers();
 }
@@ -487,8 +542,8 @@ void pressKey(GLint key, GLint xx, GLint yy)
 	{
 		case GLUT_KEY_LEFT:  _openGLKS_.deltaAngle  = -0.01f; break;
 		case GLUT_KEY_RIGHT: _openGLKS_.deltaAngle  = 0.01f; break;
-		case GLUT_KEY_UP:    _openGLKS_.deltaMove   = 0.3f; break;
-		case GLUT_KEY_DOWN:  _openGLKS_.deltaMove   = -0.3f; break;
+		case GLUT_KEY_UP:    _openGLKS_.deltaMove   = 0.2f; break;
+		case GLUT_KEY_DOWN:  _openGLKS_.deltaMove   = -0.2f; break;
 		case GLUT_KEY_SHIFT_L: flag_tennis = -1; break;
 		case GLUT_KEY_SHIFT_R: flag_obs    = -1; break;
 	}
