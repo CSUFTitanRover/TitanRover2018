@@ -17,17 +17,29 @@ sensors:
         verbose: false # [optional] [default = false] if debug is true, this prints out the raw data generated
         deepstreamServer: rover # [optional] [default = rover] Directs the current sensor to output it's data to a specific deepstream sensor ("homebase" or "rover")
         sensorType: default # [optional] [default = "default"] Decides what type of sensor is mocked up ("default" or "cycle")
-        ec: 
+        soil_moisture: 
             min: 0.85 # the min number the generated value will be 
             max: 1.1 # the max number the generated value will be 
             floatingPoint: true # controls if it's generated as a floating number
-        humidity:
-            min: 45
-            max: 50
-            floatingPoint: true
-        temperature:
+        soil_temperature:
             min: 13
-            max: 18.5
+            max: 14
+            floatingPoint: true
+    Altimeter:
+        path: science/altimeter
+        temperature:
+            min: 17
+            max: 18
+            floatingPoint: true
+        pressure:
+            min: 28
+            max: 32.25
+            floatingPoint: true
+    DHT-11:
+        path: science/dht
+        humidity:
+            min: 34
+            max: 35
             floatingPoint: true
     Atmospheric:
         path: science/atmospheric
@@ -36,13 +48,9 @@ sensors:
             min: 3
             max: 6
             floatingPoint: false
-        barometer:
-            min: 28
-            max: 32.25
-            floatingPoint: true
         uvIndex:
-            min: 0.9
-            max: 1.1
+            min: 2.8
+            max: 2.9
             floatingPoint: true
     Reach:
         path: rover/reach

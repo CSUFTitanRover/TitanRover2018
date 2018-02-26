@@ -90,6 +90,20 @@ class ComponentMenuList extends Component {
             componentprops={{ chartName: 'Decagon-5TE', subscriptionPath: 'science/decagon' }}
           />
           <ComponentMenuItem
+            title="Altimeter Realtime Chart"
+            componentname="RealtimeChart"
+            icon={<ShowChartIcon />}
+            className={classes.nested}
+            componentprops={{ chartName: 'Altimeter', subscriptionPath: 'science/altimeter' }}
+          />
+          <ComponentMenuItem
+            title="DHT Realtime Chart"
+            componentname="RealtimeChart"
+            icon={<ShowChartIcon />}
+            className={classes.nested}
+            componentprops={{ chartName: 'DHT', subscriptionPath: 'science/dht' }}
+          />
+          <ComponentMenuItem
             title="Atmospheric Realtime Chart"
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
