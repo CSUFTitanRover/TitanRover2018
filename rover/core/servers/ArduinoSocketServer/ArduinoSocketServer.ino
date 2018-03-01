@@ -397,8 +397,8 @@ void switchLEDs(int colorCode) {
     case 5:
         //Yellow
         digitalWrite(redPin, HIGH);
-        digitalWrite(bluePin, HIGH);
-        digitalWrite(greenPin, LOW);
+        digitalWrite(bluePin, LOW);
+        digitalWrite(greenPin, HIGH);
             
         break;
     case 6:
