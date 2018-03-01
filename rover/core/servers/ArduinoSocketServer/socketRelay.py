@@ -6,10 +6,12 @@
     and to accept a connection from a 433.400Mhz relay if we want to double the distance of our rover.
 """
 import select
+from sys import getsizeof
+from struct import *
 from threading import Thread
 from deepstream import get, post
 from subprocess import Popen, PIPE
-from time import sleep
+from time import sleep, time
 import socket
 import sys
 from relayFunctions import ep
@@ -18,12 +20,12 @@ from serial import Serial
 import os
 
 regex = r"([a-z])(-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,}),(-?\d{1,}\.?\d{1,}?)#"
+byteRegex = re.compile(b'a[\0-\xFF]{20,60}#$')
 
 initialTimeStamp = str(ep())
 ghzMessageAlpha   = [ 'a', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 hamMessageBravo   = [ 'b', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 hamMessageCharlie = [ 'c', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
-secondsOffset = 0
 
 # SET THE MODE TO MANUAL TEMPORARILY
 # post({"mode": "manual"}, "mode")
@@ -45,8 +47,35 @@ def filterData(s):
       return ""
 
 
-
-
+def depackageByteData(d):
+  """
+    This function takes a bytearray, and dpackages the
+    byte array as long as it matches the exact format comming
+    from the mobility code.
+    an example:
+      packed bytearray with the format 's 10h d 2f s'
+      please see python documentation on the struct library
+        'pack' and 'unpack' modules
+  """
+  h = bytearray()
+  #if re.search(byteRegex, d):
+  begin = False
+  for k in d:
+    if k == 'a' or k == 'b' or k == 'c' and begin == False:
+      h.append(k)
+      begin = True
+    elif k == '#' and begin == True:
+      h.append(k)
+      break
+    elif begin == True:
+      h.append(k)
+  a = None
+  try:
+    a = unpack('s 10h d 2f s', h)
+  except:
+    #print("could not unpack the data from message")
+    pass
+  return a
 
 
 """
@@ -55,31 +84,20 @@ def filterData(s):
 
 """
 def connectionToGhzAlpha():
-    global ghzMessageAlpha, secondsOffset
+    global ghzMessageAlpha
 
     while True:
         #print("GHZ LOOP")
         d, address = sock.recvfrom(512)
-        d = str(d.decode('utf-8'))
+        #d = str(d.decode('utf-8'))
         #print("Directly from mobility:", d)
         if d:
-            try:
-              fMessage = filterData(d)
-              #print("DataFromMobility", fMessage.group(2))
-              if fMessage != '':
-                ghzMessageAlpha = [ fMessage.group(1), fMessage.group(2), fMessage.group(3) ]
-                secondsOffset = ep() - float(ghzMessageAlpha[2])
-            except:
-                print("could not parse the regex")
-                pass
-
-            try:
-              sent = sock.sendto('r', address)
-            except:
-              print("couldn't send message back to base")
-        else:
-          print("Ghz data failed")
-
+          f = depackageByteData(d)
+          #print(f)
+          if f != None:
+            f = [f[0], ','.join(list(map(str, f[1:11]))), f[11], (f[12], f[13])]
+            ghzMessageAlpha = f
+            #print(f)
 
 
 """
@@ -96,46 +114,36 @@ except:
 
 def connectionToHamBravo():
     global hamMessageBravo
-    consecutiveMessages = ['-', '-']
+    consecutiveMessages = ['\x00', '\x00']
     mod2 = 1
-
+    
     while True:
-        mod2 = (mod2 + 1) % 2
-        try:
-          message = ser.read_all()
-          message = message.decode('utf-8')
-          print("New Ham Message: " + message)
-          try:
-            fMessage = filterData(message)
-            if fMessage != "":
-                hamMessageBravo = [ fMessage.group(1), fMessage.group(2), fMessage.group(3) ]
-                #print("successful Ham parse:" + hamMessageBravo[1])
-                #print("Ham:", hamMessage)
-            elif mod2 == 0:
-                consecutiveMessages[1] = message
-                fMessage = filterData(consecutiveMessages[0] + consecutiveMessages[1])
-                print("consecutive string: " + hamMessageBravo)
-                if fMessage != "":
-                    hamMessageBravo = [ fMessage.group(1), fMessage.group(2), fMessage.group(3) ]
-            elif mod2 == 1:
-                consecutiveMessages[0] = message
-                fMessage = filterData(consecutiveMessages[1] + consecutiveMessages[0])
-                print("consecutive string: " + hamMessageBravo)
-                if fMessage != "":
-                    hamMessageBravo = [ fMessage.group(1), fMessage.group(2), fMessage.group(3) ] 
-                    
-          except:
-            #print("something went wrong with parsing")
-            pass
-        
-        except:
-            #print("could not read serial device")
-            pass
-        sleep(0.08)
+      try:
+        message = ser.read_all()
+      except:
+        print('not reading serial device')
+      if message != '':
+        print(message)
+      f = depackageByteData(message)
+      consecutiveMessages[mod2] = message
+      if f == None:
+        if mod2 == 0:
+          f = depackageByteData( consecutiveMessages[1] + message)
+          if f != None:
+            hamMessageBravo = [f[0], ','.join(list(map(str, f[1:11]))), f[11], (f[12], f[13])]
+        elif mod2 == 1:
+          f = depackageByteData( consecutiveMessages[0] + message )
+          if f != None:
+            hamMessageBravo = [f[0], ','.join(list(map(str, f[1:11]))), f[11], (f[12], f[13])]
+      else:
+        hamMessageBravo = [f[0], ','.join(list(map(str, f[1:11]))), f[11], (f[12], f[13])]
+      #print(hamMessageBravo)
+      mod2 = (mod2 + 1) % 2
+      sleep(.06)
 
 
 def sendLatestMessage():
-    zed = [ 'z', '0,0,0,0,0,0,0,0,0,0', str(ep()) ]
+    zed = [ 'z', '0,0,0,0,0,0,0,0,0,0', str(round(time(), 3)) ]
     # Create a TCP/IP socket to the arduino
     sockArd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     #sockArd.setblocking(0)
@@ -145,7 +153,7 @@ def sendLatestMessage():
     data = "0,0,0,0,0,0,0,0,0,0"
     #sockArd.bind(arduino_address)
     sockArd.settimeout(10)
-    global ghzMessageAlpha, hamMessageBravo, mode, secondsOffset
+    global ghzMessageAlpha, hamMessageBravo, mode
     #while True:
     try:
       sockArd.sendto(data, arduino_address)
@@ -156,10 +164,9 @@ def sendLatestMessage():
     while True:
         # Ternary operator to check the time stamp of the message.
         # The greater the number (timestamp), the more recent the timestamp.
-        message = ghzMessageAlpha if float(ghzMessageAlpha[2]) > float(hamMessageBravo[2]) else hamMessageBravo
+        message = ghzMessageAlpha if float(ghzMessageAlpha[2]) >= float(hamMessageBravo[2]) else hamMessageBravo
+        #print('ready for arduino:', message)
         # Ternary operator to check if elapsed time is greater than 2 seconds
-        #print("DiffBetweenGhzAndHam:", ep () - float(message[2]) - secondsOffset)
-        #message = message if ep() - float(message[2]) - secondsOffset < 3 else zed
         #print(ghzMessageAlpha[2])
         d = None
         #print("waiting for 'r'")
@@ -176,11 +183,12 @@ def sendLatestMessage():
             #print("Did not get a message back from the arduino")
         #print("Ghz:", ghzMessageAlpha[0] + ghzMessageAlpha[1]+ str(ep() - float(ghzMessageAlpha[2])))
         #print(message)
+        #print('TIME DIFF:', time() - float(message[2]))
         # The message that will get sent to the arduino
-        if True: #ep() - float(message[2]) - secondsOffset < 10:
+        if time() - float(message[2]) < 1.5: #ep() - float(message[2]) - secondsOffset < 10:
           #try:
             if "mode" in mode:
-              if ep() - float(message[2]) - secondsOffset < 4:
+              if round(time(), 3) - float(message[2]) < 2:
                 if mode["mode"] == 'manual':
                   #print(message)
                   sockArd.sendto(message[1], arduino_address)
@@ -250,4 +258,3 @@ if os.getenv("roverType") is not None:
     t5.start()
 else:
     print("You need to set the environment variable roverType=\"rover\"")
-

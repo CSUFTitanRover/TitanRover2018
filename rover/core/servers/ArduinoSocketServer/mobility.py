@@ -11,10 +11,10 @@
 ### END INIT INFO
 
 from socket import *
+from struct import *
 from datetime import datetime
 import re
-import subprocess
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from threading import Thread
 from deepstream import post, get
 from time import sleep, time
@@ -25,18 +25,18 @@ import numpy as np
 import sys
 import os
 
-uname = str(Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode("utf-8"))
+uname = str(Popen([ "uname", "-m" ], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8"))
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
 isNvidia = True if uname == "aarch64\n" else False
 mobilityMode ={}
-goodSerialConnection = False
+gpsPoint = ( float(0), float(0) )
+serDevice = '/dev/ttyUSB0'
 
 try:
-  ser = Serial('/dev/ttyUSB0', 9600)
+  ser = Serial(serDevice, 9600)
   print(ser.is_open)
-  goodSerialConnection = True
 except:
-  print("FUCK")
+  print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
 
 
 if isPi:
@@ -103,9 +103,6 @@ def setRoverActions():
     #roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
 
 setRoverActions()  # Initiate roverActions to enter loop
-
-# Initialize connection to Arduino
-client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -174,28 +171,6 @@ def setLed():
         GPIO.output(redLed,GPIO.HIGH) if myLeds["R"] else GPIO.output(redLed,GPIO.LOW)
         GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
         GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
-
-"""
-def checkDsButton():
-    global dsButton, roverActions
-    if (not roverActions["auto"]["held"] and roverActions["auto"]["value"]):  # New button press
-        roverActions["auto"]["held"] = True
-        roverActions["auto"]["lastpress"] = datetime.now()
-    if (roverActions["auto"]["held"] and not roverActions["auto"]["value"]):  # Button held, but now released
-        roverActions["auto"]["held"] = False
-        dsButton = False
-    if (roverActions["auto"]["held"] and roverActions["auto"]["value"] and (
-        datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
-        roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
-        dsButton = True
-
-def requestControl():
-    try:
-        post({"mode": "manual"}, "mode")
-        print("Updated mode record")
-    except:
-        print("Cannot access mode record")
-"""
 
 def checkPause():
     global paused, roverActions
@@ -275,27 +250,8 @@ def checkHats(currentJoystick):
                         roverActions[control_input[0]]["value"] = val[y]
                         roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
 
-"""
-def sendToDeepstream():
-    global dsMode
-    while True:
-        try:
-            post({"mobilityTime": int(np.trunc(time()))}, "mobilityTime")
-            dsMode = get("mode")["mode"]
-        except:
-            #print("Cannot send to Deepstream")
-            pass 
-        sleep(1)
-"""
-
-def changeColorOfLedForHam(s):
-    regex = r"([a-z])(-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},)(-?\d{1,})(,\d{1,}\.\d{1,})"
-    if re.search(regex, s):
-        r = re.search(regex, s)
-        return 'b' + r.group(2) + '3,' + str(ep()) + '#'
-
 def main(*argv):
-    global paused, mobiliyMode
+    global paused, mobiliyMode, gpsPoint, ser
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -325,78 +281,136 @@ def main(*argv):
                 outVals = list(map(getZero, actionList))
             else:
                 outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
-            outVals = list(map(str, outVals))
-            outString = 'a' + ",".join(outVals) + ',' + str(ep()) + '#'
             
+	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
+            # we will also package the values to crunch the bytes down, instead of sending a string
+            
+            o = outVals
+            t = round(time(), 3)
+            ghzBytePack = pack('s 10h d 2f s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, gpsPoint[0], gpsPoint[1], '#'.encode('utf-8'))
+            hamBytePack = pack('s 10h d 2f s', 'b'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8],    3, t, gpsPoint[0], gpsPoint[1], '#'.encode('utf-8'))
+
             if "mode" in mobilityMode:
               if "roverType" in mobilityMode:
                 if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
                   try:
-                    client_socket.sendto(bytes(outString,"utf-8"), address)
+                    client_socket.sendto(ghzBytePack, address) # string bytes
                   except:
                     print("Couldn't send over Ghz")
-                  hamString = changeColorOfLedForHam(outString)
-                  print(hamString)
                   try:
-                    ser.write(hamString.encode())
-                    print()
+                    if os.environ['roverType'] == 'base':
+                      ser.write(hamBytePack) # packed bytes
                   except:
                     print("Coudn't send over Ham")
                 else:
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
               else:
                 print("The key 'roverType' is missing from the deepstream record: mode")
+              print(ghzBytePack)
+              print(hamBytePack)
+              print()
             else:
-              print("Not in Manual Mode, MobilityMode: " + str(mobilityMode))
-            print(outString)
-
-
+              print("Not in Manual Mode, MobilityMode: " + ' HAS NOT BEEN SET IN DEEPSTREAM' if mobilityMode == {} else str(mobilityMode))
 
 def updateTimeAndSyncDeepStream():
-    global mobilityMode
-    while True:
-        out, err = Popen(["ssh", "-o", "StrictHostKeyChecking=no", "root@192.168.1.2", "date +%s"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+  global gpsPoint
+  if 'roverType' in os.environ:
+    if os.environ['roverType'] == 'base': 
+      while True:
+        out, err = Popen(["ssh", "-o", "StrictHostKeyChecking=no", "root@192.168.1.2", "date +%s"], stdout=PIPE, stderr=PIPE).communicate()
         out = out.decode('utf-8')
-        err = err.decode()
-        print("OUT:", out)
-        print("ERR:", err)
+        err = err.decode('utf-8')
+        #print("OUT:", out)
+        if err != '':
+          print("TimeStamp Sync ERR:", err)
         if len(err) > 0:
             if err[0] == '@':
-                Popen(["ssh-keygen", "-f", "/root/.ssh/known_hosts", "-R", "192.168.1.2"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+                Popen(["ssh-keygen", "-f", "/root/.ssh/known_hosts", "-R", "192.168.1.2"], stdout=PIPE, stderr=PIPE).communicate()
         if out != "":
             date = out[:-1]
             Popen(["date", "-s", "@" + str(date)])
-        try:
-          m = get("mode", '192.168.1.2')
-          if type(m) == dict:
-            if "mode" in m and "roverType" in m and m != {}:
-              mobilityMode = m
-              sleep(.1)
-        except: 
-          try:
-            m = get("mode", "127.0.0.1")
-            print("Mode: " + str(m))
-            if type(m) == dict:
-              if "mode" in m and "roverType" in m and m != {}:
-                mobilityMode = m
-                sleep(.1)
-                if "roverType" in m and "roverType" in os.environ:
-                  if m["roverType"] == "base":
-                    try:
-                      post(mobilityMode, "mode", "192.168.1.2")
-                    except:
-                      print("could not post the mode over to the rover")
-                      pass          
-          except:
-            print("Not getting mobility mode from local deepstream")
-            pass
-        sleep(5)
+        sleep(10)
 
+def modeChecker():
+  global mobilityMode
+  while True:
+    try:
+      m = get("mode", '192.168.1.2')
+      if type(m) == dict:
+        if "mode" in m and "roverType" in m and m != {}:
+          mobilityMode = m
+    except: 
+      try:
+        sleep(0.1)
+        m = get("mode", "127.0.0.1")
+        print("Mode: " + str(m))
+        if type(m) == dict:
+          if "mode" in m and "roverType" in m and m != {}:
+            mobilityMode = m
+            sleep(1)
+            if "roverType" in m and "roverType" in os.environ:
+              if m["roverType"] == "base" and os.environ['roverType'] == 'base':
+                try:
+                  post(mobilityMode, "mode", "192.168.1.2")
+                except:
+                  print("could not post the mode over to the rover")
+                  pass          
+      except:
+        print("Not getting mobility mode from local deepstream")
+        pass
+    sleep(1)
+
+def getTheGpsBlast():
+  global gpsPoint, ser
+  if 'roverType' in os.environ:
+    if 'roverType' == 'base':
+      while True:
+        try:
+          """
+
+            record: gpsPoint
+            values:
+              { "gpsArr": [ 33.00000000, -117.000000000 ], "epoch": round(time(), 3) }
+            This function grabs the gps record from deepstream, so the main function
+            can blast that gps point over 3.4Ghz, and 433.400Mhz for the rover to pick 
+            up the data.  This is so the rover can receive a gps if it is outside the
+            range of network conntion, and getting sparse data packets.  We can update
+            The gpsPoint record from our UI by plotting a point on our map, and the 
+            mobility code will push that data out over two frequencies.
+          
+          """
+          try:
+            ser = Serial(serDevice, 9600)
+          except:
+            print("Serial Device is still not attached or not at:", serDevice)
+          gps = get("gpsPoint", 'localhost')
+          if type(gps) == dict:
+            if "gpsArr" in gps and 'epoch' in gps and os.environ["roverType"] == 'base':
+              if len(gps["gpsArr"]) == 2:
+                if time() - gps['epoch'] < 5:
+                  gpsPoint = ( gps["gpsArr"][0], gps["gpsArr"][1] )
+                  #print(gpsPoint)
+                else:
+                  sleep(.04)
+                  gpsPoint = ( float(0), float(0) )
+                  resetGpsPoint = {"gpsArr": [ float(0),float(0)],"epoch": round(time()+1000000, 3)}
+                  try:
+                    post( resetGpsPoint, "gpsPoint", "localhost" )
+                  except:
+                    print("Didn't set gps Points back to zero")
+        except:
+          print('No GPS Points Record is available')
+          pass
+      sleep(.5)
 
 if __name__ == '__main__':
   #main()
-  if goodSerialConnection and 'roverType' in os.environ:
+  if 'roverType' in os.environ:
     t1 = Thread(target = main)
     t2 = Thread(target = updateTimeAndSyncDeepStream)
+    t3 = Thread(target = getTheGpsBlast)
+    t4 = Thread(target = modeChecker)
     t1.start()
     t2.start()
+    t3.start()
+    t4.start()
