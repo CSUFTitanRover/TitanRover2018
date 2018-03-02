@@ -15,6 +15,8 @@ reach       = {}
 reachTail   = ""
 imu         = {}
 imuTail     = ""
+mode        = {}
+timeDiff    = {}
 keyIn       = 0
 
 path        = json.load(open('pathToTitanRover.json'))
@@ -77,7 +79,7 @@ def restartProcess(screenName):
     p = Popen(["screen", "-S", sn, "-X", "stuff", cmd], cwd=fullPath, stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
 def runWindow():
-    global keyIn, screen, iftop, imu, reach
+    global keyIn, screen, iftop, imu, reach, mode
     
     while keyIn != ord(chr(27)):
         screen = curses.initscr()
@@ -88,11 +90,13 @@ def runWindow():
         screen.addstr(2, 4, "To restart a process, type the number of the listed process", curses.color_pair(3))
         screen.addstr(3, 4, "To exit, hold the ESC key", curses.color_pair(3))
         screen.addstr(4, 4, "Process List:")
+        screen.addstr(4, 60, "Mode:")
+        screen.addstr(4, 78, "TimeDiff:")
         screen.addstr(6, 6,  "    imu:")
         screen.addstr(12, 6,  "    reach:")
         screen.addstr(18, 6, "1 - iftop: ")
 
-        
+        # information from imu record
         if type(imu) == dict:
             if imu == {}:
                 screen.addstr(6, 25, "WAITING ON IMU...", curses.color_pair(2))
@@ -112,6 +116,7 @@ def runWindow():
         elif type(imu) == str:
             screen.addstr(6, 25, str(imu), curses.color_pair(2))
         
+        # information from reach record
         if type(reach) == dict:
             if reach == {}:
                 screen.addstr(12, 25, "WAITING ON REACH...", curses.color_pair(2))
@@ -120,9 +125,11 @@ def runWindow():
         elif type(reach) == str:
             screen.addstr(12, 25, reach, curses.color_pair(2))
 
+
+        # information from iftop record
         if type(iftop) == dict:
             if iftop == {}:
-                screen.addstr(18, 25, "WAITING ON IFTOP...", curses.color_pair(2))
+                screen.addstr(18, 25, "NO_RECORD", curses.color_pair(2))
             else:
                 log = getTail("speed")
                 screen.addstr(18, 25, "IP Address:")
@@ -136,7 +143,26 @@ def runWindow():
         elif type(iftop) == str:
             screen.addstr(18, 25, iftop, curses.color_pair(2))
 
+        # information from the mode record
+        if type(mode) == dict:
+            if mode == {}:
+                screen.addstr(4, 66, "WAITING ON MODE...", curses.color_pair(2))
+            else:
+                screen.addstr(4, 66, mode["mode"], curses.color_pair(3))
+        elif type(mode) == str:
+            screen.addstr(4, 66, mode, curses.color_pair(2))
+
+        # information from the timeDiff record which tracks the difference in the timestamps
+        if type(timeDiff) == dict:
+            if timeDiff == {}:
+                screen.addstr(4, 88, "WAITING ON TIME...", curses.color_pair(2))
+            else:
+                screen.addstr(4, 88, timeDiff["timeDiff"], curses.color_pair(3))
+        elif type(mode) == str:
+            screen.addstr(4, 88, mode, curses.color_pair(2))
+
         screen.refresh()
+        sleep(.1)
 
         if keyIn == ord("1"):
             keyIn = 0
@@ -155,7 +181,7 @@ def runWindow():
 
 # This function is where you add the deepstream record for your screenName
 def getDataFromDeepstream():
-    global keyIn, screen, iftop, reach, imu
+    global keyIn, screen, iftop, reach, imu, mode
     while True:
         try:
             iftop = get("speed")
@@ -171,6 +197,16 @@ def getDataFromDeepstream():
             imu = get("imu")
         except:
             imu = {}
+        sleep(.08)
+        try:
+            mode = get("mode")
+        except:
+            mode = {}
+        sleep(.08)
+        try:
+            timeDiff = get("timeDiff")
+        except:
+            timeDiff = {}
         sleep(.08)
         if keyIn == ord(chr(27)):
             quit()

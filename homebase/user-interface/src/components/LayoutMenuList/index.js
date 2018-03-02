@@ -32,7 +32,7 @@ class LayoutMenuList extends Component {
   state = { open: this.props.open };
 
   handleSubmenuClick = () => {
-    this.setState({ open: !this.state.open });
+    this.setState(prevState => ({ open: !prevState.open }));
   };
 
   render() {
@@ -40,7 +40,7 @@ class LayoutMenuList extends Component {
 
     return (
       <List dense>
-        <ListItem button onClick={this.handleSubmenuClick}>
+        <ListItem button onClick={this.handleSubmenuClick} disabled>
           <ListItemIcon>
             <StarIcon />
           </ListItemIcon>
@@ -48,7 +48,7 @@ class LayoutMenuList extends Component {
           {this.state.open ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
 
-        <Collapse in={this.state.open} transitionDuration="auto">
+        <Collapse in={this.state.open}>
           <ListItem button className={classes.nested}>
             <ListItemIcon>
               <DeveloperBoardIcon />

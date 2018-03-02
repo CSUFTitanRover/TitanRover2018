@@ -1,0 +1,23 @@
+{
+  "deepstream": {
+    "homebase": {
+      "http": "localhost:3080",
+      "ws": "localhost:3020"
+    },
+    "rover": {
+      "http": "localhost:4080",
+      "ws": "localhost:4020"
+    }
+  },
+  "cameras": {
+    "base_ip": "localhost",
+    "base_port": "8080"
+  },
+  "roverAPI": {
+    "base_ip": "127.0.0.1",
+    "base_port": "5000"
+  },
+  "map": {
+    "style": "http://localhost:3050/styles/klokantech-basic/style.json"
+  }
+}
