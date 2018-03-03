@@ -29,6 +29,7 @@ const drawerWidth = 250;
 
 const styles = theme => ({
   topBar: {
+    width: '100vw',
     height: 65,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
@@ -36,8 +37,8 @@ const styles = theme => ({
     }),
   },
   topBarShift: {
+    width: `calc(100vw - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    width: '100%',
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
