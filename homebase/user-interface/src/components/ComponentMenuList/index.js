@@ -87,28 +87,28 @@ class ComponentMenuList extends Component {
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'Decagon-5TE', subscriptionPath: 'science/decagon' }}
+            componentprops={{ chartName: 'Decagon-5TE', eventName: 'science/decagon' }}
           />
           <ComponentMenuItem
             title="Altimeter Realtime Chart"
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'Altimeter', subscriptionPath: 'science/altimeter' }}
+            componentprops={{ chartName: 'Altimeter', eventName: 'science/altimeter' }}
           />
           <ComponentMenuItem
             title="DHT Realtime Chart"
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'DHT', subscriptionPath: 'science/dht' }}
+            componentprops={{ chartName: 'DHT', eventName: 'science/dht' }}
           />
           <ComponentMenuItem
             title="Atmospheric Realtime Chart"
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'Atmospheric', subscriptionPath: 'science/atmospheric' }}
+            componentprops={{ chartName: 'Atmospheric', eventName: 'science/atmospheric' }}
           />
           <ComponentMenuItem
             title="Rover API Settings"

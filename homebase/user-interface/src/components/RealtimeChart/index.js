@@ -11,7 +11,7 @@ import { withStyles } from 'material-ui/styles';
 import grey from 'material-ui/colors/grey';
 import blueGrey from 'material-ui/colors/blueGrey';
 import FlowChart from '../FlowChart/';
-import { DeepstreamSensorProvider } from '../../utils/deepstream';
+import DeepstreamPubSubProvider from '../../containers/DeepstreamPubSubProvider';
 
 /**
  * @see Available types can be found here: http://c3js.org/reference.html#data-type
@@ -44,8 +44,11 @@ class RealtimeChart extends Component {
     chartName: PropTypes.string,
     /** Material-UI styles object that is passed in via withStyles() */
     classes: PropTypes.object.isRequired,
-    /** The subscription path the chart will listen to. */
-    subscriptionPath: PropTypes.string.isRequired,
+    /** The eventName(s) the chart will listen to. */
+    eventName: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string)],
+    ).isRequired,
   }
 
   static defaultProps = {
@@ -70,9 +73,13 @@ class RealtimeChart extends Component {
     }
   }
 
+  handleNewPayload = (payload) => {
+    this.setState({ currentDataPoint: payload });
+  }
+
   render() {
-    const { classes, subscriptionPath } = this.props;
-    const { chartType } = this.state;
+    const { classes, eventName } = this.props;
+    const { chartType, currentDataPoint } = this.state;
 
     // make a copy of props for the flow chart but exclude the chart type and current data point
     // since those are going to be managed by this component directly
@@ -81,8 +88,8 @@ class RealtimeChart extends Component {
     delete flowChartProps.currentDataPoint;
 
     return (
-      <DeepstreamSensorProvider subscriptionPath={subscriptionPath}>
-        {(currentDataPoint, subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+      <DeepstreamPubSubProvider eventName={eventName} onNewPayload={this.handleNewPayload}>
+        {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
           <Grid
             container
             spacing={16}
@@ -130,7 +137,7 @@ class RealtimeChart extends Component {
             </Grid>
           </Grid >
         )}
-      </DeepstreamSensorProvider>
+      </DeepstreamPubSubProvider>
     );
   }
 }

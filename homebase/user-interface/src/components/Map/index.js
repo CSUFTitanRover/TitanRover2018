@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactMapGL, { NavigationControl } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import has from 'lodash.has';
-import { DeepstreamRecordProvider } from '../../utils/deepstream';
+import DeepstreamRecordProvider from '../../containers/DeepstreamRecordProvider/';
 
 /** An offline map that is hooked up into Deepstream to
  * listen for IMU, Reach, and Waypoints record updates.
@@ -37,7 +37,7 @@ class Map extends Component {
     pitch: 0,
   };
 
-  state = { viewport: this.DEFAULT_VIEWPORT }
+  state = { viewport: this.DEFAULT_VIEWPORT, currentDataPoint: {} }
 
   _updateViewport = (viewport) => {
     this.setState({ viewport });
@@ -84,10 +84,21 @@ class Map extends Component {
     );
   }
 
+  handleNewPayload = (payload) => {
+    const { currentDataPoint } = this.state;
+
+    // let's copy the payload and overwrite any keys in currentDataPoint
+    // this is done to avoid updating the currentDataPoint without losing any keys
+    // that we need
+    this.setState({ currentDataPoint: { ...currentDataPoint, ...payload } });
+  }
+
   render() {
+    const { currentDataPoint } = this.state;
+
     return (
-      <DeepstreamRecordProvider recordPath={['rover/reach', 'rover/imu']} >
-        {(currentDataPoint, subscribed) => this.renderMap(currentDataPoint, subscribed)}
+      <DeepstreamRecordProvider recordPath={['rover/reach', 'rover/imu']} onNewPayload={this.handleNewPayload}>
+        {subscribed => this.renderMap(currentDataPoint, subscribed)}
       </DeepstreamRecordProvider >
     );
   }
