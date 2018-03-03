@@ -5,39 +5,77 @@ import React, { Component } from 'react';
 const deepstream = require('deepstream.io-client-js');
 const appSettings = require('../app-settings.json');
 
-const { rover } = appSettings.deepstream;
-let client; // singleton list of clients for each server URL
+const { rover, homebase } = appSettings.deepstream;
+let roverClient; // singleton for deepstream client connected to the rover
+let homebaseClient; // singleton for deepstream client connected to the homebase
 
 /**
  * Returns a Promise that resolves a deepstream client object.
  *
- * @param {string} endpoint: the URL of the deepstream server (defaults to rover.ws)
+ * @param {string} clientType: the type of deepstream client to use. Can be "rover" or "homebase"
  */
-export function getClient(endpoint = rover.ws) {
+export function getClient(clientType) {
+  let endpoint;
+  let client;
+  switch (clientType) {
+    case 'rover':
+      endpoint = rover.ws;
+      client = roverClient;
+      break;
+    case 'homebase':
+      endpoint = homebase.ws;
+      client = homebaseClient;
+      break;
+    default:
+      throw new SyntaxError('clientType must be either "rover" or "homebase".');
+  }
+
+
   return new Promise((resolve, reject) => {
     if (client !== undefined) {
       resolve(client);
-    } else {
-      client = deepstream(endpoint);
+    } else if (client === undefined) {
+      // we need to get the deepstream client with the clientType in mind
+      if (clientType === 'rover') {
+        roverClient = deepstream(endpoint);
 
-      client.on('error', (error) => {
-        reject(error);
-      });
+        roverClient.on('error', (error) => {
+          reject(error);
+        });
 
-      client.login({}, (success) => {
-        if (success) {
-          resolve(client);
-        } else {
-          reject('Deepstream Client Login was not successful.');
-        }
-      });
+        roverClient.login({}, (success) => {
+          if (success) {
+            resolve(roverClient);
+          } else {
+            reject('Deepstream Client Login was not successful.');
+          }
+        });
+      } else {
+        homebaseClient = deepstream(endpoint);
+        homebaseClient.on('error', (error) => {
+          reject(error);
+        });
+
+        homebaseClient.login({}, (success) => {
+          if (success) {
+            resolve(homebaseClient);
+          } else {
+            reject('Deepstream Client Login was not successful.');
+          }
+        });
+      }
     }
   });
 }
 
-// Closes the client connection to deepstream
-export function closeClient() {
-  client.close();
+// Closes the rover client connection to deepstream
+export function closeRoverClient() {
+  roverClient.close();
+}
+
+// Closes the homebase client connection to deepstream
+export function closeHomebaseClient() {
+  homebaseClient.close();
 }
 
 /**

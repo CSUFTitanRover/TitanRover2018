@@ -29,10 +29,13 @@ class DeepstreamPubSubProvider extends PureComponent {
      * @param {string} eventName - The name of the event that was updated.
      */
     onNewPayload: PropTypes.func,
+    /** The type of deepstream client to use. Can be "rover" or "homebase". */
+    clientType: PropTypes.string,
   }
 
   static defaultProps = {
     onNewPayload: null,
+    clientType: 'rover',
   }
 
   client = null;
@@ -45,7 +48,7 @@ class DeepstreamPubSubProvider extends PureComponent {
 
   async componentDidMount() {
     try {
-      this.client = await getClient();
+      this.client = await getClient(this.props.clientType);
       this.multipleEvents = (this.props.eventName instanceof Array);
       // automatically start subscribing to changes
       this.subscribeToUpdates();

@@ -29,10 +29,13 @@ class DeepstreamRecordProvider extends PureComponent {
      * @param {string} recordName - The name of the record that was updated.
      */
     onNewPayload: PropTypes.func,
+    /** The type of deepstream client to use. Can be "rover" or "homebase". */
+    clientType: PropTypes.string,
   }
 
   static defaultProps = {
     onNewPayload: null,
+    clientType: 'rover',
   }
 
   client = null;
@@ -47,8 +50,8 @@ class DeepstreamRecordProvider extends PureComponent {
 
   async componentDidMount() {
     try {
-      const { recordPath } = this.props;
-      this.client = await getClient();
+      const { recordPath, clientType } = this.props;
+      this.client = await getClient(clientType);
 
       if (typeof recordPath === 'string') {
         this.record = await getRecord(this.client, recordPath);
