@@ -152,4 +152,4 @@ export default StopwatchWithStyles;
  *  across all devices connected to deepstream.  The data is stored
  *  under the record 'ui/stopwatch'.
  */
-export const DeepstreamStopwatch = withDeepstreamState(StopwatchWithStyles, 'ui/stopwatch', ['active', 'startTime', 'accTime']);
+export const DeepstreamStopwatch = withDeepstreamState(StopwatchWithStyles, 'homebase', 'ui/stopwatch', ['active', 'startTime', 'accTime']);

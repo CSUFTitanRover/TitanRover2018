@@ -115,13 +115,13 @@ export function getRecordList(dsClient, path) {
  * recordName: The deepstream record name
  * states: list of states to listen for changes
  */
-export function withDeepstreamState(WrappedComponent, recordName, states) {
+export function withDeepstreamState(WrappedComponent, clientType = 'rover', recordName, states) {
   return class DeepStreamWrapper extends Component {
     constructor(props) {
       super(props);
 
       // Get the deepstream client, then get the record
-      getClient().then((result) => {
+      getClient(clientType).then((result) => {
         this.client = result;
         this.record = this.client.record.getRecord(recordName);
         this.record.subscribe(this.handleDataChange, true);
