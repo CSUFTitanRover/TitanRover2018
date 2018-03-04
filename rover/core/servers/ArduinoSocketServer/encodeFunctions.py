@@ -75,34 +75,26 @@ def decodeLatLon(s):
 # Encodes Epoch Time in milliseconds
 def encodedEpoch():
   ms = int(round(time(), 3) * 1000)
-  return str(n2a(ms))
+  return str(n2a(ms)).replace('\n', '')
 
 # Decodes Epoch Time
 def decodeEpoch(s):
   return float(a2n(s)) / 1000
 
-
- 
 """
 # Section to test numbers:
-
-e = encodedEpoch()
-print(e)
-print(decodeEpoch(e))
 
 ll = (33.783859375, -117.483958304) 
 print(ll)
 e = encodedLatLon(ll)
-print("encoded: ", e)
+print("encodedLatLon:", e)
 d = decodeLatLon(e)
-print("decodeLatLon:", d)
+print("LatLon Decoded:", d)
 
-
-print("epoch: " + str(time()))
-print("encodedVersion: " + encodedEpoch())
 v = encodedEpoch()
 print(v)
+print("epoch: " + str(time()))
+print("encodedVersionOfEpoch: " + v)
 print("decoded: " + str(decodeEpoch(v)))
+
 """
-
-
