@@ -12,13 +12,14 @@
 
 from socket import *
 from datetime import datetime
+import re
 import subprocess
 from subprocess import Popen
 from threading import Thread
 from deepstream import post, get
 from time import sleep, time
 from relayFunctions import ep
-import serial
+from serial import Serial
 import pygame
 import numpy as np
 import sys
@@ -26,7 +27,16 @@ import os
 
 uname = str(Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode("utf-8"))
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
-isNvidia = True if uname == "arm64\n" else False
+isNvidia = True if uname == "aarch64\n" else False
+mobilityMode ={}
+goodSerialConnection = False
+
+try:
+  ser = Serial('/dev/ttyUSB0', 9600)
+  print(ser.is_open)
+  goodSerialConnection = True
+except:
+  print("FUCK")
 
 
 if isPi:
@@ -44,9 +54,10 @@ if isPi:
 sleep(5)
 
 # Tx2 address and connection info
-address = ("192.168.1.16", 5001)
+address = ("192.168.1.2", 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
-client_socket.settimeout(0.5)
+client_socket.settimeout(1)
+
 
 # Initialize pygame and joysticks
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -164,7 +175,7 @@ def setLed():
         GPIO.output(greenLed,GPIO.HIGH) if myLeds["G"] else GPIO.output(greenLed,GPIO.LOW)
         GPIO.output(blueLed,GPIO.HIGH) if myLeds["B"] else GPIO.output(blueLed,GPIO.LOW)
 
-'''
+"""
 def checkDsButton():
     global dsButton, roverActions
     if (not roverActions["auto"]["held"] and roverActions["auto"]["value"]):  # New button press
@@ -184,7 +195,7 @@ def requestControl():
         print("Updated mode record")
     except:
         print("Cannot access mode record")
-'''
+"""
 
 def checkPause():
     global paused, roverActions
@@ -264,7 +275,7 @@ def checkHats(currentJoystick):
                         roverActions[control_input[0]]["value"] = val[y]
                         roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
 
-'''
+"""
 def sendToDeepstream():
     global dsMode
     while True:
@@ -272,13 +283,19 @@ def sendToDeepstream():
             post({"mobilityTime": int(np.trunc(time()))}, "mobilityTime")
             dsMode = get("mode")["mode"]
         except:
-            print("Cannot send to Deepstream")
+            #print("Cannot send to Deepstream")
             pass 
         sleep(1)
-'''
+"""
+
+def changeColorOfLedForHam(s):
+    regex = r"([a-z])(-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},-?\d{1,},)(-?\d{1,})(,\d{1,}\.\d{1,})"
+    if re.search(regex, s):
+        r = re.search(regex, s)
+        return 'b' + r.group(2) + '3,' + str(ep()) + '#'
 
 def main(*argv):
-    global paused
+    global paused, mobiliyMode
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -298,28 +315,88 @@ def main(*argv):
             checkPause()
             checkModes()
             setLed()
-            print("Sending Tx2 command")
-            try:
-                re_data = client_socket.recvfrom(512)
-                #print(bytes.decode(re_data[0]))  # Debug
-                if bytes.decode(re_data[0]) == "r":
-                        #print("Received packet")  # Debug
-                    if paused:
-                        outVals = list(map(getZero, actionList))
-                    else:
-                        outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
-                    outVals = list(map(str, outVals))
-                    outString = 'a' + ",".join(outVals) + ',' + str(ep()) + '#'
+            #print("Sending Tx2 command")
+            
+            #re_data = client_socket.recvfrom(512)
+            #print(bytes.decode(re_data[0]))  # Debug
+            #if bytes.decode(re_data[0]) == "r":
+            #        print("Received packet")  # Debug
+            if paused:
+                outVals = list(map(getZero, actionList))
+            else:
+                outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
+            outVals = list(map(str, outVals))
+            outString = 'a' + ",".join(outVals) + ',' + str(ep()) + '#'
+            
+            if "mode" in mobilityMode:
+              if "roverType" in mobilityMode:
+                if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
+                  try:
                     client_socket.sendto(bytes(outString,"utf-8"), address)
-                    print(outString)
-            except:
-                print("Send failed")
+                  except:
+                    print("Couldn't send over Ghz")
+                  hamString = changeColorOfLedForHam(outString)
+                  print(hamString)
+                  try:
+                    ser.write(hamString.encode())
+                    print()
+                  except:
+                    print("Coudn't send over Ham")
+                else:
+                  print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
+              else:
+                print("The key 'roverType' is missing from the deepstream record: mode")
+            else:
+              print("Not in Manual Mode, MobilityMode: " + str(mobilityMode))
+            print(outString)
+
+
+
+def updateTimeAndSyncDeepStream():
+    global mobilityMode
+    while True:
+        out, err = Popen(["ssh", "-o", "StrictHostKeyChecking=no", "root@192.168.1.2", "date +%s"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        out = out.decode('utf-8')
+        err = err.decode()
+        print("OUT:", out)
+        print("ERR:", err)
+        if len(err) > 0:
+            if err[0] == '@':
+                Popen(["ssh-keygen", "-f", "/root/.ssh/known_hosts", "-R", "192.168.1.2"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
+        if out != "":
+            date = out[:-1]
+            Popen(["date", "-s", "@" + str(date)])
+        try:
+          m = get("mode", '192.168.1.2')
+          if type(m) == dict:
+            if "mode" in m and "roverType" in m and m != {}:
+              mobilityMode = m
+              sleep(.1)
+        except: 
+          try:
+            m = get("mode", "127.0.0.1")
+            print("Mode: " + str(m))
+            if type(m) == dict:
+              if "mode" in m and "roverType" in m and m != {}:
+                mobilityMode = m
+                sleep(.1)
+                if "roverType" in m and "roverType" in os.environ:
+                  if m["roverType"] == "base":
+                    try:
+                      post(mobilityMode, "mode", "192.168.1.2")
+                    except:
+                      print("could not post the mode over to the rover")
+                      pass          
+          except:
+            print("Not getting mobility mode from local deepstream")
+            pass
+        sleep(5)
+
 
 if __name__ == '__main__':
-    main()
-'''
+  #main()
+  if goodSerialConnection and 'roverType' in os.environ:
     t1 = Thread(target = main)
-    t2 = Thread(target = sendToDeepstream)
+    t2 = Thread(target = updateTimeAndSyncDeepStream)
     t1.start()
     t2.start()
-'''
