@@ -1,3 +1,4 @@
+from sys import version_info
 from codecs import encode, decode
 from base64 import b64decode
 from time import time
@@ -25,20 +26,33 @@ def lon2a(lon):
 
 # Encoded Hex back to Number
 def a2n(alpha):
-  n = b64decode(alpha).hex()
-  n = int(n, 16)
+  alpha = alpha.replace('\n', '')
+  if version_info[0] < 3:
+    n = b64decode(alpha)
+    n = int(n.encode('hex'), 16)
+  else:
+    n = b64decode(alpha).hex()
+    n = int(n, 16)
   return n
 
 # Encoded Lat back to Number
 def a2lat(lat):
-  n = b64decode(lat).hex()
-  n = int(n, 16)
+  if version_info[0] < 3:
+    n = b64decode(lat)
+    n = int(n.encode('hex'), 16)
+  else:
+    n = b64decode(lat).hex()
+    n = int(n, 16)
   return n
 
 # Encoded Lon Back to Number (converts back to negative)
 def a2lon(lon):
-  n = b64decode(lon).hex()
-  n = int(n, 16)
+  if version_info[0] < 3:
+    n = b64decode(lon)
+    n = int(n.encode('hex'), 16)
+  else:
+    n = b64decode(lon).hex()
+    n = int(n, 16)
   return n * -1
 
 # Encodes tha Lat and Lon
@@ -68,7 +82,7 @@ def decodeEpoch(s):
   return float(a2n(s)) / 1000
 
 
-"""  
+ 
 
 # Section to test numbers:
 
@@ -91,4 +105,4 @@ print(v)
 print("decoded: " + str(decodeEpoch(v)))
 
 
-"""
+
