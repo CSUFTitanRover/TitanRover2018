@@ -25,9 +25,7 @@ def lon2a(lon):
 
 # Encoded Hex back to Number
 def a2n(alpha):
-  print(alpha)
   n = b64decode(alpha).hex()
-  print('a2n', n)
   n = int(n, 16)
   return n
 
@@ -56,7 +54,6 @@ def decodeLatLon(s):
   s = s.split(',')
   if len(s) == 2:
     t = (float(a2lat(s[0])) / 1000000000, float(a2lon(s[1])) / 1000000000)
-    #print(t)
     return t
   else:
     return None
@@ -64,7 +61,6 @@ def decodeLatLon(s):
 # Encodes Epoch Time in milliseconds
 def encodedEpoch():
   ms = int(round(time(), 3) * 1000)
-  #print(ms)
   return str(n2a(ms))
 
 # Decodes Epoch Time
