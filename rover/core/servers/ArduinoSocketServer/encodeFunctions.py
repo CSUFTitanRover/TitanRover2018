@@ -83,7 +83,7 @@ def decodeEpoch(s):
 
 
  
-
+"""
 # Section to test numbers:
 
 e = encodedEpoch()
@@ -103,6 +103,6 @@ print("encodedVersion: " + encodedEpoch())
 v = encodedEpoch()
 print(v)
 print("decoded: " + str(decodeEpoch(v)))
-
+"""
 
 
