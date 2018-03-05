@@ -1,4 +1,4 @@
-import Camera from '../../components/Camera/';
+import Camera from '../CameraContainer/';
 import DefaultChart from '../../components/DefaultChart/';
 import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
