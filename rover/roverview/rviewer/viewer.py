@@ -55,7 +55,7 @@ GREENRIGHT = (GREENPT[0] + LEN, GREENPT[1] - LEN)
 centerRect = pg.Rect(CRECTL, CRECTT, CRECTW, CRECTH)
 
 
-pg.display.set_caption("Titan Rover Viz")
+pg.display.set_caption("Autonomous Tennis Ball Search")
 
 
 
@@ -74,8 +74,8 @@ class Viewer:
         return (90 - targetHeading) % 360
     
     def flashArrivalMsg(self, point, arrivalTime):
-        flashFont = pg.font.SysFont('Calibri', 50, True, False)
-        arrivalText = flashFont.render("ARRIVED!", True, BLACK)
+        flashFont = pg.font.SysFont('Calibri', 35, True, False)
+        arrivalText = flashFont.render("-TENNIS BALL FOUND-", True, BLACK)
         pointText = flashFont.render("Waypoint: " + str(point), True, BLACK)
         timeText = flashFont.render("Time: " + str(arrivalTime), True, BLACK)
         for i in range(6):
