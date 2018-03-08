@@ -11,7 +11,7 @@ import { withStyles } from 'material-ui/styles';
 import grey from 'material-ui/colors/grey';
 import blueGrey from 'material-ui/colors/blueGrey';
 import FlowChart from '../FlowChart/';
-import DeepstreamPubSubProvider from '../../containers/DeepstreamPubSubProvider';
+import DeepstreamPubSubProvider from '../../utils/DeepstreamPubSubProvider';
 
 /**
  * @see Available types can be found here: http://c3js.org/reference.html#data-type

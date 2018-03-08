@@ -74,7 +74,7 @@ class StartAutonomyButton extends Component {
                     </Grid>
 
                     <Grid item>
-                      <Typography variant="display4" id="simple-modal-description">
+                      <Typography variant="display1" id="simple-modal-description">
                         Successfully completed the autonomous task!
                       </Typography>
                     </Grid>

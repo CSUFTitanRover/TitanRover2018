@@ -1,6 +1,7 @@
 /* eslint-disable react/no-multi-comp */
 
 import React, { Component } from 'react';
+import isEmpty from 'lodash.isempty';
 
 const deepstream = require('deepstream.io-client-js');
 const appSettings = require('../appSettings.json');
@@ -257,9 +258,17 @@ export function syncInitialRecordState(dsClient, recordPath, componentInitialSta
       } else {
         // get a snapshot of the current record data to "update" this component's state
         dsClient.record.snapshot(recordPath, (e, data) => {
+          // there is a bug that I assume is due to the drag source of Golden Layout
+          // but when the component is being dragged it initializes the deepstream
+          // record with an empty object as its data so we must double check
           if (e) {
             reject(e);
+          } else if (isEmpty(data)) {
+            // sync the initial state up to the deepstream record (state -> deepstream)
+            dsClient.record.setData(recordPath, componentInitialState);
+            resolve('Successfully initialized record with component state.');
           } else {
+            // sync deepstream record down to component state (deepstream -> state)
             this.setState(data);
             resolve('Successfully synced up component state with the existing record state.');
           }

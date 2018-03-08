@@ -1,4 +1,4 @@
-import Camera from '../CameraContainer/';
+import Camera from '../../components/Camera/';
 import DefaultChart from '../../components/DefaultChart/';
 import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
@@ -8,6 +8,7 @@ import ResizeAwareMap from '../../components/ResizeAwareMap/';
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
  * @param {string} componentname - The component name must match a registered GL component
+ * @param {Object} componentprops - An optional object you can pass in as props to the component
  * @param {HTMLElement} element - The source html dom element the drag source function will bind to
  * @param {GoldenLayout} glNode
  */

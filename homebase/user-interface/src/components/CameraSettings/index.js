@@ -18,7 +18,7 @@ import blueGrey from 'material-ui/colors/blueGrey';
 import shortid from 'shortid';
 import { toast } from 'react-toastify';
 import appSettings from '../../appSettings.json';
-import DeepstreamRecordProvider from '../../containers/DeepstreamRecordProvider';
+import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider';
 import { getClient, syncInitialRecordState } from '../../utils/deepstream';
 
 const styles = theme => ({
@@ -42,9 +42,13 @@ const styles = theme => ({
   },
 });
 
-class CameraSettingControls extends PureComponent {
+/** The camera settings allows you to change the current IP and protocol
+ * the stream is connection to. In addition, you can toggle on or off the
+ * camera, save the current image onto the rover, and change the stream quality.
+ */
+class CameraSettings extends PureComponent {
   static propTypes = {
-    /** Property passed in from Material UI withStyles */
+    /** Property passed in from Material UI withStyles() */
     classes: PropTypes.object.isRequired,
     /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
@@ -55,9 +59,7 @@ class CameraSettingControls extends PureComponent {
      *  Defaults to the option in appSettings.json if no prop is received */
     basePort: PropTypes.string,
     /** Refers to the protocol transport used (e.g. http or https) */
-    protocol: PropTypes.string,
-    /** Handles changing the base IP of the camera stream source in the Camera Component */
-    cameraWrapperBaseIPChange: PropTypes.func.isRequired,
+    protocol: PropTypes.oneOf(['http', 'https']),
   }
 
   static defaultProps = {
@@ -72,7 +74,7 @@ class CameraSettingControls extends PureComponent {
 
   state = {
     streamQuality: 'mid',
-    streamOnline: true,
+    streamIsOffline: true,
     baseIP: this.props.baseIP,
     protocol: this.props.protocol,
   }
@@ -96,9 +98,9 @@ class CameraSettingControls extends PureComponent {
 
   handleStreamQualityChange = async ({ target }) => {
     try {
-      const state = { streamQuality: target.value };
-      await this._modifyStreamQuality(target.value);
-      this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
+      const streamQuality = target.value;
+      await this._modifyStreamQuality(streamQuality);
+      this.dsHomebaseClient.record.setData(this.computedRecordPath, 'streamQuality', streamQuality);
     } catch (err) {
       toast.error(`${err.name}: ${err.message}. Unable to set motion stream quality & maxrate.`);
     }
@@ -141,25 +143,26 @@ class CameraSettingControls extends PureComponent {
 
   handleStreamActivityChange = async () => {
     try {
-      const state = { streamOnline: !this.state.streamOnline };
-      await this._toggleStreamActivity(state.streamOnline);
-      this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
+      const streamIsOffline = !this.state.streamIsOffline;
+      await this._toggleStreamActivity(streamIsOffline);
+      this.dsHomebaseClient.record.setData(this.computedRecordPath, 'streamIsOffline', streamIsOffline);
     } catch (err) {
       toast.error(`${err.name}: ${err.message}. Unable to modify stream activity.`);
     }
   }
 
-  _toggleStreamActivity = (turnOff) => {
+  _toggleStreamActivity = (streamIsOffline) => {
     const { basePort, cameraID } = this.props;
     const { baseIP, protocol } = this.state;
 
-    if (turnOff) {
-      // turn the stream off
-      return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
+    if (streamIsOffline) {
+      // turn the stream on
+      const newStreamPort = `${basePort.slice(0, -1)}${cameraID}`;
+
+      return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
     }
-    // turn the stream on
-    const newStreamPort = `${basePort.slice(0, -1)}${cameraID}`;
-    return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
+    // turn the stream off
+    return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
   }
 
   handleSaveImage = async () => {
@@ -174,21 +177,20 @@ class CameraSettingControls extends PureComponent {
   }
 
   handleBaseIPChange = ({ target }) => {
-    const state = { baseIP: target.value };
-    this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
-    this.props.cameraWrapperBaseIPChange(target.value);
+    const baseIP = target.value;
+    this.dsHomebaseClient.record.setData(this.computedRecordPath, 'baseIP', baseIP);
   }
 
   handleProtocolChange = ({ target }) => {
-    const state = { protocol: target.value };
-    this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
+    const protocol = target.value;
+    this.dsHomebaseClient.record.setData(this.computedRecordPath, 'protocol', protocol);
   }
 
   handleNewPayload = (payload) => { this.setState(payload); }
 
   render() {
     const { classes } = this.props;
-    const { streamQuality, streamOnline, baseIP, protocol } = this.state;
+    const { streamQuality, streamIsOffline, baseIP, protocol } = this.state;
 
     return (
       <DeepstreamRecordProvider
@@ -239,14 +241,14 @@ class CameraSettingControls extends PureComponent {
               </FormControl>
               <FormControl className={classes.formControl}>
                 <FormControlLabel
-                  label={`Stream ${streamOnline ? 'Online' : 'Offline'}`}
+                  label={`Stream ${streamIsOffline ? 'Online' : 'Offline'}`}
                   control={
                     <Switch
                       classes={{
                         checked: classes.checked,
                         bar: classes.bar,
                       }}
-                      checked={streamOnline}
+                      checked={streamIsOffline}
                       onChange={this.handleStreamActivityChange}
                       aria-label="Stream Activity Switch"
                     />}
@@ -263,4 +265,4 @@ class CameraSettingControls extends PureComponent {
     );
   }
 }
-export default withStyles(styles)(CameraSettingControls);
+export default withStyles(styles)(CameraSettings);

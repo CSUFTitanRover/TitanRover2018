@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactMapGL, { NavigationControl } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import has from 'lodash.has';
-import DeepstreamRecordProvider from '../../containers/DeepstreamRecordProvider/';
+import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
 
 /** An offline map that is hooked up into Deepstream to
  * listen for IMU, Reach, and Waypoints record updates.
