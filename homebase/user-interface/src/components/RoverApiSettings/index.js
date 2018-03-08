@@ -14,7 +14,7 @@ import ClearIcon from 'material-ui-icons/Clear';
 import PowerIcon from 'material-ui-icons/PowerSettingsNew';
 import RestoreIcon from 'material-ui-icons/SettingsBackupRestore';
 import SyncIcon from 'material-ui-icons/Sync';
-import appSettings from '../../app-settings.json';
+import appSettings from '../../appSettings.json';
 
 // taken from /rover/core/process-manager/processses.json
 // CRA does not allow imports from outside the /src folder

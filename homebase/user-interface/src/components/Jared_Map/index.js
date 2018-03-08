@@ -16,7 +16,7 @@ import ReactMapGL, { NavigationControl } from 'react-map-gl';
 import WaypointMarker from './WaypointMarker';
 import WaypointPane from './WaypointPane';
 
-const appSettings = require('../../app-settings.json');
+const appSettings = require('../../appSettings.json');
 
 // Test data - remove later
 const TEST_WAYPOINTS = [

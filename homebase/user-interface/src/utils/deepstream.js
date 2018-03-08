@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 
 const deepstream = require('deepstream.io-client-js');
-const appSettings = require('../app-settings.json');
+const appSettings = require('../appSettings.json');
 
 const { rover, homebase } = appSettings.deepstream;
 let roverClient; // singleton for deepstream client connected to the rover

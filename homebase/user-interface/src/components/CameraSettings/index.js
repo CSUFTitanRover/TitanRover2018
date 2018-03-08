@@ -14,15 +14,20 @@ import Switch from 'material-ui/Switch';
 import TextField from 'material-ui/TextField';
 import green from 'material-ui/colors/green';
 import grey from 'material-ui/colors/grey';
+import blueGrey from 'material-ui/colors/blueGrey';
 import shortid from 'shortid';
-import appSettings from '../../app-settings.json';
+import appSettings from '../../appSettings.json';
+import DeepstreamRecordProvider from '../../containers/DeepstreamRecordProvider';
+import { getClient } from '../../utils/deepstream';
+
+window.ds = null;
 
 const styles = theme => ({
   root: {
     width: '100%',
   },
   appbar: {
-    backgroundColor: '#222',
+    backgroundColor: blueGrey[100],
   },
   cameraLabel: {
     color: grey[200],
@@ -48,10 +53,10 @@ class CameraSettingControls extends PureComponent {
     /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
     /** The base IP of all camera strings. (e.g. http::/localhost)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     baseIP: PropTypes.string,
     /** The base port of all camera strings. (e.g. 8080)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     basePort: PropTypes.string,
     /** Refers to the protocol transport used (e.g. http or https) */
     protocol: PropTypes.string,
@@ -65,16 +70,34 @@ class CameraSettingControls extends PureComponent {
     protocol: 'http',
   }
 
+  cameraSettingControlsID = shortid.generate();
+  dsHomebaseClient = null;
+  computedRecordPath = `homebase/cameras/${this.props.cameraID}`
+
   state = {
     streamQuality: 'mid',
     streamOnline: true,
     baseIP: this.props.baseIP,
     protocol: this.props.protocol,
   }
-  cameraSettingControlsID = shortid.generate();
+
+  async componentDidMount() {
+    const { computedRecordPath } = this;
+    this.dsHomebaseClient = await getClient('homebase');
+
+    // initialize ds state to match up with our initial
+    // component state if the record does not already exist
+    this.dsHomebaseClient.record.has(computedRecordPath, (error, hasRecord) => {
+      if (!hasRecord) {
+        this.dsHomebaseClient.record.setData(computedRecordPath, this.state);
+      }
+    });
+  }
 
   handleSelectChange = ({ target }) => {
-    this.setState({ streamQuality: target.value });
+    const state = { streamQuality: target.value };
+    this.setState(state);
+    this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
     this.modifyVideoStream(target.value);
   }
 
@@ -114,8 +137,10 @@ class CameraSettingControls extends PureComponent {
 
   handleVideoActivityChange = () => {
     this.setState((prevState) => {
+      const state = { streamOnline: !prevState.streamOnline };
       this.toggleVideoStreamActivity(prevState.streamOnline);
-      return { streamOnline: !prevState.streamOnline };
+      this.dsHomebaseClient.record.setData(this.computedRecordPath, { streamOnline: !prevState.streamOnline });
+      return state;
     });
   }
 
@@ -141,82 +166,96 @@ class CameraSettingControls extends PureComponent {
   }
 
   handleBaseIPChange = ({ target }) => {
-    this.setState({ baseIP: target.value });
+    const state = { baseIP: target.value };
+    this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
+    this.setState(state);
     this.props.cameraWrapperBaseIPChange(target.value);
   }
 
   handleProtocolChange = ({ target }) => {
-    this.setState({ protocol: target.value });
+    const state = { protocol: target.value };
+    this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
+    this.setState(state);
   }
 
+  handleNewPayload = (payload) => { this.setState(payload); }
+
   render() {
-    const { classes, cameraID } = this.props;
+    const { classes } = this.props;
     const { streamQuality, streamOnline, baseIP, protocol } = this.state;
 
     return (
-      <div className={classes.root}>
-        <AppBar position="static" color="default" square elevation={0}>
-          <Toolbar>
-            <Typography variant="body2">
-              {`Camera #${cameraID} Settings`}
-            </Typography>
-            <TextField
-              id="baseIP"
-              label="Base IP"
-              value={baseIP}
-              onChange={this.handleBaseIPChange}
-              className={classes.formControl}
-            />
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor={`camera-protocol-${this.cameraSettingControlsID}`}>Stream Protocol</InputLabel>
-              <Select
-                value={protocol}
-                onChange={this.handleProtocolChange}
-                inputProps={{
-                  id: `camera-protocol-${this.cameraSettingControlsID}`,
-                }}
-              >
-                <MenuItem value="http">http</MenuItem>
-                <MenuItem value="https">https</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor={`camera-quality-${this.cameraSettingControlsID}`}>Stream Quality</InputLabel>
-              <Select
-                value={streamQuality}
-                onChange={this.handleSelectChange}
-                inputProps={{
-                  id: `camera-setting-${this.cameraSettingControlsID}`,
-                }}
-              >
-                <MenuItem value="low">Low</MenuItem>
-                <MenuItem value="mid">Mid</MenuItem>
-                <MenuItem value="high">High</MenuItem>
-                <MenuItem value="ultra">Ultra</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <FormControlLabel
-                label={`Stream ${streamOnline ? 'Online' : 'Offline'}`}
-                control={
-                  <Switch
-                    classes={{
-                      checked: classes.checked,
-                      bar: classes.bar,
+      <DeepstreamRecordProvider
+        clientType="homebase"
+        recordPath={this.computedRecordPath}
+        onNewPayload={this.handleNewPayload}
+      >
+        {() => (
+          <div className={classes.root}>
+            <AppBar position="static" className={classes.appbar} square elevation={0}>
+              <Toolbar>
+                <Typography variant="body2">
+                  Camera Settings
+                </Typography>
+                <TextField
+                  id="baseIP"
+                  label="Base IP"
+                  value={baseIP}
+                  onChange={this.handleBaseIPChange}
+                  className={classes.formControl}
+                />
+                <FormControl className={classes.formControl}>
+                  <InputLabel htmlFor={`camera-protocol-${this.cameraSettingControlsID}`}>Stream Protocol</InputLabel>
+                  <Select
+                    value={protocol}
+                    onChange={this.handleProtocolChange}
+                    inputProps={{
+                      id: `camera-protocol-${this.cameraSettingControlsID}`,
                     }}
-                    checked={streamOnline}
-                    onChange={this.handleVideoActivityChange}
-                    aria-label="Stream Activity Switch"
-                  />}
-              />
-            </FormControl>
-            <Button variant="raised" dense color="primary" onClick={this.handleSaveImage}>
-              <SaveIcon />
-              Save image to rover
-            </Button>
-          </Toolbar>
-        </AppBar>
-      </div>
+                  >
+                    <MenuItem value="http">http</MenuItem>
+                    <MenuItem value="https">https</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl className={classes.formControl}>
+                  <InputLabel htmlFor={`camera-quality-${this.cameraSettingControlsID}`}>Stream Quality</InputLabel>
+                  <Select
+                    value={streamQuality}
+                    onChange={this.handleSelectChange}
+                    inputProps={{
+                      id: `camera-setting-${this.cameraSettingControlsID}`,
+                    }}
+                  >
+                    <MenuItem value="low">Low</MenuItem>
+                    <MenuItem value="mid">Mid</MenuItem>
+                    <MenuItem value="high">High</MenuItem>
+                    <MenuItem value="ultra">Ultra</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl className={classes.formControl}>
+                  <FormControlLabel
+                    label={`Stream ${streamOnline ? 'Online' : 'Offline'}`}
+                    control={
+                      <Switch
+                        classes={{
+                          checked: classes.checked,
+                          bar: classes.bar,
+                        }}
+                        checked={streamOnline}
+                        onChange={this.handleVideoActivityChange}
+                        aria-label="Stream Activity Switch"
+                      />}
+                  />
+                </FormControl>
+                <Button variant="raised" size="small" color="primary" onClick={this.handleSaveImage}>
+                  <SaveIcon />
+                  Save image to rover
+                </Button>
+              </Toolbar>
+            </AppBar>
+          </div>
+        )}
+      </DeepstreamRecordProvider>
     );
   }
 }

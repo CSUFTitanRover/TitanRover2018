@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import Camera from './Camera';
 import CameraSettingControls from './CameraSettingControls';
-import appSettings from '../../app-settings.json'
+import appSettings from '../../appSettings.json'
   ;
 
 class CameraWrapper extends PureComponent {

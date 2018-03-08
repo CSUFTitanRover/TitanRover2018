@@ -11,7 +11,7 @@ import FullscreenIcon from 'material-ui-icons/Fullscreen';
 import FullscreenExitIcon from 'material-ui-icons/FullscreenExit';
 import LockIcon from 'material-ui-icons/LockOutline';
 import LockOpenIcon from 'material-ui-icons/LockOpen';
-import appSettings from '../../app-settings.json';
+import appSettings from '../../appSettings.json';
 
 const resizableStyles = {
   background: 'lightgray',
@@ -47,10 +47,10 @@ class Camera extends PureComponent {
     /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
     /** The base IP of all camera strings. (e.g. http::/localhost)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     baseIP: PropTypes.string,
     /** The base port of all camera strings. (e.g. 8080)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     basePort: PropTypes.string,
     /** Refers to the protocol transport used (e.g. http or https) */
     protocol: PropTypes.string,

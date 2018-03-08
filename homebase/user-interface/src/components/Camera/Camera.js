@@ -4,7 +4,7 @@ import Resizable from 'react-resizable-box';
 import { ContextMenu, MenuItem, ContextMenuTrigger } from 'react-contextmenu';
 import CheckIcon from 'material-ui-icons/Check';
 import shortid from 'shortid';
-import appSettings from '../../app-settings.json';
+import appSettings from '../../appSettings.json';
 import './styles.css';
 
 const resizableStyles = {
@@ -18,10 +18,10 @@ class Camera extends PureComponent {
     /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
     /** The base IP of all camera strings. (e.g. http::/localhost)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     baseIP: PropTypes.string,
     /** The base port of all camera strings. (e.g. 8080)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     basePort: PropTypes.string,
     /** Refers to the protocol transport used (e.g. http or https) */
     protocol: PropTypes.string,

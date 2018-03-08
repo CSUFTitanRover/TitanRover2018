@@ -15,7 +15,7 @@ import TextField from 'material-ui/TextField';
 import green from 'material-ui/colors/green';
 import grey from 'material-ui/colors/grey';
 import shortid from 'shortid';
-import appSettings from '../../app-settings.json';
+import appSettings from '../../appSettings.json';
 
 const styles = theme => ({
   root: {
@@ -48,10 +48,10 @@ class CameraSettingControls extends PureComponent {
     /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
     /** The base IP of all camera strings. (e.g. http::/localhost)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     baseIP: PropTypes.string,
     /** The base port of all camera strings. (e.g. 8080)
-     *  Defaults to the option in app-settings.json if no prop is received */
+     *  Defaults to the option in appSettings.json if no prop is received */
     basePort: PropTypes.string,
     /** Refers to the protocol transport used (e.g. http or https) */
     protocol: PropTypes.string,
