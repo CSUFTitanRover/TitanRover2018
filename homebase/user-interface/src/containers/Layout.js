@@ -76,7 +76,7 @@ class Layout extends Component {
 
     return (
       <Grid container spacing={0}>
-        <ToastContainer pauseOnHover={false} position={toast.POSITION.TOP_CENTER} />
+        <ToastContainer position={toast.POSITION.TOP_CENTER} />
 
         <Grid item xs={12}>
           <TopBar classNames={classNames(classes.topBar, leftMenuActive && classes.topBarShift)} />

@@ -55,7 +55,19 @@ class RealtimeChart extends Component {
     chartName: null,
   }
 
+  // make a copy of props for the flow chart
+  flowChartProps = { ...this.props };
   state = { chartType: 'line' }
+
+  constructor(props) {
+    super(props);
+
+    // exclude the chart type and current data point
+    // since those are going to be managed by this component directly
+    delete this.flowChartProps.chartType;
+    delete this.flowChartProps.currentDataPoint;
+  }
+
 
   handleChartTypeChange = ({ target }) => {
     const type = target.value;
@@ -81,12 +93,6 @@ class RealtimeChart extends Component {
     const { classes, eventName } = this.props;
     const { chartType, currentDataPoint } = this.state;
 
-    // make a copy of props for the flow chart but exclude the chart type and current data point
-    // since those are going to be managed by this component directly
-    const flowChartProps = { ...this.props };
-    delete flowChartProps.chartType;
-    delete flowChartProps.currentDataPoint;
-
     return (
       <DeepstreamPubSubProvider eventName={eventName} onNewPayload={this.handleNewPayload}>
         {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
@@ -97,7 +103,7 @@ class RealtimeChart extends Component {
             direction="column"
           >
             <Grid item xs={12}>
-              <AppBar position="static" color="default" elevation={1} className={classes.appbar}>
+              <AppBar position="static" color="default" elevation={1} square className={classes.appbar}>
                 <Toolbar disableGutters>
                   <Typography variant="title" className={classes.toolbarItemSpacing}>Chart Options</Typography>
 
@@ -130,7 +136,7 @@ class RealtimeChart extends Component {
 
             <Grid item xs={12}>
               <FlowChart
-                {...flowChartProps}
+                {...this.flowChartProps}
                 chartType={chartType}
                 currentDataPoint={currentDataPoint}
               />

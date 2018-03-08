@@ -16,16 +16,12 @@ import green from 'material-ui/colors/green';
 import grey from 'material-ui/colors/grey';
 import blueGrey from 'material-ui/colors/blueGrey';
 import shortid from 'shortid';
+import { toast } from 'react-toastify';
 import appSettings from '../../appSettings.json';
 import DeepstreamRecordProvider from '../../containers/DeepstreamRecordProvider';
-import { getClient } from '../../utils/deepstream';
-
-window.ds = null;
+import { getClient, syncInitialRecordState } from '../../utils/deepstream';
 
 const styles = theme => ({
-  root: {
-    width: '100%',
-  },
   appbar: {
     backgroundColor: blueGrey[100],
   },
@@ -52,7 +48,7 @@ class CameraSettingControls extends PureComponent {
     classes: PropTypes.object.isRequired,
     /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
-    /** The base IP of all camera strings. (e.g. http::/localhost)
+    /** The base IP of all camera strings. (e.g. http://192.168.1.173)
      *  Defaults to the option in appSettings.json if no prop is received */
     baseIP: PropTypes.string,
     /** The base port of all camera strings. (e.g. 8080)
@@ -65,12 +61,12 @@ class CameraSettingControls extends PureComponent {
   }
 
   static defaultProps = {
-    baseIP: appSettings.cameras.base_ip,
-    basePort: appSettings.cameras.base_port,
+    baseIP: appSettings.cameras.baseIP,
+    basePort: appSettings.cameras.basePort,
     protocol: 'http',
   }
 
-  cameraSettingControlsID = shortid.generate();
+  generatedSettingID = shortid.generate();
   dsHomebaseClient = null;
   computedRecordPath = `homebase/cameras/${this.props.cameraID}`
 
@@ -85,29 +81,36 @@ class CameraSettingControls extends PureComponent {
     const { computedRecordPath } = this;
     this.dsHomebaseClient = await getClient('homebase');
 
-    // initialize ds state to match up with our initial
-    // component state if the record does not already exist
-    this.dsHomebaseClient.record.has(computedRecordPath, (error, hasRecord) => {
-      if (!hasRecord) {
-        this.dsHomebaseClient.record.setData(computedRecordPath, this.state);
-      }
-    });
+    try {
+      // we call the function with the current "this" scope
+      // in order to use this.setState correctly
+      await syncInitialRecordState.call(this,
+        this.dsHomebaseClient,
+        computedRecordPath,
+        this.state,
+      );
+    } catch (err) {
+      toast.error(err);
+    }
   }
 
-  handleSelectChange = ({ target }) => {
-    const state = { streamQuality: target.value };
-    this.setState(state);
-    this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
-    this.modifyVideoStream(target.value);
+  handleStreamQualityChange = async ({ target }) => {
+    try {
+      const state = { streamQuality: target.value };
+      await this._modifyStreamQuality(target.value);
+      this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
+    } catch (err) {
+      toast.error(`${err.name}: ${err.message}. Unable to set motion stream quality & maxrate.`);
+    }
   }
 
-  modifyVideoStream = (value) => {
+  _modifyStreamQuality = (quality) => {
     const { basePort, cameraID } = this.props;
     const { baseIP, protocol } = this.state;
     let motionStreamQuality;
     let motionStreamMaxrate;
 
-    switch (value) {
+    switch (quality) {
       case 'low':
         motionStreamQuality = 4;
         motionStreamMaxrate = 4;
@@ -128,54 +131,57 @@ class CameraSettingControls extends PureComponent {
         motionStreamMaxrate = 30;
         break;
       default:
-        break;
+        return Promise.reject('Invalid quality setting provided to modify stream to.');
     }
-
-    fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_quality=${motionStreamQuality}`, { mode: 'no-cors' });
-    fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_maxrate=${motionStreamMaxrate}`, { mode: 'no-cors' });
+    return Promise.all([
+      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_quality=${motionStreamQuality}`, { mode: 'no-cors' }),
+      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_maxrate=${motionStreamMaxrate}`, { mode: 'no-cors' }),
+    ]);
   }
 
-  handleVideoActivityChange = () => {
-    this.setState((prevState) => {
-      const state = { streamOnline: !prevState.streamOnline };
-      this.toggleVideoStreamActivity(prevState.streamOnline);
-      this.dsHomebaseClient.record.setData(this.computedRecordPath, { streamOnline: !prevState.streamOnline });
-      return state;
-    });
+  handleStreamActivityChange = async () => {
+    try {
+      const state = { streamOnline: !this.state.streamOnline };
+      await this._toggleStreamActivity(state.streamOnline);
+      this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
+    } catch (err) {
+      toast.error(`${err.name}: ${err.message}. Unable to modify stream activity.`);
+    }
   }
 
-  toggleVideoStreamActivity = (streamOnline) => {
+  _toggleStreamActivity = (turnOff) => {
     const { basePort, cameraID } = this.props;
     const { baseIP, protocol } = this.state;
 
-    if (streamOnline) {
+    if (turnOff) {
       // turn the stream off
-      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
-    } else {
-      // turn the stream on
-      const newStreamPort = `${basePort.slice(0, -1)}${cameraID}`;
-      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
+      return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
     }
+    // turn the stream on
+    const newStreamPort = `${basePort.slice(0, -1)}${cameraID}`;
+    return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
   }
 
-  handleSaveImage = () => {
+  handleSaveImage = async () => {
     const { basePort, cameraID } = this.props;
     const { baseIP, protocol } = this.state;
-    fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
-    console.info(`Image from Camera #${cameraID} should be saved to /var/lib/motion directory.`);
+    try {
+      await fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
+      toast.info(`Image from Camera #${cameraID} should be saved to /var/lib/motion directory.`);
+    } catch (err) {
+      toast.error(`${err.name}: ${err.message}. Unable to save image onto rover.`);
+    }
   }
 
   handleBaseIPChange = ({ target }) => {
     const state = { baseIP: target.value };
     this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
-    this.setState(state);
     this.props.cameraWrapperBaseIPChange(target.value);
   }
 
   handleProtocolChange = ({ target }) => {
     const state = { protocol: target.value };
     this.dsHomebaseClient.record.setData(this.computedRecordPath, state);
-    this.setState(state);
   }
 
   handleNewPayload = (payload) => { this.setState(payload); }
@@ -191,69 +197,67 @@ class CameraSettingControls extends PureComponent {
         onNewPayload={this.handleNewPayload}
       >
         {() => (
-          <div className={classes.root}>
-            <AppBar position="static" className={classes.appbar} square elevation={0}>
-              <Toolbar>
-                <Typography variant="body2">
-                  Camera Settings
-                </Typography>
-                <TextField
-                  id="baseIP"
-                  label="Base IP"
-                  value={baseIP}
-                  onChange={this.handleBaseIPChange}
-                  className={classes.formControl}
+          <AppBar position="static" color="default" square elevation={1} className={classes.appbar} >
+            <Toolbar>
+              <Typography variant="body2">
+                Camera Settings
+              </Typography>
+              <TextField
+                id="baseIP"
+                label="Base IP"
+                value={baseIP}
+                onChange={this.handleBaseIPChange}
+                className={classes.formControl}
+              />
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor={`camera-protocol-${this.generatedSettingID}`}>Stream Protocol</InputLabel>
+                <Select
+                  value={protocol}
+                  onChange={this.handleProtocolChange}
+                  inputProps={{
+                    id: `camera-protocol-${this.generatedSettingID}`,
+                  }}
+                >
+                  <MenuItem value="http">http</MenuItem>
+                  <MenuItem value="https">https</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor={`camera-quality-${this.generatedSettingID}`}>Stream Quality</InputLabel>
+                <Select
+                  value={streamQuality}
+                  onChange={this.handleStreamQualityChange}
+                  inputProps={{
+                    id: `camera-setting-${this.generatedSettingID}`,
+                  }}
+                >
+                  <MenuItem value="low">Low</MenuItem>
+                  <MenuItem value="mid">Mid</MenuItem>
+                  <MenuItem value="high">High</MenuItem>
+                  <MenuItem value="ultra">Ultra</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <FormControlLabel
+                  label={`Stream ${streamOnline ? 'Online' : 'Offline'}`}
+                  control={
+                    <Switch
+                      classes={{
+                        checked: classes.checked,
+                        bar: classes.bar,
+                      }}
+                      checked={streamOnline}
+                      onChange={this.handleStreamActivityChange}
+                      aria-label="Stream Activity Switch"
+                    />}
                 />
-                <FormControl className={classes.formControl}>
-                  <InputLabel htmlFor={`camera-protocol-${this.cameraSettingControlsID}`}>Stream Protocol</InputLabel>
-                  <Select
-                    value={protocol}
-                    onChange={this.handleProtocolChange}
-                    inputProps={{
-                      id: `camera-protocol-${this.cameraSettingControlsID}`,
-                    }}
-                  >
-                    <MenuItem value="http">http</MenuItem>
-                    <MenuItem value="https">https</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                  <InputLabel htmlFor={`camera-quality-${this.cameraSettingControlsID}`}>Stream Quality</InputLabel>
-                  <Select
-                    value={streamQuality}
-                    onChange={this.handleSelectChange}
-                    inputProps={{
-                      id: `camera-setting-${this.cameraSettingControlsID}`,
-                    }}
-                  >
-                    <MenuItem value="low">Low</MenuItem>
-                    <MenuItem value="mid">Mid</MenuItem>
-                    <MenuItem value="high">High</MenuItem>
-                    <MenuItem value="ultra">Ultra</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl className={classes.formControl}>
-                  <FormControlLabel
-                    label={`Stream ${streamOnline ? 'Online' : 'Offline'}`}
-                    control={
-                      <Switch
-                        classes={{
-                          checked: classes.checked,
-                          bar: classes.bar,
-                        }}
-                        checked={streamOnline}
-                        onChange={this.handleVideoActivityChange}
-                        aria-label="Stream Activity Switch"
-                      />}
-                  />
-                </FormControl>
-                <Button variant="raised" size="small" color="primary" onClick={this.handleSaveImage}>
-                  <SaveIcon />
-                  Save image to rover
-                </Button>
-              </Toolbar>
-            </AppBar>
-          </div>
+              </FormControl>
+              <Button variant="raised" size="small" color="primary" onClick={this.handleSaveImage}>
+                <SaveIcon />
+                Save image to rover
+              </Button>
+            </Toolbar>
+          </AppBar>
         )}
       </DeepstreamRecordProvider>
     );

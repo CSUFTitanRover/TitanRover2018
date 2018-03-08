@@ -43,7 +43,7 @@ const screenNames = [
 ];
 
 const { roverAPI } = appSettings;
-const { base_ip, base_port } = roverAPI;
+const { baseIP, basePort } = roverAPI;
 
 const styles = theme => ({
   root: {
@@ -73,7 +73,7 @@ class RoverApiSettings extends Component {
 
   fetchRoverAPI = async (apiName) => {
     try {
-      let response = await fetch(`//${base_ip}:${base_port}${apiName}`);
+      let response = await fetch(`//${baseIP}:${basePort}${apiName}`);
       response = response.json();
       if (response.status === 'SUCCESS') {
         toast.success(`${apiName} request succeeded!`);

@@ -11,10 +11,11 @@ import FullscreenIcon from 'material-ui-icons/Fullscreen';
 import FullscreenExitIcon from 'material-ui-icons/FullscreenExit';
 import LockIcon from 'material-ui-icons/LockOutline';
 import LockOpenIcon from 'material-ui-icons/LockOpen';
+import grey from 'material-ui/colors/grey';
 import appSettings from '../../appSettings.json';
 
 const resizableStyles = {
-  background: 'lightgray',
+  backgroundColor: grey[100],
 };
 
 const aspectRatio = 4 / 3;
@@ -57,21 +58,18 @@ class Camera extends PureComponent {
   }
 
   static defaultProps = {
-    baseIP: appSettings.cameras.base_ip,
-    basePort: appSettings.cameras.base_port,
+    baseIP: appSettings.cameras.baseIP,
+    basePort: appSettings.cameras.basePort,
     protocol: 'http',
   }
 
   generatedID = shortid.generate();
   state = {
+    resizeAwareSize: null,
     resizableSize: {
-      width: 250, // 640,
-      height: 250, // 480,
+      width: 400, // 640,
+      height: 300, // 480,
     },
-    savedWidth: null,
-    savedHeight: null,
-    resizeAwareWidth: null,
-    resizeAwareHeight: null,
     resizing: false,
     fullsize: false,
     lockAspectRatio: false,
@@ -136,7 +134,6 @@ class Camera extends PureComponent {
             onResize={this.handleResizeAwareChange}
             style={{ position: 'relative', width: 'inherit', height: 'inherit' }}
           >
-
             <Resizable
               style={{
                 ...resizableStyles,

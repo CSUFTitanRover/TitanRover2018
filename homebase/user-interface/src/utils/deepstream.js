@@ -238,3 +238,33 @@ export function withDeepstreamProps(WrappedComponent, recordName) {
     }
   };
 }
+
+/**
+ * Initializes deepstream state to match up with an initial component state and vice versa
+ * @param {DeepstreamClient} dsClient - a valid, connected deepstream client
+ * @param {string} recordPath - the record path which is to be synced with
+ * @param {Object} componentInitialState - the initial state to submit for syncage
+ * @return {Promise<string>} Promise<string> - returns a string with the success message
+ */
+export function syncInitialRecordState(dsClient, recordPath, componentInitialState) {
+  return new Promise((resolve, reject) => {
+    dsClient.record.has(recordPath, (error, hasRecord) => {
+      if (error) {
+        reject(error);
+      } else if (!hasRecord) {
+        dsClient.record.setData(recordPath, componentInitialState);
+        resolve('Successfully initialized record with component state.');
+      } else {
+        // get a snapshot of the current record data to "update" this component's state
+        dsClient.record.snapshot(recordPath, (e, data) => {
+          if (e) {
+            reject(e);
+          } else {
+            this.setState(data);
+            resolve('Successfully synced up component state with the existing record state.');
+          }
+        });
+      }
+    });
+  });
+}
