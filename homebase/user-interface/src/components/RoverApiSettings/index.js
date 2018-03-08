@@ -14,6 +14,7 @@ import ClearIcon from 'material-ui-icons/Clear';
 import PowerIcon from 'material-ui-icons/PowerSettingsNew';
 import RestoreIcon from 'material-ui-icons/SettingsBackupRestore';
 import SyncIcon from 'material-ui-icons/Sync';
+import grey from 'material-ui/colors/grey';
 import appSettings from '../../appSettings.json';
 
 // taken from /rover/core/process-manager/processses.json
@@ -48,7 +49,7 @@ const { baseIP, basePort } = roverAPI;
 const styles = theme => ({
   root: {
     width: '100%',
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: grey[100],
   },
   formControl: {
     margin: theme.spacing.unit,
