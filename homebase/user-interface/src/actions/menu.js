@@ -10,9 +10,3 @@ export function closeLeftMenu() {
   };
 }
 
-export function addGoldenLayoutToStore(glLayout) {
-  return {
-    type: 'ADD_GOLDEN_LAYOUT',
-    glLayout,
-  };
-}

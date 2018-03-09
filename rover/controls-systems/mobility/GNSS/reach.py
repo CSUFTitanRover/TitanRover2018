@@ -4,14 +4,14 @@ import re
 import sys
 import requests
 global ser, nvidiaIp
-nvidiaIp = "localhost"
+nvidiaIp = "192.168.1.2"
 
 
 def reach():
     try:
         while True:
             try:
-                ser = serial.Serial('/dev/tty-emlid', baudrate=115200)
+                ser = serial.Serial('/dev/serial/by-id/usb-Intel_Edison_0d596f3a49235bf708548e85ce65ec94-if02', baudrate=115200)
                 break
             except:
                 print("Not Connected to the Reach on /dev/ttyACM*")
@@ -26,7 +26,7 @@ def reach():
             print(data)
             m = re.match(pattern, data)
             if m:
-                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/reach", 
+                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4)),
                 "altitude": float(m.group(5)), "fix": (True if (int(m.group(6)) > 0) else False),
                 "nos": int(m.group(7)), "sdn":float(m.group(8)), 

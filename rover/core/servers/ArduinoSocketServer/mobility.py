@@ -26,6 +26,7 @@ import sys
 import os
 
 uname = str(Popen([ "uname", "-m" ], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8"))
+
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
 isNvidia = True if uname == "aarch64\n" else False
 mobilityMode ={}
@@ -37,6 +38,9 @@ try:
   print(ser.is_open)
 except:
   print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
+
+
+
 
 
 if isPi:
@@ -78,6 +82,21 @@ modeNum = 0
 actionTime = 3
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
+print("Going through startup process...")
+while True:
+    success = None
+    try:
+        success = post({"mode": dsMode}, "mode")
+    except:
+        pass
+    time.sleep(.1)
+
+    print(str(success))
+    if success == "SUCCESS":
+        break
+        
+print("Posted mode to manual...")
+
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
               "joint5b", "reserved1", "ledMode"]  # List in order of socket output values
 
@@ -104,9 +123,14 @@ def setRoverActions():
 
 setRoverActions()  # Initiate roverActions to enter loop
 
+
+def initArduinoConnection():
+    client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+#initArduinoConnection()
+
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
-    fileName = "rumblepad.txt"
+    fileName = "logitech3dReset.txt"
     if len(sys.argv) == 2:
         fileName = str(sys.argv[1])
     elif len(sys.argv) > 2:
@@ -250,6 +274,46 @@ def checkHats(currentJoystick):
                         roverActions[control_input[0]]["value"] = val[y]
                         roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
 
+def checkDsButton():
+    global dsButton, roverActions
+    if (not roverActions["auto"]["held"] and roverActions["auto"]["value"]):  # New button press
+        roverActions["auto"]["held"] = True
+        roverActions["auto"]["lastpress"] = datetime.now()
+    if (roverActions["auto"]["held"] and not roverActions["auto"]["value"]):  # Button held, but now released
+        roverActions["auto"]["held"] = False
+        dsButton = False
+    if (roverActions["auto"]["held"] and roverActions["auto"]["value"] and (
+        datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
+        roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
+        dsButton = True
+
+def sendToDeepstream():
+    global dsMode
+    while True:
+        try:
+            post({"mobilityTime": int(time.time())}, "mobilityTime")
+            time.sleep(.1)
+            m = get("mode")
+            if type(m) == dict:
+                dsMode = m["mode"]
+
+            if prevDsMode != dsMode:
+                client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
+                
+        except:
+            print("Cannot send to Deepstream") 
+        time.sleep(.1)
+
+def requestControl():
+    try:
+        modeRecord = post({"mode": "manual"}, "mode")
+        print("Updated mode record:", str(modeRecord))
+        time.sleep(.1)
+        initArduinoConnection()
+        print("Trying to initialize a connection to the arduino...")
+    except:
+        print("Cannot access mode record")
+        
 def main(*argv):
     global paused, mobiliyMode, gpsPoint, ser
     startUp(argv)  # Load appropriate controller(s) config file

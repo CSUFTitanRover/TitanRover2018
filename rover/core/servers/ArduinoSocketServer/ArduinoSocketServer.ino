@@ -386,5 +386,5 @@ void switchLEDs(int colorCode) {
         digitalWrite(greenPin, LOW);
             
         break;  
-  }  
+  } 
 }
