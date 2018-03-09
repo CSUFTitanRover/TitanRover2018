@@ -27,7 +27,7 @@ except:
     roverIp = "127.0.0.1"
 '''
 
-def get(recordName):
+def get(recordName, ip="192.168.1.2"):
     '''
         The get function will get the entire record "rover/" + recordName
         and returns the record as an object.
@@ -37,6 +37,7 @@ def get(recordName):
             Else there is no connection to DeepStream,   returns "NO_DEEPSTREAM"
 
     '''
+    roverIp = ip
     response = None
     if type(recordName) is not str:
         raise "Your argument needs to be a string when getting from deepstream"
@@ -55,7 +56,7 @@ def get(recordName):
         return "NO_DEEPSTREAM"
 
 
-def post(obj, recordName):
+def post(obj, recordName, ip="192.168.1.2"):
     '''
         This function will post the object sen to the deepstream server.
 
@@ -63,6 +64,7 @@ def post(obj, recordName):
             obj: an object that you want to post to deepstream
             recordName: the name of the record that you want to post to
     '''
+    roverIp = ip
     if type(recordName) is not str:
         raise "Your second argument needs to be a string when setting data to deepstream"
     if type(obj) is not dict:
@@ -76,4 +78,3 @@ def post(obj, recordName):
         return response["result"]
     else:
         return "NO_DEEPSTREAM"
-
