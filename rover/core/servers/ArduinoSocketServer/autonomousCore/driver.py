@@ -15,12 +15,16 @@ import numpy as np
 from socket import *
 from threading import Thread
 from deepstream import post, get
+from decimal import Decimal
 
 MINFORWARDSPEED = 20
 MAXFORWARDSPEED = 50
 TARGETTHRESHOLD = 20  # In cm
 CORRECTIONTHRESHOLD = 3.5  # In degrees
 HEADINGTHRESHOLD = 3 # In degrees
+
+global spiral
+spiral = []
 
 class Driver:
 
@@ -58,6 +62,50 @@ class Driver:
         self.__paused = False
         self.__stop = False
         time.sleep(3)
+
+
+    def gpsAngle(self, origin, heading, distance):
+        heading = math.radians(heading)
+        radius = 6371 # km
+        dist =  distance / 100000.0
+        lat1 , lon1 = origin
+
+        lat1 = math.radians(lat1)
+        lon1 = math.radians(lon1)
+
+        lat2 = math.asin( math.sin(lat1)*math.cos(dist/radius) + math.cos(lat1)*math.sin(dist/radius)*math.cos(heading))
+        lon2 = lon1 + math.atan2(math.sin(heading)*math.sin(dist/radius)*math.cos(lat1), math.cos(dist/radius)-math.sin(lat1)*math.sin(lat2))
+
+        lat2 = round(math.degrees(lat2), 9)
+        lon2 = round(math.degrees(lon2), 9)
+
+        return (lat2, lon2)
+    
+
+    def spiralPoints(self, origin, radius):
+        global spiral
+        center = origin
+        if (radius / 100) % 2 != 0:
+            rad = radius - 100
+        else:
+            rad = radius
+        print(self.gpsAngle(center, 0, rad))
+        while rad > 0:
+            counter =  math.ceil(2 * math.pi * rad / 200)
+
+            print("Counter = ", counter)
+            diff = round(360 / counter, 2)
+            head = 0
+            while counter > 0:
+                point = self.gpsAngle(center, head, rad)
+                spiral.append(point)
+                print("AT heading ", head)
+                head = round(head + diff, 2)
+                counter -= 1
+            rad -= 200
+        return spiral
+
+
         
     def roverViewer(self):
         '''
