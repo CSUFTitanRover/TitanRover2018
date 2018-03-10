@@ -23,9 +23,6 @@ TARGETTHRESHOLD = 20  # In cm
 CORRECTIONTHRESHOLD = 3.5  # In degrees
 HEADINGTHRESHOLD = 3 # In degrees
 
-global spiral
-spiral = []
-
 class Driver:
 
     def __init__(self):
@@ -64,7 +61,24 @@ class Driver:
         time.sleep(3)
 
 
-    def gpsAngle(self, origin, heading, distance):
+    def calculateGps(self, origin, heading, distance):
+        '''
+        Description:
+            Takes a GPS point, heading, and distance and calculates the next GPS point
+        Args:
+            Heading, Origin --> (lat, lon), and distance in Cms
+        Returns:
+            A tuple (lat, lon)
+        '''
+
+        if type(heading) != float or type(heading) != int or type(distance) != int or type(distance) != float:
+            raise TypeError("Only Int or Float allowed")
+            pass
+        
+        if type(origin) != tuple:
+            raise TypeError("Only Tuples allowed")
+            pass
+
         heading = math.radians(heading)
         radius = 6371 # km
         dist =  distance / 100000.0
@@ -83,23 +97,40 @@ class Driver:
     
 
     def spiralPoints(self, origin, radius):
-        global spiral
+        '''
+        Description:
+            Calculates a set of points located in Concentric circles in order to search the tennis ball
+        Args:
+            Origin --> (lat, lon), radius in Cms
+        Returns:
+            A list of waypoints that starts from the farthest point from the center 
+        '''
+
+        if type(radius) != float or type(radius) != int:
+            raise TypeError("Only Int or Float allowed")
+            pass
+        
+        if type(origin) != tuple:
+            raise TypeError("Only Tuples allowed")
+            pass
+
         center = origin
+        spiral = []
         if (radius / 100) % 2 != 0:
             rad = radius - 100
         else:
             rad = radius
-        print(self.gpsAngle(center, 0, rad))
+        #print(self.calculateGps(center, 0, rad))
         while rad > 0:
             counter =  math.ceil(2 * math.pi * rad / 200)
 
-            print("Counter = ", counter)
+            #print("Counter = ", counter)
             diff = round(360 / counter, 2)
             head = 0
             while counter > 0:
-                point = self.gpsAngle(center, head, rad)
+                point = self.calculateGps(center, head, rad)
                 spiral.append(point)
-                print("AT heading ", head)
+                #print("AT heading ", head)
                 head = round(head + diff, 2)
                 counter -= 1
             rad -= 200
@@ -360,7 +391,7 @@ class Driver:
         Returns:
             Nothing
         '''
-        if type(newHeading) != float:
+        if type(newHeading) != float or type(newHeading) != int:
             raise TypeError("Only floats allowed")
             pass
 
