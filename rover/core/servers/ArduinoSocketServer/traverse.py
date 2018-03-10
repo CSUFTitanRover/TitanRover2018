@@ -19,7 +19,7 @@ myDriver.setMinMaxFwdSpeeds(35, 45)
 crd = (33.882727498, -117.883965627)
 heading = 0
 distance = 100
-pt = myDriver.gpsAngle(crd, heading, distance)
+pt = myDriver.calcuateGps(crd, heading, distance)
 
 # Calculate the spiral points to travel
 radius = 400        # 400 Cm --> 4 Mt
