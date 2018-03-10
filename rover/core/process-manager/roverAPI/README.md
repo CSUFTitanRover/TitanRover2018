@@ -3,7 +3,7 @@
 > The purpose of the rover API is to easily add functionality to the rover without the use of deepstream.  In some cases, we might need to run a simple command and do not need a database, and this is where the Rover API works well by utilizing Flask we can fire off functions without threading our python scripts.
 
 ### Here are the current functions available from the API:
-http:127.0.0.1:5000/**functionCalls**/**possibleOtherParameters**
+http:127.0.0.1:5002/**functionCalls**/**possibleOtherParameters**
 
 |API|type|purpose| Succssful API return|notes|
 | :---- | :---| :---- | :----- | :---- |
