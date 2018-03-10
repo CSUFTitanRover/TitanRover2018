@@ -82,21 +82,6 @@ modeNum = 0
 actionTime = 3
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
-print("Going through startup process...")
-while True:
-    success = None
-    try:
-        success = post({"mode": dsMode}, "mode")
-    except:
-        pass
-    time.sleep(.1)
-
-    print(str(success))
-    if success == "SUCCESS":
-        break
-        
-print("Posted mode to manual...")
-
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
               "joint5b", "reserved1", "ledMode"]  # List in order of socket output values
 
@@ -286,34 +271,7 @@ def checkDsButton():
         datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         dsButton = True
-
-def sendToDeepstream():
-    global dsMode
-    while True:
-        try:
-            post({"mobilityTime": int(time.time())}, "mobilityTime")
-            time.sleep(.1)
-            m = get("mode")
-            if type(m) == dict:
-                dsMode = m["mode"]
-
-            if prevDsMode != dsMode:
-                client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-                
-        except:
-            print("Cannot send to Deepstream") 
-        time.sleep(.1)
-
-def requestControl():
-    try:
-        modeRecord = post({"mode": "manual"}, "mode")
-        print("Updated mode record:", str(modeRecord))
-        time.sleep(.1)
-        initArduinoConnection()
-        print("Trying to initialize a connection to the arduino...")
-    except:
-        print("Cannot access mode record")
-        
+ 
 def main(*argv):
     global paused, mobiliyMode, gpsPoint, ser
     startUp(argv)  # Load appropriate controller(s) config file
