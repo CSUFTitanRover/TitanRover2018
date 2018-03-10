@@ -70,7 +70,7 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
-EthernetUDPBase Udp_Base;  //customize communication===========================================
+EthernetUDP Udp_Base;  //customize communication===========================================
 
 // Protection from loss of communication using millis()
 unsigned long interval = 500;
@@ -386,27 +386,5 @@ void switchLEDs(int colorCode) {
         digitalWrite(greenPin, LOW);
             
         break;  
-
-    case 4:
-        //White
-        digitalWrite(redPin, HIGH);
-        digitalWrite(bluePin, HIGH);
-        digitalWrite(greenPin, HIGH);
-            
-        break;
-    case 5:
-        //Yellow
-        digitalWrite(redPin, HIGH);
-        digitalWrite(bluePin, LOW);
-        digitalWrite(greenPin, HIGH);
-            
-        break;
-    case 6:
-        //Cyan
-        digitalWrite(redPin, LOW);
-        digitalWrite(bluePin, HIGH);
-        digitalWrite(greenPin, HIGH);
-            
-        break; 
-  }  
+  } 
 }

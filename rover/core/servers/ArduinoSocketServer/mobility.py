@@ -11,20 +11,34 @@
 ### END INIT INFO
 
 from socket import *
+from struct import *
 from datetime import datetime
-import subprocess
-from subprocess import Popen
+import re
+from subprocess import Popen, PIPE
 from threading import Thread
 from deepstream import post, get
-import time
+from time import sleep, time
+from relayFunctions import ep
+from serial import Serial
 import pygame
 import numpy as np
 import sys
 import os
 
-uname = str(Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode("utf-8"))
+uname = str(Popen([ "uname", "-m" ], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8"))
+
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
-isNvidia = True if uname == "arm64\n" else False
+isNvidia = True if uname == "aarch64\n" else False
+mobilityMode ={}
+gpsPoint = ( float(0), float(0) )
+serDevice = '/dev/ttyUSB0'
+
+try:
+  ser = Serial(serDevice, 9600)
+  print(ser.is_open)
+except:
+  print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
+
 
 
 
@@ -41,12 +55,13 @@ if isPi:
     GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
 
 # System setup wait
-#time.sleep(5)
+sleep(5)
 
-# Arduino address and connection info
-address = ("192.168.1.10", 5000)
+# Tx2 address and connection info
+address = ("192.168.1.2", 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
-client_socket.settimeout(0.5)
+client_socket.settimeout(1)
+
 
 # Initialize pygame and joysticks
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -62,13 +77,9 @@ global mode  # Current set name (string) in use
 global modeNames  # List of set names (strings) from .txt file
 global actionTime  # Seconds needed to trigger pause / mode change
 global pausedLEDs  # LED settings for paused mode
-global dsMode  # Deepstream mode 
-global dsButton
 paused = False
 modeNum = 0
 actionTime = 3
-dsMode = "manual"  
-dsButton = False
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
 print("Going through startup process...")
@@ -108,14 +119,14 @@ def setRoverActions():
     roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to support "mode" action
     roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
     roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0}  # Added to support button throttle
-    roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
+    #roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
 
 setRoverActions()  # Initiate roverActions to enter loop
 
-# Initialize connection to Arduino
+
 def initArduinoConnection():
     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-initArduinoConnection()
+#initArduinoConnection()
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -141,7 +152,6 @@ def stop():
     global paused
     paused = True
 
-# Helper funcs for rate multipliers. Funcs take zero, one, or more arguments as needed
 def getZero(*arg):
     return 0
 
@@ -216,22 +226,21 @@ def checkModes():
         roverActions["mode"]["set"] = modeNum
         roverActions["ledMode"]["value"] = controls[mode]["ledCode"]
 
-def checkButtons():
+def checkButtons(currentJoystick):
     global roverActions
-    events = pygame.event.get([ pygame.JOYBUTTONDOWN, pygame.JOYBUTTONUP ] )  # Only check buttons that have changed state
-    for event in events:
-        currentJoystick = pygame.joystick.Joystick(event.joy)
-        name = pygame.joystick.Joystick(event.joy).get_name()
-        joyForSet = controls[mode].get(name)  # Get joystick in current set
-        if (joyForSet):
-            typeForJoy = joyForSet.get("buttons")  # Get joystick control type
-            if (typeForJoy):
-                control_input = typeForJoy.get(event.button)  # Check if input defined for controller
+    name = currentJoystick.get_name()
+    joyForSet = controls[mode].get(name)  # Get joystick in current set
+    if (joyForSet):
+        typeForJoy = joyForSet.get("buttons")  # Get joystick control type
+        if (typeForJoy):
+            buttons = currentJoystick.get_numbuttons()
+            for i in range(buttons):
+                control_input = typeForJoy.get(i)  # Check if input defined for controller
                 if (control_input):
-                    val = currentJoystick.get_button(event.button)  # Read button value, assign to roverActions
-                    roverActions[control_input[0]]["value"] = val
-                    roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
-    discard = pygame.event.get()
+                    val = currentJoystick.get_button(i)  # Read button value, assign to roverActions
+                    if (val == 0 and roverActions[control_input[0]]["direction"] == control_input[1]) or val != 0:
+                        roverActions[control_input[0]]["value"] = val
+                        roverActions[control_input[0]]["direction"] = control_input[1]  # Set direction multiplier
 
 def checkAxes(currentJoystick):
     global roverActions
@@ -306,7 +315,7 @@ def requestControl():
         print("Cannot access mode record")
         
 def main(*argv):
-    global paused, dsButton, dsMode
+    global paused, mobiliyMode, gpsPoint, ser
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -317,45 +326,155 @@ def main(*argv):
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
             stop()
-        checkButtons()
         for i in range(joystick_count):
             joystick = pygame.joystick.Joystick(i)
             checkAxes(joystick)
             checkHats(joystick)
+            checkButtons(joystick)
             throttleStep()
             checkPause()
             checkModes()
-            checkDsButton()
-            if dsButton:
-                requestControl()
             setLed()
-            print("Sending Arduino command")
-            try:
+            #print("Sending Tx2 command")
+            
+            #re_data = client_socket.recvfrom(512)
+            #print(bytes.decode(re_data[0]))  # Debug
+            #if bytes.decode(re_data[0]) == "r":
+            #        print("Received packet")  # Debug
+            if paused:
+                outVals = list(map(getZero, actionList))
+            else:
+                outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
+            
+	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
+            # we will also package the values to crunch the bytes down, instead of sending a string
+            
+            o = outVals
+            t = round(time(), 3)
+            ghzBytePack = pack('s 10h d 2f s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, gpsPoint[0], gpsPoint[1], '#'.encode('utf-8'))
+            hamBytePack = pack('s 10h d 2f s', 'b'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8],    3, t, gpsPoint[0], gpsPoint[1], '#'.encode('utf-8'))
 
-                #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-                re_data = client_socket.recvfrom(512)
-                #print(bytes.decode(re_data[0]))  # Debug
-                if bytes.decode(re_data[0]) == "r":
-                    #print("Received packet")  # Debug
-                    if paused:
-                        outVals = list(map(getZero, actionList))
-                    else:
-                        outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
-                    outVals = list(map(str, outVals))
-                    outString = ",".join(outVals)
-                    if dsMode == "manual":
-                        #print("Into the DSManual Mode")
-                        client_socket.sendto(bytes(outString,"utf-8"), address)
-                        #print("After Sending The Commands To The Socket")
-                        print(outString)
-                    else:
-                        print("Not in manual mode")
-            except:
-                print("Send failed")
-                #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-               
+            if "mode" in mobilityMode:
+              if "roverType" in mobilityMode:
+                if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
+                  try:
+                    client_socket.sendto(ghzBytePack, address) # string bytes
+                  except:
+                    print("Couldn't send over Ghz")
+                  try:
+                    if os.environ['roverType'] == 'base':
+                      ser.write(hamBytePack) # packed bytes
+                  except:
+                    print("Coudn't send over Ham")
+                else:
+                  print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
+              else:
+                print("The key 'roverType' is missing from the deepstream record: mode")
+              print(ghzBytePack)
+              print(hamBytePack)
+              print()
+            else:
+              print("Not in Manual Mode, MobilityMode: " + ' HAS NOT BEEN SET IN DEEPSTREAM' if mobilityMode == {} else str(mobilityMode))
+
+def updateTimeAndSyncDeepStream():
+  global gpsPoint
+  if 'roverType' in os.environ:
+    if os.environ['roverType'] == 'base': 
+      while True:
+        out, err = Popen(["ssh", "-o", "StrictHostKeyChecking=no", "root@192.168.1.2", "date +%s"], stdout=PIPE, stderr=PIPE).communicate()
+        out = out.decode('utf-8')
+        err = err.decode('utf-8')
+        #print("OUT:", out)
+        if err != '':
+          print("TimeStamp Sync ERR:", err)
+        if len(err) > 0:
+            if err[0] == '@':
+                Popen(["ssh-keygen", "-f", "/root/.ssh/known_hosts", "-R", "192.168.1.2"], stdout=PIPE, stderr=PIPE).communicate()
+        if out != "":
+            date = out[:-1]
+            Popen(["date", "-s", "@" + str(date)])
+        sleep(10)
+
+def modeChecker():
+  global mobilityMode
+  while True:
+    try:
+      m = get("mode", '192.168.1.2')
+      if type(m) == dict:
+        if "mode" in m and "roverType" in m and m != {}:
+          mobilityMode = m
+    except: 
+      try:
+        sleep(0.1)
+        m = get("mode", "127.0.0.1")
+        print("Mode: " + str(m))
+        if type(m) == dict:
+          if "mode" in m and "roverType" in m and m != {}:
+            mobilityMode = m
+            sleep(1)
+            if "roverType" in m and "roverType" in os.environ:
+              if m["roverType"] == "base" and os.environ['roverType'] == 'base':
+                try:
+                  post(mobilityMode, "mode", "192.168.1.2")
+                except:
+                  print("could not post the mode over to the rover")
+                  pass          
+      except:
+        print("Not getting mobility mode from local deepstream")
+        pass
+    sleep(1)
+
+def getTheGpsBlast():
+  global gpsPoint, ser
+  if 'roverType' in os.environ:
+    if 'roverType' == 'base':
+      while True:
+        try:
+          """
+
+            record: gpsPoint
+            values:
+              { "gpsArr": [ 33.00000000, -117.000000000 ], "epoch": round(time(), 3) }
+            This function grabs the gps record from deepstream, so the main function
+            can blast that gps point over 3.4Ghz, and 433.400Mhz for the rover to pick 
+            up the data.  This is so the rover can receive a gps if it is outside the
+            range of network conntion, and getting sparse data packets.  We can update
+            The gpsPoint record from our UI by plotting a point on our map, and the 
+            mobility code will push that data out over two frequencies.
+          
+          """
+          try:
+            ser = Serial(serDevice, 9600)
+          except:
+            print("Serial Device is still not attached or not at:", serDevice)
+          gps = get("gpsPoint", 'localhost')
+          if type(gps) == dict:
+            if "gpsArr" in gps and 'epoch' in gps and os.environ["roverType"] == 'base':
+              if len(gps["gpsArr"]) == 2:
+                if time() - gps['epoch'] < 5:
+                  gpsPoint = ( gps["gpsArr"][0], gps["gpsArr"][1] )
+                  #print(gpsPoint)
+                else:
+                  sleep(.04)
+                  gpsPoint = ( float(0), float(0) )
+                  resetGpsPoint = {"gpsArr": [ float(0),float(0)],"epoch": round(time()+1000000, 3)}
+                  try:
+                    post( resetGpsPoint, "gpsPoint", "localhost" )
+                  except:
+                    print("Didn't set gps Points back to zero")
+        except:
+          print('No GPS Points Record is available')
+          pass
+      sleep(.5)
+
 if __name__ == '__main__':
+  #main()
+  if 'roverType' in os.environ:
     t1 = Thread(target = main)
-    t2 = Thread(target = sendToDeepstream)
+    t2 = Thread(target = updateTimeAndSyncDeepStream)
+    t3 = Thread(target = getTheGpsBlast)
+    t4 = Thread(target = modeChecker)
     t1.start()
     t2.start()
+    t3.start()
+    t4.start()
