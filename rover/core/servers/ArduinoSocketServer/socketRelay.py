@@ -114,6 +114,7 @@ except:
 
 def connectionToHamBravo():
     global hamMessageBravo
+    message = ''
     consecutiveMessages = ['\x00', '\x00']
     mod2 = 1
     
@@ -182,7 +183,7 @@ def sendLatestMessage():
             d = None
             #print("Did not get a message back from the arduino")
         #print("Ghz:", ghzMessageAlpha[0] + ghzMessageAlpha[1]+ str(ep() - float(ghzMessageAlpha[2])))
-        #print(message)
+        print(message)
         #print('TIME DIFF:', time() - float(message[2]))
         # The message that will get sent to the arduino
         if time() - float(message[2]) < 1.5: #ep() - float(message[2]) - secondsOffset < 10:
