@@ -1,5 +1,6 @@
 from numpy import *
 from itertools import *
+from collections import *
 import time
 
 #This program is intended for calculating the inverse kinematics for a robotic arm with one azimuthal degree of freedom
@@ -17,26 +18,27 @@ length1 = 0.775957
 length2 = 0.3683
 length3 = 0.3723
 
-length = [length1,length2,length3]
+Lengths = namedtuple('Lengths', ['length1', 'length2', 'length3'])
+lengths = Lengths(length1, length2, length3)
 
-number_of_joints = len(length)
+number_of_joints = len(lengths)
 
 #Define our effector angle constraints
-theta1lowerbound = 0.3
-theta1upperbound = pi/2
+theta1_lower_bound = 0.3
+theta1_upper_bound = pi/2
 
-theta2lowerbound = 0
-theta2upperbound = pi/2
+theta2_lower_bound = 0
+theta2_upper_bound = pi/2
 
-theta3lowerbound = -pi/2
-theta3upperbound = pi/2
+theta3_lower_bound = -pi/2
+theta3_upper_bound = pi/2
 
 #Define angle step
 thetastep = 0.001
 
 #Use our angular bounds and effector lengths to determine possible x,y,z points that our arm can reach
-mindist = sqrt((length[0] - length[2]) ** 2 + length[1] ** 2)
-maxdist = length[0] + length[1] + length[2]
+mindist = sqrt((lengths.length1 - lengths.length3) ** 2 + lengths.length2 ** 2)
+maxdist = lengths.length1 + lengths.length2 + lengths.length3
 
 
 #Wrap into arrays
@@ -52,155 +54,146 @@ currentthetas = [theta0initial, theta1initial, theta2initial, theta3initial]
 
 
 #Input your target x,y,z
-def positioninput():
-    global xtarget
-    global ytarget
-    global ztarget
-
+def get_position_input():
     running = False
-
     xtarget = float(input("please input target x:"))
-
     ytarget = float(input("please input target y:"))
-
     ztarget = float(input("please input target z:"))
 
     while not running:
-        if sqrt(xtarget ** 2 + ytarget ** 2 + ztarget ** 2) > mindist\
-        and sqrt(xtarget ** 2 + ytarget ** 2 + ztarget ** 2) < maxdist:
+        if mindist < (sqrt(xtarget ** 2 + ytarget ** 2 + ztarget ** 2)) < maxdist:
             running = not running
         else:
-            print("x,y,z out of range, must be between", mindist, "&", maxdist)
-            positioninput()
+            print(f'x,y,z out of range, must be between {round(mindist ** 2, 2)} m & {round(maxdist ** 2, 3)} m, yours is {round(xtarget ** 2 + ytarget ** 2 + ztarget ** 2, 2)} m')
+            get_position_input()
+    Target = namedtuple('Target', ['x', 'y', 'z'])
+    target = Target(xtarget, ytarget, ztarget)
 
-    return xtarget, ytarget, ztarget
+    return target
 
 #the "arm" functions give us the x,y,z location of the end of each effector by converting from spherical coords
 #to cartesian coords
 def xarm(joint_number, theta0, theta1, theta2, theta3):
     return float(joint_number * cos(theta1 - theta2 + theta3) * cos(theta0))
 
-
 def yarm(joint_number,theta0, theta1, theta2, theta3):
     return float(joint_number * cos(theta1 - theta2 + theta3) * sin(theta0))
-
 
 def zarm(joint_number,theta1, theta2, theta3):
     return float(joint_number * sin(theta1 - theta2 + theta3))
 
 #this function calculates the final asimuthal angle from our target coords using inverse trig functions
-def azimuthalcalculation():
-    global xtarget
-    global ytarget
-    global ztarget
-    global currentthetas
+def azimuthalcalculation(target, currentthetas):
 
-    if xtarget == 0 and ytarget != 0:
-        currentthetas[0] = arcsin(ytarget / r)
-    elif xtarget < 0:
-        currentthetas[0] = arctan(ytarget / xtarget) + pi
+    if target.x == 0 and target.y != 0:
+        currentthetas[0] = arcsin(target.y / r)
+    elif target.x < 0:
+        currentthetas[0] = arctan(target.y / target.x) + pi
     else:
-        currentthetas[0] = arctan(ytarget / xtarget)
+        currentthetas[0] = arctan(target.y / target.x)
+    if currentthetas[0] > pi:
+        currentthetas[0] = currentthetas[0] - 2*pi
+    if currentthetas[0] < -pi:
+        currenthetas[0] = currentthetas[0] + 2*pi
 
     return currentthetas[0]
 
 #this function calculates the distance between the end effector arm and the target location. This is the variable
 #that we are seeking to minimize
-def distancefunc():
-    global distance
-    global currentthetas
+def get_distance(currentthetas, target):
 
-    xcurrent = xarm(length[0],currentthetas[0], currentthetas[1],0,0) + xarm(length[1],currentthetas[0], currentthetas[1], currentthetas[2],currentthetas[3]) + xarm(length[2],currentthetas[0], currentthetas[1], currentthetas[2], currentthetas[3])
 
-    ycurrent = yarm(length[0],currentthetas[0],currentthetas[2],0,0) + yarm(length[1],currentthetas[0],currentthetas[1],currentthetas[2],0) + yarm(length[2],currentthetas[0],currentthetas[1],currentthetas[2],currentthetas[3])
+    x_position_1 = xarm(lengths.length1, currentthetas[0], currentthetas[1], 0, 0)
+    x_position_2 = xarm(lengths.length2, currentthetas[0], currentthetas[1], currentthetas[2], 0)
+    x_position_3 = xarm(lengths.length3, currentthetas[0], currentthetas[1], currentthetas[2], currentthetas[3])
 
-    zcurrent = zarm(length[0],currentthetas[1], 0, 0) + zarm(length[1],currentthetas[1], currentthetas[2], 0) + zarm(length[2],currentthetas[1], currentthetas[2], currentthetas[3])
+    y_position_1 = yarm(lengths.length1, currentthetas[0], currentthetas[1], 0, 0)
+    y_position_2 = yarm(lengths.length2, currentthetas[0], currentthetas[1], currentthetas[2], 0)
+    y_position_3 = yarm(lengths.length3, currentthetas[0], currentthetas[1], currentthetas[2], currentthetas[3])
 
-    distance = sqrt((xcurrent - xtarget) ** 2 + (ycurrent - ytarget) ** 2 + (zcurrent - ztarget) ** 2)
+    z_position_1 = zarm(lengths.length1, currentthetas[1], 0, 0)
+    z_position_2 = zarm(lengths.length2, currentthetas[1], currentthetas[2], 0)
+    z_position_3 = zarm(lengths.length3, currentthetas[1], currentthetas[2], currentthetas[3])
 
-    return xcurrent, ycurrent, zcurrent, distance
+    xcurrent = x_position_1 + x_position_2 + x_position_3
+    ycurrent = y_position_1 + y_position_2 + y_position_3
+    zcurrent = z_position_1 + z_position_2 + z_position_3
+
+    distance = sqrt((xcurrent - target.x) ** 2 + (ycurrent - target.y) ** 2 + (zcurrent - target.z) ** 2)
+
+    return distance
 
 #this function takes the discrete jump possibilities for each arm as an input (positive step, negative step, or no step)
 #and updates the arms angles if the new orientation brings it closer to its target
-def angletest(theta1step,theta2step,theta3step):
-
-    global currentthetas
-    global distance
-    global xtarget
-    global ytarget
-    global ztarget
+def calculate_next_step(theta1step, theta2step, theta3step, target, currentthetas, distance):
 
     theta1test = currentthetas[1] + theta1step
     theta2test = currentthetas[2] + theta2step
     theta3test = currentthetas[3] + theta3step
 
-    xtest = xarm(length[0], currentthetas[0], theta1test,0,0)\
-            + xarm(length[1], currentthetas[0], theta1test, theta2test,0)\
-            + xarm(length[2],currentthetas[0],theta1test,theta2test,theta3test)
-    ytest = yarm(length[0], currentthetas[0], theta1test,0,0) + yarm(length[1], currentthetas[0], theta1test, theta2test,0)\
-            + yarm(length[2],currentthetas[0],theta1test,theta2test,theta3test)
-    ztest = zarm(length[0], theta1test, 0, 0) + zarm(length[1], theta1test, theta2test, 0)\
-            + zarm(length[2], theta1test, theta2test, theta3test)
+    xtest = xarm(lengths.length1, currentthetas[0], theta1test, 0, 0) + xarm(lengths.length2, currentthetas[0], theta1test, theta2test, 0) + xarm(lengths.length3, currentthetas[0], theta1test, theta2test, theta3test)
+    ytest = yarm(lengths.length1, currentthetas[0], theta1test, 0, 0) + yarm(lengths.length2, currentthetas[0], theta1test, theta2test, 0) + yarm(lengths.length3, currentthetas[0], theta1test, theta2test, theta3test)
+    ztest = zarm(lengths.length1, theta1test, 0, 0) + zarm(lengths.length2, theta1test, theta2test, 0) + zarm(lengths.length3, theta1test, theta2test, theta3test)
 
-    distancetest = sqrt((xtest - xtarget) ** 2 + (ytest - ytarget) ** 2 + (ztest - ztarget) ** 2)
+    distancetest = sqrt((xtest - target.x) ** 2 + (ytest - target.y) ** 2 + (ztest - target.z) ** 2)
 
     #This is where we enforce the angular constraints; we only update effector angles for achievable orientations
-    if distancetest < distance and theta1lowerbound <= theta1test <= theta1upperbound and theta2lowerbound <= theta2test <= theta2upperbound and theta3lowerbound <= theta3test <= theta3upperbound:
+    if distancetest < distance and theta1_lower_bound <= theta1test <= theta1_upper_bound and theta2_lower_bound <= theta2test <= theta2_upper_bound and theta3_lower_bound <= theta3test <= theta3_upper_bound:
         distance = distancetest
         currentthetas[1] = theta1test
         currentthetas[2] = theta2test
         currentthetas[3] = theta3test
 
-    #print("distance test; this value should be going down", distance)
 
-    return distance, currentthetas[1], currentthetas[2], currentthetas[3]
+    return distance, currentthetas
 
 #this function generates a list with every possible combination of positive, negative, and no steps
-def possibility():
+def generate_possible_combinations(thetastep):
     global number_of_joints
     global angle_options
-    possibility=[]
+    possibilities=[]
     for i in range(number_of_joints - 1):
-        possibility.append(thetastep)
-        possibility.append(-thetastep)
-        possibility.append(0)
-    angle_options = list(set(permutations(possibility, 3)))
+        possibilities.append(thetastep)
+        possibilities.append(-thetastep)
+        possibilities.append(0)
+    angle_options = list(set(permutations(possibilities, 3)))
     return angle_options
+
+
 
 #this function cycles through every possible combination of inputs and keeps updating the effector angles until
 #the end effector is within 2mm of the target point. The initial angles combined with the discrete changes gives us
 #the final angle values for each arm
-def inversekinematicfunction():
-    global currentthetas
-    global currentthetas
-    global distance
+def solve(currentthetas, target, angle_options):
 
-    possibility()
-    # Now we check all possibilities for the arm and choose the output that brings the end effector closer to the goal
-    #itertools permutation update
+    distance = get_distance(currentthetas, target)
+    # Now we check all possibilities for the arm and choose the output that brings the end effector closer to the goal]
     while distance > 0.002:
         i = 0
         while i < len(angle_options):
-            angletest(angle_options[i][0],angle_options[i][1],angle_options[i][2])
-            i+=1
+            distance, currentthetas = calculate_next_step(angle_options[i][0],angle_options[i][1],angle_options[i][2], target, currentthetas, distance)
+            i += 1
 
 #Now lets run each program, and time it
+def main():
+    target = get_position_input()
 
-positioninput()
+    starttime = time.time()
 
-starttime = time.time()
+    currentthetas[0] = azimuthalcalculation(target, currentthetas)
 
-distancefunc()
+    angle_options = generate_possible_combinations(thetastep)
 
-azimuthalcalculation()
+    solve(currentthetas, target, angle_options)
 
-inversekinematicfunction()
+    endtime = time.time()
 
-endtime = time.time()
+    print ("Azimuthal Angle =", round(currentthetas[0],3))
+    print ("J2 Base Angle = ", round(currentthetas[1],3))
+    print ("J3 Base Angle = ", round(currentthetas[2],3))
+    print ("J4 Base Angle = ", round(currentthetas[3],3))
+    print ("Time to compute =", round(endtime - starttime, 3),"s")
 
-print ("distance =", distance)
-print ("theta0final =", round(currentthetas[0],3))
-print ("theta1final = ", round(currentthetas[1],3))
-print ("theta2final = ", round(currentthetas[2],3))
-print ("theta3final = ", round(currentthetas[3],3))
-print ("Time to compute =", round(endtime - starttime, 3),"s")
+
+if __name__ == "__main__":
+    main()
