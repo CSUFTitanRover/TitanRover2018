@@ -24,6 +24,8 @@ nvidiaIp = "localhost"
 pattern = re.compile('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
 nmeaRegex = r"^(\$[\w,.-\\*-]+)"
 
+
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.settimeout(1)
 server_address = ('0.0.0.0', 9000)
