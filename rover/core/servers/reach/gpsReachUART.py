@@ -21,6 +21,7 @@ import re
 
 sleep(10)
 data = ''
+
 device = '/dev/serial/by-id/usb-Silicon_Labs_reach_9000-if00-port0'
 nvidiaIp = "localhost"
 pattern = re.compile('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
@@ -78,6 +79,7 @@ def socketConnection():
                 except:
                     print('SOCKET TIMED OUT')
 
+
             if data:
                 if len(data) > 10:
                   print(data[:10].encode('hex'))
@@ -90,6 +92,7 @@ def socketConnection():
                 if nmea != '':
                     connection.sendall(nmea)
                     nmea = ''
+                data = None
             else:
                 print('NO DATA FROM LAST SOCKET LISTEN')
                 try:
