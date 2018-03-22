@@ -25,7 +25,7 @@ byteRegex = re.compile(b'a[\0-\xFF]{20,60}#$')
 initialTimeStamp = str(ep())
 ghzMessageAlpha   = [ 'a', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 hamMessageBravo   = [ 'b', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
-hamMessageCharlie = [ 'c', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
+autonomousMessage = [ 'c', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 
 # SET THE MODE TO MANUAL TEMPORARILY
 # post({"mode": "manual"}, "mode")
@@ -84,7 +84,7 @@ def depackageByteData(d):
 
 """
 def connectionToGhzAlpha():
-    global ghzMessageAlpha
+    global ghzMessageAlpha, autonomousMessage
 
     while True:
         #print("GHZ LOOP")
@@ -96,7 +96,10 @@ def connectionToGhzAlpha():
           #print(f)
           if f != None:
             f = [f[0], ','.join(list(map(str, f[1:11]))), f[11], (f[12], f[13])]
-            ghzMessageAlpha = f
+            if f[0] == 'a':
+              ghzMessageAlpha = f
+            elif f[0] == 'c':
+              autonomousMessage = f
             #print(f)
 
 
@@ -142,7 +145,18 @@ def connectionToHamBravo():
       mod2 = (mod2 + 1) % 2
       sleep(.06)
 
-
+moveRegex = r"(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),\d{1,}"
+def hasSomeMovement(s):
+  """
+    Description: This function will return True if there is any movement from our mobility code string.
+  """
+  if re.search(moveRegex, s):
+    m = re.search(moveRegex, s).groups()
+    m = map(int, m)
+    m = reduce(lambda x,y:x+y, m)
+    return True if m > 0 else return False
+  return False
+  
 def sendLatestMessage():
     zed = [ 'z', '0,0,0,0,0,0,0,0,0,0', str(round(time(), 3)) ]
     # Create a TCP/IP socket to the arduino
@@ -154,7 +168,7 @@ def sendLatestMessage():
     data = "0,0,0,0,0,0,0,0,0,0"
     #sockArd.bind(arduino_address)
     sockArd.settimeout(10)
-    global ghzMessageAlpha, hamMessageBravo, mode
+    global ghzMessageAlpha, hamMessageBravo, autonomousMessage, mode
     #while True:
     try:
       sockArd.sendto(data, arduino_address)
@@ -166,9 +180,17 @@ def sendLatestMessage():
         # Ternary operator to check the time stamp of the message.
         # The greater the number (timestamp), the more recent the timestamp.
         message = ghzMessageAlpha if float(ghzMessageAlpha[2]) >= float(hamMessageBravo[2]) else hamMessageBravo
+        hasMovement = False
+        if float(autonomousMessage[2]) > float(message[2]):
+          if 'mode' in mode:
+            if mode['mode'] == 'manual':
+              hasMovement = hasSomeMovement(message[1])
+              message = message if hasMovement else autonomousMessage
+        if 'mode' in mode: # autonomou mode in deepstream will always override manual mobility code.
+          if mode['mode'] == 'autonomous':
+            message = autonomousMessage
         #print('ready for arduino:', message)
-        # Ternary operator to check if elapsed time is greater than 2 seconds
-        #print(ghzMessageAlpha[2])
+        # Ternary operator to check if elapsed time is greater than 1.5 seconds
         d = None
         #print("waiting for 'r'")
         try:
@@ -183,7 +205,7 @@ def sendLatestMessage():
             d = None
             #print("Did not get a message back from the arduino")
         #print("Ghz:", ghzMessageAlpha[0] + ghzMessageAlpha[1]+ str(ep() - float(ghzMessageAlpha[2])))
-        print(message)
+        #print(message)
         #print('TIME DIFF:', time() - float(message[2]))
         # The message that will get sent to the arduino
         if time() - float(message[2]) < 1.5: #ep() - float(message[2]) - secondsOffset < 10:
@@ -196,12 +218,9 @@ def sendLatestMessage():
                   if(d != 'r'):
                     print("Unsuccessful message sent to arduino")
                   else:
-                    #print("GhzTimeDiff: " + str(ep() - float(ghzMessageAlpha[2]) - secondsOffset))
-                    #print("HamTimeDiff: " + str(ep() - float(hamMessageBravo[2]) - secondsOffset))
-                    #print("Attempted message to arduino: " + message[1])
                     pass
-                else:
-                  pass
+                elif mode['mode'] == 'autonomous': # handle autonomous code.
+                  sockArd.sendto(message[1], arduino_address) 
               else:
                   sockArd.sendto('0,0,0,0,0,0,0,0,0,0', arduino_address)
             else:
