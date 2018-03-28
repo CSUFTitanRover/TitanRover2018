@@ -31,7 +31,7 @@ isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
 isNvidia = True if uname == "aarch64\n" else False
 mobilityMode ={}
 gpsPoint = ( float(0), float(0) )
-serDevice = '/dev/ttyUSB0'
+serDevice = '/dev/serial/by-id/usb-Silicon_Labs_reach_9000-if00-port0  usb-Silicon_Labs_titan_rover_433-if00-port0'
 
 try:
   ser = Serial(serDevice, 9600)
