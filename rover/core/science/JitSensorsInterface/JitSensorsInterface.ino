@@ -20,10 +20,19 @@
 #include "SparkFunMPL3115A2.h"
 #include <Adafruit_MLX90614.h>
 #include <SDISerial.h>
+#include <dht.h>
+
+//#include "kSeries.h"
+
+//kSeries K_30(12,13); //Initialize a kSeries CO2 Sensor with pin 12 as Rx and 13 as Tx
 
 //For 5TE device, in order to recieve data you must choose a pin that supports interupts
 #define DATALINE_PIN_5TE 5
 #define INVERTED_5TE 1
+
+//Declare Humidity DHT11 sensor and pin number 7
+dht DHT;
+#define DHT11_PIN 7
 
 //Temperature sensor
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
@@ -74,6 +83,9 @@ void loop() {
 
   /* Code for 5TE Sensor */
   loopSoilSensor_5TE();
+
+  /* Code for DHT11 Humidity Sensor */
+  loopHumidity_DHT11();
 
   
 
@@ -209,6 +221,25 @@ void loopUVLight(){
 }
 
 
+
+void loopHumidity_DHT11() {
+  
+  int chk = DHT.read11(DHT11_PIN);
+  
+  //Serial.print("Temperature in C = ");
+  //Serial.println(DHT.temperature);
+  Serial.write(getCharFromFloat(DHT.temperature));
+  Serial.write('\n');
+  
+  //Serial.print("Humidity in % = ");
+  //Serial.println(DHT.humidity);
+  Serial.write(getCharFromFloat(DHT.humidity));
+  Serial.write('\n');
+  
+  delay(1000);
+}
+
+
 //Loop code for 5TE Decagon
 void loopSoilSensor_5TE() {
   int plusCounter = 0;
@@ -231,6 +262,19 @@ void loopSoilSensor_5TE() {
     
   }//If response ends
   
+}
+
+
+
+//Loop code for K-series CO2 sensor
+void loopCO2sensor() {
+  //float co2 = K_30.getCO2('p'); //returns co2 value in ppm ('p') or percent ('%')
+  
+  //Serial.write("Co2 ppm = ");
+  
+  //Serial.write(getCharFromFloat(co2)); //print value
+  Serial.write('\n');
+  delay(1500); //wait 1.5 seconds
 }
 
 
