@@ -1,0 +1,40 @@
+ //  AN-159  T-9602 Temperature and Humidity Sensor, analog outputs
+
+    const float Vcc = 5.05;  // This is the Ardunio 5V supply voltage,
+  // measure your Ardunio 5V supply voltage and change this value if necessary
+void setup() {
+  // initialize serial communication at 9600 bits per second:
+  Serial.begin(9600);
+  Serial.println("     AN-159  T-9602 Temperature and Humidity Sensor, analog outputs");
+}
+
+void loop() {
+  // read the input on analog pin 0:
+  int sensorValue0 = analogRead(A0);
+  int sensorValue1 = analogRead(A1);
+  int sensorValue2 = analogRead(A2); // This analog input is connected to measure the Ardunio 3.3V 
+                                     // supply, used in T and RH calculations.
+  
+   Serial.print("sensorValue0 = ");
+   Serial.println(sensorValue0); 
+
+   float PDM_Tmv = sensorValue0*(Vcc/1.023);//mv =  1000x * V
+ Serial.print ("PDM_Tmv =  ");
+ Serial.println(PDM_Tmv);  
+   Serial.print("sensorValue2 = ");
+   Serial.println(sensorValue2); 
+   
+  float Vddmv = sensorValue2*(Vcc/1.023);//correct
+  Serial.print("Vddmv = ");
+  Serial.println(Vddmv);
+ while(1){
+  sensorValue0 = analogRead(A0);
+  PDM_Tmv = sensorValue0*(Vcc/1.023);//mv =  1000x * V
+  float temp = 165.*((PDM_Tmv/Vddmv)-0.2424);
+  Serial.print("temp = ");
+  Serial.println(temp);  
+  delay(500);
+ }
+//  while(1);
+
+}
