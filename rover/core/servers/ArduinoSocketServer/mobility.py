@@ -115,7 +115,7 @@ def initArduinoConnection():
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
-    fileName = "logitech3dReset.txt"
+    fileName = "rumblepad.txt"
     if len(sys.argv) == 2:
         fileName = str(sys.argv[1])
     elif len(sys.argv) > 2:

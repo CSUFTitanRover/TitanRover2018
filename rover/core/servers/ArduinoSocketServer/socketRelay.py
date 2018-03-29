@@ -174,16 +174,16 @@ def sendLatestMessage():
         try:
           d = sockArd.recvfrom(512)[0]
           if d == 'r':
-            #print("ARDUINO IS RESPONDING")
+            print("ARDUINO IS RESPONDING")
             pass
           else:
-            #print("ARDUINO IS NOT RESPONDING")
+            print("ARDUINO IS NOT RESPONDING")
             pass
         except:
             d = None
             #print("Did not get a message back from the arduino")
         #print("Ghz:", ghzMessageAlpha[0] + ghzMessageAlpha[1]+ str(ep() - float(ghzMessageAlpha[2])))
-        print(message)
+        #print(message)
         #print('TIME DIFF:', time() - float(message[2]))
         # The message that will get sent to the arduino
         if time() - float(message[2]) < 1.5: #ep() - float(message[2]) - secondsOffset < 10:
