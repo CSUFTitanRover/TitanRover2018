@@ -1,8 +1,8 @@
 import serial
 import deepstream
 
-NoOfValues = 14 #No of values written by Arduino to Serial
-
+NoOfValues = 15 #No of values written by Arduino to Serial
+ArduinoPort = '/dev/ttyACM0'
 
 def getArduinoValues():
     printValues = False
@@ -10,7 +10,7 @@ def getArduinoValues():
     sensorValues = []
     listIndex = 0
     
-    ser = serial.Serial('/dev/ttyACM1',9600)
+    ser = serial.Serial(ArduinoPort,9600)
     
     while True:       
         if(ser.inWaiting() > 0):
@@ -45,8 +45,9 @@ def ListToDict(values):
     dictValues['Electrical_Conductivity']   = values[9]
     dictValues['Volumetric_Water_Content']  = values[10]
     dictValues['5TE_Temperature']           = values[11]
-    dictValues['DHT11_TemperatureInC']           = float(values[12]) / 100
-    dictValues['DHT11_HumidityInPerc']           = float(values[13]) / 100
+    dictValues['DHT11_TemperatureInC']      = float(values[12]) / 100
+    dictValues['DHT11_HumidityInPerc']      = float(values[13]) / 100
+    dictValues['K30_CO2_ValueInPPM']        = int(values[14])
     
     return dictValues
 

@@ -22,9 +22,8 @@
 #include <SDISerial.h>
 #include <dht.h>
 
-//#include "kSeries.h"
+#include <JitK30.h> //For CO2 K-30 sensor
 
-//kSeries K_30(12,13); //Initialize a kSeries CO2 Sensor with pin 12 as Rx and 13 as Tx
 
 //For 5TE device, in order to recieve data you must choose a pin that supports interupts
 #define DATALINE_PIN_5TE 5
@@ -87,6 +86,8 @@ void loop() {
   /* Code for DHT11 Humidity Sensor */
   loopHumidity_DHT11();
 
+  /* Code for K-30 CO2 Sensor */
+  loopCO2sensor_Jit_K30();
   
 
   Serial.write("END");
@@ -126,9 +127,11 @@ void loopPressure() {
 
   float pressure = myPressure.readPressure();
   //Serial.println("MPL3115A2 Pressure(Pa):");
-  //Serial.println(pressure, 2);
-  Serial.write(getCharFromLong(pressure));  
+
+  char* tempPressure = getCharFromLong(pressure);
+  Serial.write(tempPressure);  
   Serial.write('\n');
+  free(tempPressure);
   
 
   //float temperature = myPressure.readTemp();
@@ -138,23 +141,29 @@ void loopPressure() {
 
   float temperature = myPressure.readTempF();
   //Serial.print(" Temp(f):");
-  //Serial.println(temperature,2); 
-  Serial.write(getCharFromFloat(temperature));  
+  //Serial.println(temperature,2);
+
+  char* temp = getCharFromFloat(temperature);
+   
+  Serial.write(temp);
   Serial.write('\n');
+
+  free(temp);
   //Serial.println();
 }
+
 
 char* getCharFromFloat(float num){
   num = num * 100;
 
   int abc = (int)num;
-  char a[256];
+  char* a = (char*)malloc(256);
   sprintf(a, "%d",abc );
   return a;
 }
 
 char* getCharFromInteger(int num){  
-  char a[256];
+  char* a = (char*)malloc(256);
   sprintf(a, "%d",num );
   return a;
 }
@@ -163,7 +172,7 @@ char* getCharFromLong(float num){
   num = num * 100;
 
   long abc = (long)num;
-  char a[256];
+  char* a = (char*)malloc(256);
   sprintf(a, "%6ld",abc );
   return a;
 }
@@ -171,31 +180,27 @@ char* getCharFromLong(float num){
 //Loop code for Melexis MLX90614
 void loopTempSensor(){
   
-  //Serial.print("Ambient = "); 
-  //Serial.println(mlx.readAmbientTempC()); 
-  Serial.write(getCharFromFloat(mlx.readAmbientTempC())); 
+  char* ambTempC = getCharFromFloat(mlx.readAmbientTempC());
+  Serial.write(ambTempC); 
   Serial.write('\n');
-  //Serial.print("*C\tObject = "); 
-  //Serial.println(mlx.readObjectTempC()); //Serial.println("*C");
-  Serial.write(getCharFromFloat(mlx.readObjectTempC()));
+  free(ambTempC);
+  
+  char* objTempC = getCharFromFloat(mlx.readObjectTempC());
+  Serial.write(objTempC);
   Serial.write('\n');
+  free(objTempC);
 
   
   
-  //Serial.print("Ambient = ");
-  
-  //Serial.println(mlx.readAmbientTempF());
-  
-  
-  
-   
-  Serial.write(getCharFromFloat(mlx.readAmbientTempF())); 
+  char* ambTempF = getCharFromFloat(mlx.readAmbientTempF()); 
+  Serial.write(ambTempF); 
   Serial.write('\n');
-  
-  Serial.write(getCharFromFloat(mlx.readObjectTempF())); //Serial.println("*F");
-  Serial.write('\n');
+  free(ambTempF);
 
-  //Serial.println();
+  char* objTempF = getCharFromFloat(mlx.readObjectTempF());
+  Serial.write(objTempF);
+  Serial.write('\n');
+  free(objTempF);  
 }
 
 
@@ -206,41 +211,47 @@ void loopUVLight(){
   float uvindex = voltage / 0.1;
   
   //Serial.print("UV Sensor - ");
-  Serial.write(getCharFromInteger(sensor));
+  char* tempSensor = getCharFromInteger(sensor);
+  Serial.write(tempSensor);
   Serial.write('\n');
+  free(tempSensor);
 
   //Serial.print(" Voltage - ");
-  Serial.write(getCharFromFloat(voltage));
+  char* tempVolt = getCharFromFloat(voltage);
+  Serial.write(tempVolt);  
   Serial.write('\n');
+  free(tempVolt);
 
-  //Serial.print(" UV Index - ");
-  //Serial.write(getCharFromFloat(uvindex));
-  Serial.write(getCharFromFloat(uvindex));
+  //Serial.print(" UV Index - ");  
+  char* tempUvIndex = getCharFromFloat(uvindex);
+  Serial.write(tempUvIndex);
   Serial.write('\n');
-  //Serial.println();
+  free(tempUvIndex);
 }
 
 
-
+//Loop code for Humidity sensor
 void loopHumidity_DHT11() {
   
   int chk = DHT.read11(DHT11_PIN);
   
   //Serial.print("Temperature in C = ");
-  //Serial.println(DHT.temperature);
-  Serial.write(getCharFromFloat(DHT.temperature));
+  char* temp = getCharFromFloat(DHT.temperature);
+  Serial.write(temp);
   Serial.write('\n');
+  free(temp);
   
   //Serial.print("Humidity in % = ");
-  //Serial.println(DHT.humidity);
-  Serial.write(getCharFromFloat(DHT.humidity));
+  char* tempHumidity = getCharFromFloat(DHT.humidity);
+  Serial.write(tempHumidity);
   Serial.write('\n');
+  free(tempHumidity);
   
   delay(1000);
 }
 
 
-//Loop code for 5TE Decagon
+//Loop code for 5TE Decagon Soil sensor
 void loopSoilSensor_5TE() {
   int plusCounter = 0;
     
@@ -266,15 +277,21 @@ void loopSoilSensor_5TE() {
 
 
 
-//Loop code for K-series CO2 sensor
-void loopCO2sensor() {
-  //float co2 = K_30.getCO2('p'); //returns co2 value in ppm ('p') or percent ('%')
+//Loop code for K-30 CO2 sensor
+void loopCO2sensor_Jit_K30() {
+  int co2Value = readCO2();
   
-  //Serial.write("Co2 ppm = ");
-  
-  //Serial.write(getCharFromFloat(co2)); //print value
+  if (co2Value <= 0) //Means Checksum failed / Communication failure
+  {
+    co2Value = -1;
+  }  
+
+  char* tempCO2 = getCharFromInteger(co2Value);
+  Serial.write(tempCO2);
   Serial.write('\n');
-  delay(1500); //wait 1.5 seconds
+  free(tempCO2);
+  
+  //delay(2000);
 }
 
 
