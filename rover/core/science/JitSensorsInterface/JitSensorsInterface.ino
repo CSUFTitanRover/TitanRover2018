@@ -45,7 +45,8 @@ SDISerial sdi_serial_connection(DATALINE_PIN_5TE, INVERTED_5TE);
 void setup() {
   // put your setup code here, to run once:
   Wire.begin();        // Join i2c bus
-  Serial.begin(9600);  // Start serial for output
+  //Serial.begin(9600);  // Start serial for output
+  Serial.begin(57600);  // Start serial for output
 
   
   myPressure.begin(); // Get sensor online
@@ -93,7 +94,7 @@ void loop() {
   Serial.write("END");
   Serial.write("\n");
   
-  delay(500);
+  delay(2000);
 }
 
 
@@ -112,7 +113,7 @@ void setup5TE(){
   
   //Serial.println("5TE INITIALIZED"); // startup string echo'd to our uart
   
-  delay(3000); // startup delay to allow sensor to powerup and output its DDI serial string
+  //delay(3000); // startup delay to allow sensor to powerup and output its DDI serial string
 }
 
 //Loop code for Pressure sensor
@@ -247,7 +248,7 @@ void loopHumidity_DHT11() {
   Serial.write('\n');
   free(tempHumidity);
   
-  delay(1000);
+  //delay(1000);
 }
 
 

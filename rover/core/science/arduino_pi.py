@@ -10,7 +10,7 @@ def getArduinoValues():
     sensorValues = []
     listIndex = 0
     
-    ser = serial.Serial(ArduinoPort,9600)
+    ser = serial.Serial(ArduinoPort,57600)
     
     while True:       
         if(ser.inWaiting() > 0):
