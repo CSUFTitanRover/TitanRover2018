@@ -1,9 +1,9 @@
-### Code and libraries for reading values from Science sensors
+# Code and libraries for reading values from Science sensors
 
-Arduino sketch - JitSensorsInterface
+<b>JitSensorsInterface</b> - Arduino sketch
 
-libraries - Arduino libraries
+<b>libraries</b> - Arduino libraries
 
-Schematic.xlsx - Contains  circuit schematics, Data format written to serial port, and Internet links for various sensors
+<b>Schematic.xlsx</b> - Contains  circuit schematics, Data format written to serial port, and Internet links for various sensors
 
-arduino_pi.py - Python code to read values from arduino to raspberry pi.
+<b>arduino_pi.py</b> - Python code to read values from arduino to raspberry pi.
