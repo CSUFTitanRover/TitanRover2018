@@ -7,3 +7,5 @@
 <b>Schematic.xlsx</b> - Contains  circuit schematics, Data format written to serial port, and Internet links for various sensors
 
 <b>arduino_pi.py</b> - Python code to read values from arduino to raspberry pi.
+<br><br>
+<img width=500 src="https://i.imgur.com/oHEVVXW.jpg">
