@@ -1,22 +1,24 @@
 # TitanRover2018 
 
 [![GitHub issues](https://img.shields.io/github/issues/CSUFTitanRover/TitanRover2018.svg)](https://github.com/CSUFTitanRover/TitanRover2018/issues)
-[![Docs](https://media.readthedocs.org/static/projects/badges/passing.svg)](https://titanrover2018.readthedocs.io/en/latest/)
+[![Documentation Status](https://readthedocs.org/projects/titanrover2018/badge/?version=docs)](http://titanrover2018.readthedocs.io/en/latest/?badge=docs)
 
 ## Mobility ToDo's
-- [ ] - Develop drive control system for Base Station Operations
+- [x] - Develop drive control system for Base Station Operations
 - [ ] - Develop drive control for Taranis Operation
 - [ ] - Creates an Autonomous Navigation System, incorporating GNSS and next generation IMU
 
 
 ## Autonomous ToDo's
-- [ ] - Research IMU
-- [ ] - Adapt Magnimeter and Gyroscope delta change for accurate turning
-- [ ] - Create IMU software to run as background process as Unix socket
-- [ ] - Add IMU to Runt/Rover
-- [ ] - Research the GNSS network requirements
-- [ ] - Create GNSS software for background process as Unix socket
-- [ ] - Enable access of GNSS and IMU by UI
+- [x] - Research IMU
+- [x] - Adapt Magnimeter and Gyroscope delta change for accurate turning
+- [x] - Create IMU software to run as background process as Unix socket
+- [x] - Add IMU to Runt/Rover
+- [x] - Research the GNSS network requirements
+- [x] - Create GNSS software for background process as Unix socket
+- [x] - Enable access of GNSS and IMU by UI
+- [ ] - Throughly error check Autonomanual
+- [ ] - Make sure **all** deepstream get and post requests are wrapped in try: except: blocks
 - [ ] - Enable Runt/Rover to move between 4 waypoints with no obstacles autonomously
 - [ ] - Enable Runt/Rover to move between 4 waypoints with obstacles autonomously
 
@@ -31,4 +33,4 @@ We love getting new members to help contribute to our project however you must l
 
 ## Documentation
 
-Check out our docs: https://titanrover2018.readthedocs.io/en/latest/
+Check out our docs: https://titanrover2018.readthedocs.io/en/docs/
