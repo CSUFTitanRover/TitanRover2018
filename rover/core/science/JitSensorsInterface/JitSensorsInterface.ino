@@ -23,6 +23,7 @@
 #include <dht.h>
 
 #include <JitK30.h> //For CO2 K-30 sensor
+#include <JitAnemometer.h>
 
 
 //For 5TE device, in order to recieve data you must choose a pin that supports interupts
@@ -89,7 +90,10 @@ void loop() {
 
   /* Code for K-30 CO2 Sensor */
   loopCO2sensor_Jit_K30();
-  
+
+
+  /* Loop code for Anemometer */
+  loopWindSpeed();
 
   Serial.write("END");
   Serial.write("\n");
@@ -296,5 +300,12 @@ void loopCO2sensor_Jit_K30() {
 }
 
 
-
+//Loop code for Anemometer
+void loopWindSpeed() {
+  
+  char* tempWindSpeed = getCharFromFloat(readWindSpeed()); //Check header file for detailed code
+  Serial.write(tempWindSpeed);
+  Serial.write('\n');
+  free(tempWindSpeed);
+}
 

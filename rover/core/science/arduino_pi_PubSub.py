@@ -1,5 +1,5 @@
 import serial
-import deepstream
+import deepstreamPubSub
 
 NoOfValues = 16 #No of values written by Arduino to Serial
 ArduinoPort = '/dev/ttyACM0'
@@ -55,34 +55,56 @@ def ListToDict(values):
 
 
 
+def PublishEvent(dictData, event, dictName):
+    try:
+        if(dictName == ''):
+            mesg = deepstreamPubSub.publish(event, dictData)
+        else:
+            mesg = deepstreamPubSub.publish(event, dictData[dictName])
+        
+        if(mesg.upper() == "SUCCESS"):
+            print("Event {0} published to Deepstream".format(event))
+    except:
+        print("An error occured while publishing {0} to Deepstream".format(event))
+
+
+
+
+def SaveData(dictData):
+    
+    # Publish all data
+    PublishEvent(dictData,"sensors/All",'')        
+        
+    # Publish individual sensor data
+    PublishEvent(dictData,"sensors/MPL3115A2",'MPL3115A2_Pressure(Pa)')
+    PublishEvent(dictData,"sensors/GUVAS12SD",'UV_Index')
+    PublishEvent(dictData,"sensors/MLX90614_Ambient",'Ambient_Temp_inC')
+    PublishEvent(dictData,"sensors/MLX90614_Object",'Object_Temp_inC')
+    PublishEvent(dictData,"sensors/Decagon5TE_EC",'Electrical_Conductivity')
+    PublishEvent(dictData,"sensors/Decagon5TE_VWC",'Volumetric_Water_Content')
+    PublishEvent(dictData,"sensors/DHT11",'DHT11_HumidityInPerc')
+    PublishEvent(dictData,"sensors/K30",'K30_CO2_ValueInPPM')
+    PublishEvent(dictData,"sensors/Anemometer",'Anemometer_WindSpeed')
+    
+
+
+
+
 proceed=True
 
 while(proceed):    
-    response = input("Do you want to fetch values (y/n) -")
-    if(response == 'y'):
-        listLength = 0
+    listLength = 0
 
-        values = []
+    values = []
+    
+    while(listLength != NoOfValues):            
+        values = getArduinoValues()
+        listLength = len(values)
         
-        while(listLength != NoOfValues):            
-            values = getArduinoValues()
-            listLength = len(values)
-            #print(listLength) #Prints the length of the sensor values list
 
-        DictSensorValues = ListToDict(values)
-        print(DictSensorValues)
-
-        saveValues =  input("Do you want to save sensor values (y/n) -")
-
-        if(saveValues == "y"):
-            try:
-                mesg = deepstream.post(DictSensorValues, "Jit_ScienceSensorData")
-                if(mesg.upper() == "SUCCESS"):
-                    print("Sensor values posted to Deepstream record Jit_ScienceSensorData")           
-            except:
-                print("An error occured while posting to Deepstream")
-        
-    else:
-        proceed = False
-
-
+    DictSensorValues = ListToDict(values)
+    
+    
+    print(DictSensorValues)       
+    
+    SaveData(DictSensorValues)        
