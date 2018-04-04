@@ -32,7 +32,6 @@ class Driver:
         self.__address = ("localhost", 5001)
         self.__client_socket = socket(AF_INET, SOCK_DGRAM)
         self.__client_socket.settimeout(0.5)
-        self.__client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,4", "utf-8"), self.__address)
 
         # Tailered to Runt Rover
         self.__angleX = [5, 15, 25]
@@ -240,14 +239,12 @@ class Driver:
         Returns:
             Nothing
         '''
-        try:    
-            t = round(time.time(), 3)
-            o = pack('s 10h d s', 'c'.encode('utf-8'), self.__motor1, self.__motor2, 
-                0, 0, 0, 0, 0, 0, 0, 4, 
-                t, '#'.encode('utf-8'))
-            self.__client_socket.sendto(o), self.__address)
+        try:
+          t = round(time.time(), 3)
+          o = pack('s 10h d s', 'c'.encode('utf-8'), self.__motor1, self.__motor2, 0, 0, 0, 0, 0, 0, 0, 4, t, '#'.encode('utf-8'))
+          self.__client_socket.sendto(o, self.__address)
         except:
-            print("Arduino send failed")
+          print("Arduino send failed")
 
     def setGps(self):
         '''
@@ -354,18 +351,18 @@ class Driver:
         color = toggle = 0
         for i in range(20):  # Blink red, green, and blue for 5 seconds
             try:
-            t = round(time.time(), 3)
-            o = pack('s 10h d s', 'c'.encode('utf-8'), 0, 0, 
+              t = round(time.time(), 3)
+              o = pack('s 10h d s', 'c'.encode('utf-8'), 0, 0, 
                 0, 0, 0, 0, 0, 0, 0, 4, 
                 t, '#'.encode('utf-8'))
-            self.__client_socket.sendto(o), self.__address)
-                    time.sleep(0.25)
-                    toggle += 1
-                    if toggle >= len(leds):
-                        toggle = 0
-                    color = leds[toggle]
+              self.__client_socket.sendto(o, self.__address)
+              time.sleep(0.25)
+              toggle += 1
+              if toggle >= len(leds):
+                toggle = 0
+                color = leds[toggle]
             except:
-                print("Arduino send failed")
+              print("Arduino send failed")
         self.sendMotors()        
 
     def setMinMaxFwdSpeeds(self, min, max):

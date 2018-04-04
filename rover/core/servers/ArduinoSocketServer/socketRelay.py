@@ -60,6 +60,7 @@ def depackageByteData(d):
       please see python documentation on the struct library
         'pack' and 'unpack' modules
   """
+  print(d)
   h = bytearray()
   #if re.search(byteRegex, d):
   begin = False
@@ -113,7 +114,7 @@ def connectionToGhzAlpha():
 """
 
 try:
-  ser = Serial('/dev/serial/by-id/usb-Silicon_Labs_titan_rover_1002-if00-port0', 9600, timeout=None)
+  ser = Serial('/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0', 9600, timeout=None)
 except:
   print("cannot connect to serial device")
   pass

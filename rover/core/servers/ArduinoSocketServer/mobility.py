@@ -36,10 +36,10 @@ serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
 if 'roverType' in os.environ:
     if os.environ['roverType'] == 'base':
         try:
-        ser = Serial(serDevice, 9600)
-        print(ser.is_open)
+          ser = Serial(serDevice, 9600)
+          print(ser.is_open)
         except:
-        print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
+          print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
 
 
 
