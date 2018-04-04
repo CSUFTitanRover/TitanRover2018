@@ -13,6 +13,7 @@ import sys
 import math
 import numpy as np
 from socket import *
+from struct import *
 from threading import Thread
 from deepstream import post, get
 from decimal import Decimal
@@ -28,7 +29,7 @@ class Driver:
     def __init__(self):
 
         # Arduino address and connection information
-        self.__address = ("192.168.1.10", 5000)
+        self.__address = ("localhost", 5001)
         self.__client_socket = socket(AF_INET, SOCK_DGRAM)
         self.__client_socket.settimeout(0.5)
         self.__client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,4", "utf-8"), self.__address)
@@ -239,11 +240,12 @@ class Driver:
         Returns:
             Nothing
         '''
-        try:
-            re_data = self.__client_socket.recvfrom(512)
-            if bytes.decode(re_data[0]) == "r":
-                outString = str(self.__motor1) + "," + str(self.__motor2) + ",0,0,0,0,0,0,0,4"
-                self.__client_socket.sendto(bytes(outString, "utf-8"), self.__address)
+        try:    
+            t = round(time.time(), 3)
+            o = pack('s 10h d s', 'c'.encode('utf-8'), self.__motor1, self.__motor2, 
+                0, 0, 0, 0, 0, 0, 0, 4, 
+                t, '#'.encode('utf-8'))
+            self.__client_socket.sendto(o), self.__address)
         except:
             print("Arduino send failed")
 
@@ -302,27 +304,31 @@ class Driver:
         if not self.__clockwise:
             self.__motor2 = -self.__motor2
 
-
-    def stop(self):
+    def checkStop(self):
         '''
         Description:
-            Used to exit the goTo function. 
+            Used to exit the current goTo function indefinitely. 
         '''
-        self.__stop = True
+        try:
+            stopped = get("driver")["stop"]
+            if stopped:
+                self.__stop = True
+        except:
+            print("Stop error")
 
-    def pause(self):
+    def checkPause(self):
         '''
         Description:
-            Suspends Rover movement until resume() is called. 
+            Suspends Rover movement until further update in Deepstream. 
         '''
-        self.__paused = True
-
-    def resume(self):
-        '''
-        Description:
-            Resumes Rover movement after being paused. 
-        '''
-        self.__paused = False
+        try:
+            pause = get("driver")["paused"]
+            if pause:
+                self.__paused = True
+            else:
+                self.__paused = False
+        except:
+            print("Pause error")
 
     def notifyArrival(self):
         '''
@@ -348,10 +354,11 @@ class Driver:
         color = toggle = 0
         for i in range(20):  # Blink red, green, and blue for 5 seconds
             try:
-                re_data = self.__client_socket.recvfrom(512)
-                if bytes.decode(re_data[0]) == "r":
-                    outString = "0,0,0,0,0,0,0,0,0," + str(color)
-                    self.__client_socket.sendto(bytes(outString, "utf-8"), self.__address)
+            t = round(time.time(), 3)
+            o = pack('s 10h d s', 'c'.encode('utf-8'), 0, 0, 
+                0, 0, 0, 0, 0, 0, 0, 4, 
+                t, '#'.encode('utf-8'))
+            self.__client_socket.sendto(o), self.__address)
                     time.sleep(0.25)
                     toggle += 1
                     if toggle >= len(leds):
@@ -392,23 +399,25 @@ class Driver:
             Nothing
         '''
         if type(newHeading) != float or type(newHeading) != int:
-            raise TypeError("Only floats allowed")
+            raise TypeError("Only float/int allowed")
             pass
 
-        self.__distance = 0
-        self.__targetHeading = newHeading
+        self.__targetHeading = newHeading 
         self.setHeading()
         self.setHeadingDifference()
         self.setDeltaDirection()
+        self.setShouldTurnClockwise()
         while self.__deltaDirection > HEADINGTHRESHOLD:
-            self.setShouldTurnClockwise()
-            self.calculateMotors()
+            motor2 = ROTATESPEED
+            if not self.__clockwise:
+                motor2 = -ROTATESPEED
             motor1 = 0
             self.sendMotors()
-            time.sleep(0.02)
+            time.sleep(0.04)
             self.setHeading()
             self.setHeadingDifference()
             self.setDeltaDirection()
+            self.setShouldTurnClockwise()
 
     def goTo(self, point):
         '''
@@ -431,9 +440,11 @@ class Driver:
         self.setGps()
         self.setHeading()
         self.setDistance()
-
+        self.checkPause()
+        self.checkStop()
         while self.__distance > TARGETTHRESHOLD and not self.__stop:
             while self.__paused:
+                checkPause()
                 pass
             self.setTargetHeading()
             self.setHeadingDifference()
@@ -443,6 +454,8 @@ class Driver:
             if self.__deltaDirection < CORRECTIONTHRESHOLD:
                 self.__motor2 = 0
                 self.__headingDifference = None
+            if self.__paused:
+                self.__motor1 = self.__motor2 = 0            
             self.sendMotors()
             self.roverViewer()
 
@@ -457,6 +470,8 @@ class Driver:
             self.setGps()
             self.setHeading()
             self.setDistance()
+            self.checkPause()
+            self.checkStop()
 
         '''
         # Debug print
@@ -466,3 +481,4 @@ class Driver:
         '''
         if not self.__stop:
             self.notifyArrival()
+        self.__stop = False
