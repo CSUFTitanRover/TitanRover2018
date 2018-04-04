@@ -419,9 +419,10 @@ def getTheGpsBlast():
                 else:
                   sleep(.04)
                   gpsPoint = ( float(0), float(0) )
-                  resetGpsPoint = {"gpsArr": [ float(0),float(0)],"epoch": round(time()+1000000, 3)}
+                  resetGpsPoint = {"gpsArr": [ float(0),float(0)],"epoch": round(time()+2, 3)}
                   try:
                     post( resetGpsPoint, "gpsPoint", "localhost" )
+		    
                   except:
                     print("Didn't set gps Points back to zero")
         except:
