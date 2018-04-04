@@ -33,11 +33,13 @@ mobilityMode ={}
 gpsPoint = ( float(0), float(0) )
 serDevice = '/dev/serial/by-id/usb-Silicon_Labs_reach_9000-if00-port0  usb-Silicon_Labs_titan_rover_433-if00-port0'
 
-try:
-  ser = Serial(serDevice, 9600)
-  print(ser.is_open)
-except:
-  print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
+if 'roverType' in os.environ:
+    if os.environ['roverType'] == 'base':
+        try:
+        ser = Serial(serDevice, 9600)
+        print(ser.is_open)
+        except:
+        print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
 
 
 
@@ -401,10 +403,12 @@ def getTheGpsBlast():
             mobility code will push that data out over two frequencies.
           
           """
-          try:
-            ser = Serial(serDevice, 9600)
-          except:
-            print("Serial Device is still not attached or not at:", serDevice)
+          if 'roverType' in os.environ:
+            if os.environ['roverType'] == 'base':
+                try:
+                    ser = Serial(serDevice, 9600)
+                except:
+                    print("Serial Device is still not attached or not at:", serDevice)
           gps = get("gpsPoint", 'localhost')
           if type(gps) == dict:
             if "gpsArr" in gps and 'epoch' in gps and os.environ["roverType"] == 'base':

@@ -25,12 +25,13 @@ byteRegex = re.compile(b'a[\0-\xFF]{20,60}#$')
 initialTimeStamp = str(ep())
 ghzMessageAlpha   = [ 'a', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 hamMessageBravo   = [ 'b', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
-hamMessageCharlie = [ 'c', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
+autonomousMessage = [ 'c', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 
 # SET THE MODE TO MANUAL TEMPORARILY
 # post({"mode": "manual"}, "mode")
 
 mode = {}
+potentiometers = {}
 
 # this function returns the regular expression class
 # which is stored into an array after the function is called
@@ -84,7 +85,7 @@ def depackageByteData(d):
 
 """
 def connectionToGhzAlpha():
-    global ghzMessageAlpha
+    global ghzMessageAlpha, autonomousMessage
 
     while True:
         #print("GHZ LOOP")
@@ -96,7 +97,10 @@ def connectionToGhzAlpha():
           #print(f)
           if f != None:
             f = [f[0], ','.join(list(map(str, f[1:11]))), f[11], (f[12], f[13])]
-            ghzMessageAlpha = f
+            if f[0] == 'a':
+              ghzMessageAlpha = f
+            elif f[0] == 'c':
+              autonomousMessage = f
             #print(f)
 
 
@@ -142,7 +146,18 @@ def connectionToHamBravo():
       mod2 = (mod2 + 1) % 2
       sleep(.06)
 
-
+moveRegex = r"(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),(-?\d{1,}),\d{1,}"
+def hasSomeMovement(s):
+  """
+    Description: This function will return True if there is any movement from our mobility code string.
+  """
+  if re.search(moveRegex, s):
+    m = re.search(moveRegex, s).groups()
+    m = map(int, m)
+    m = reduce(lambda x,y:x+y, m)
+    return True if m != 0 else return False
+  return False
+  
 def sendLatestMessage():
     zed = [ 'z', '0,0,0,0,0,0,0,0,0,0', str(round(time(), 3)) ]
     # Create a TCP/IP socket to the arduino
@@ -154,7 +169,7 @@ def sendLatestMessage():
     data = "0,0,0,0,0,0,0,0,0,0"
     #sockArd.bind(arduino_address)
     sockArd.settimeout(10)
-    global ghzMessageAlpha, hamMessageBravo, mode
+    global ghzMessageAlpha, hamMessageBravo, autonomousMessage, mode
     #while True:
     try:
       sockArd.sendto(data, arduino_address)
@@ -166,9 +181,20 @@ def sendLatestMessage():
         # Ternary operator to check the time stamp of the message.
         # The greater the number (timestamp), the more recent the timestamp.
         message = ghzMessageAlpha if float(ghzMessageAlpha[2]) >= float(hamMessageBravo[2]) else hamMessageBravo
+        hasMovement = False
+        if float(autonomousMessage[2]) > float(message[2]):
+          if 'mode' in mode:
+            if mode['mode'] == 'manual':
+              # under construction
+              hasMovement = hasSomeMovement(message[1])
+              if round(time(), 3) - float(ghzMessageAlpha[2]) < 5 and float(hamMessageBravo[2]) < 5:
+                message = message if hasMovement else autonomousMessage
+
+        if 'mode' in mode: # autonomou mode in deepstream will always override manual mobility code.
+          if mode['mode'] == 'autonomous':
+            message = autonomousMessage
         #print('ready for arduino:', message)
-        # Ternary operator to check if elapsed time is greater than 2 seconds
-        #print(ghzMessageAlpha[2])
+        # Ternary operator to check if elapsed time is greater than 1.5 seconds
         d = None
         #print("waiting for 'r'")
         try:
@@ -196,12 +222,9 @@ def sendLatestMessage():
                   if(d != 'r'):
                     print("Unsuccessful message sent to arduino")
                   else:
-                    #print("GhzTimeDiff: " + str(ep() - float(ghzMessageAlpha[2]) - secondsOffset))
-                    #print("HamTimeDiff: " + str(ep() - float(hamMessageBravo[2]) - secondsOffset))
-                    #print("Attempted message to arduino: " + message[1])
                     pass
-                else:
-                  pass
+                elif mode['mode'] == 'autonomous': # handle autonomous code.
+                  sockArd.sendto(message[1], arduino_address) 
               else:
                   sockArd.sendto('0,0,0,0,0,0,0,0,0,0', arduino_address)
             else:
@@ -216,17 +239,49 @@ def sendLatestMessage():
           #sockArd.sendto(message[1], arduino_address) 
 
 def getDataFromDeepstream():
-    global mode
+    global mode, potentiometers
     while True:
         try:
-            m = get('mode')
-            if type(m) == dict and "mode" in m:
-                mode = m
-                #print(mode)
+          m = get('mode')
+          if type(m) == dict and "mode" in m:
+            mode = m
+            #print(mode)
         except:
-            pass
-        sleep(.8)
+          pass
+        sleep(.05)
+
+        try:
+          p = get('potentiometers')
+          if type(p) == dict:
+            potentiometers = p
+        except:
+          pass
+        sleep(.05)
         
+# left or right function will check to make sure the range for the arm movements are ok
+def lor(am, p):
+  if p < 0 and p < o:
+    pass
+
+
+# for record, 'potentiometers', something like this: { 'pot1': 1000, 'pot2': 684, 'pot3': 983, 'pot4': 763 }
+def dontLetTheArmGetFuckedUp(p, armMovements):
+  armOffset1 = 500
+  armOffset2 = 500
+  armOffset3 = 500
+  armOffset4 = 500
+  if len(armMovements) == 4:
+    if type(p) == dict and p != {}:
+      if 'pot1' in p and 'pot2' in p and 'pot3' in p and 'pot4' in p:
+        if type(p['pot1']) == float and type(p['pot2']) == float and type(p['pot3']) == float and type(p['pot4']) == float:
+          v1 = p['pot1'] - armOffset1
+          v2 = p['pot2'] - armOffset2
+          v3 = p['pot3'] - armOffset3
+          v4 = p['pot4'] - armOffset4
+
+  return None
+
+  
 if os.getenv("roverType") is not None:
   if os.environ["roverType"] == "rover":
     # Create a TCP/IP socket for the base
