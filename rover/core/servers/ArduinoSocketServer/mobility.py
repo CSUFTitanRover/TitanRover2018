@@ -31,13 +31,15 @@ isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
 isNvidia = True if uname == "aarch64\n" else False
 mobilityMode ={}
 gpsPoint = ( float(0), float(0) )
-serDevice = '/dev/ttyUSB0'
+serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
 
-try:
-  ser = Serial(serDevice, 9600)
-  print(ser.is_open)
-except:
-  print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
+if 'roverType' in os.environ:
+    if os.environ['roverType'] == 'base':
+        try:
+        ser = Serial(serDevice, 9600)
+        print(ser.is_open)
+        except:
+        print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
 
 
 
@@ -115,7 +117,7 @@ def initArduinoConnection():
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
-    fileName = "logitech3dReset.txt"
+    fileName = "rumblepad.txt"
     if len(sys.argv) == 2:
         fileName = str(sys.argv[1])
     elif len(sys.argv) > 2:
@@ -273,7 +275,7 @@ def checkDsButton():
         dsButton = True
  
 def main(*argv):
-    global paused, mobiliyMode, gpsPoint, ser
+    global paused, mobiliyMode, ser
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -309,8 +311,8 @@ def main(*argv):
             
             o = outVals
             t = round(time(), 3)
-            ghzBytePack = pack('s 10h d 2f s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, gpsPoint[0], gpsPoint[1], '#'.encode('utf-8'))
-            hamBytePack = pack('s 10h d 2f s', 'b'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8],    3, t, gpsPoint[0], gpsPoint[1], '#'.encode('utf-8'))
+            ghzBytePack = pack('s 10h d s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, '#'.encode('utf-8'))
+            hamBytePack = pack('s 10h d s', 'b'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8],    3, t, '#'.encode('utf-8'))
 
             if "mode" in mobilityMode:
               if "roverType" in mobilityMode:
@@ -382,57 +384,13 @@ def modeChecker():
         pass
     sleep(1)
 
-def getTheGpsBlast():
-  global gpsPoint, ser
-  if 'roverType' in os.environ:
-    if 'roverType' == 'base':
-      while True:
-        try:
-          """
-
-            record: gpsPoint
-            values:
-              { "gpsArr": [ 33.00000000, -117.000000000 ], "epoch": round(time(), 3) }
-            This function grabs the gps record from deepstream, so the main function
-            can blast that gps point over 3.4Ghz, and 433.400Mhz for the rover to pick 
-            up the data.  This is so the rover can receive a gps if it is outside the
-            range of network conntion, and getting sparse data packets.  We can update
-            The gpsPoint record from our UI by plotting a point on our map, and the 
-            mobility code will push that data out over two frequencies.
-          
-          """
-          try:
-            ser = Serial(serDevice, 9600)
-          except:
-            print("Serial Device is still not attached or not at:", serDevice)
-          gps = get("gpsPoint", 'localhost')
-          if type(gps) == dict:
-            if "gpsArr" in gps and 'epoch' in gps and os.environ["roverType"] == 'base':
-              if len(gps["gpsArr"]) == 2:
-                if time() - gps['epoch'] < 5:
-                  gpsPoint = ( gps["gpsArr"][0], gps["gpsArr"][1] )
-                  #print(gpsPoint)
-                else:
-                  sleep(.04)
-                  gpsPoint = ( float(0), float(0) )
-                  resetGpsPoint = {"gpsArr": [ float(0),float(0)],"epoch": round(time()+1000000, 3)}
-                  try:
-                    post( resetGpsPoint, "gpsPoint", "localhost" )
-                  except:
-                    print("Didn't set gps Points back to zero")
-        except:
-          print('No GPS Points Record is available')
-          pass
-      sleep(.5)
 
 if __name__ == '__main__':
   #main()
   if 'roverType' in os.environ:
     t1 = Thread(target = main)
     t2 = Thread(target = updateTimeAndSyncDeepStream)
-    t3 = Thread(target = getTheGpsBlast)
-    t4 = Thread(target = modeChecker)
+    t3 = Thread(target = modeChecker)
     t1.start()
     t2.start()
     t3.start()
-    t4.start()
