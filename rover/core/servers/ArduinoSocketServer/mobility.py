@@ -33,13 +33,21 @@ mobilityMode ={}
 gpsPoint = ( float(0), float(0) )
 serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
 
+hamPiRelaySock = None
+
 if 'roverType' in os.environ:
     if os.environ['roverType'] == 'base':
         try:
-          ser = Serial(serDevice, 9600)
-          print(ser.is_open)
+          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+          try: 
+            hamPiRelaySocket.connect(('192.168.1.5', 9005))
+          except:
+            print('could not to connect to hamPiRelaySocket')
+          #ser = Serial(serDevice, 9600)
+          #print(ser.is_open)
         except:
-          print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
+          print('could not mack a ham socket.')
+          #print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
 
 
 
@@ -307,7 +315,7 @@ def main(*argv):
                 outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
             
 	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
-            # we will also package the values to crunch the bytes down, instead of sending a string
+            # we will also package the values to crunch the bytes down, instead of AF_INET, SOCK_STREAMsending a string
             
             o = outVals
             t = round(time(), 3)
@@ -318,13 +326,27 @@ def main(*argv):
               if "roverType" in mobilityMode:
                 if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
                   try:
+                    pass
                     client_socket.sendto(ghzBytePack, address) # string bytes
                   except:
                     print("Couldn't send over Ghz")
                   try:
-                    if os.environ['roverType'] == 'base':
-                      ser.write(hamBytePack) # packed bytes
+                    if os.environ['roverType'] == 'base' and hamPiRelaySocket != None:
+                      hamPiRelaySocket.sendto(hamBytePack, ('192.168.1.5', 9005))
+                      print('SENT HAM DATA')
+                      #ser.write(hamBytePack) # packed bytes
                   except:
+                    hamPiRelaySocket.close()
+                    try:
+                      pass
+                    except:
+                      print('SOCKET CLOSED FOR RECONNECT')
+                    try:
+                      print('RECONNECTING TO HAM SOCKET')
+                      hamPiRelaySocket.connect(('192.168.1.5', 9005))
+                    except:
+                      print("COULD NOT RECONNECT")
+                      pass
                     print("Coudn't send over Ham")
                 else:
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
@@ -391,6 +413,16 @@ if __name__ == '__main__':
     t1 = Thread(target = main)
     t2 = Thread(target = updateTimeAndSyncDeepStream)
     t3 = Thread(target = modeChecker)
+    t1.daemon = True
+    t2.daemon = True
+    t3.daemon = True
     t1.start()
     t2.start()
     t3.start()
+
+    try:
+      while True:
+        sleep(1)
+    except KeyboardInterrupt:
+      print(' Interrupted! ')
+      hamPiRelaySocket.close()
