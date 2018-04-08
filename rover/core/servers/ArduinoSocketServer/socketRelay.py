@@ -12,6 +12,8 @@ from threading import Thread
 from deepstream import get, post
 from subprocess import Popen, PIPE
 from time import sleep, time
+import math
+from sqlFunctions import storeMessage
 import socket
 import sys
 import re
@@ -27,8 +29,11 @@ initialTimeStamp = time()
 ghzMessageAlpha   = [ 'a', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 hamMessageBravo   = [ 'b', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
 autonomousMessage = [ 'c', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
+message           = [ 'a', '0,0,0,0,0,0,0,0,0,0', initialTimeStamp ]
+
 hasMovement = False
 shouldGoToPoints = False
+currentLocation = None
 
 # SET THE MODE TO MANUAL TEMPORARILY
 # post({"mode": "manual"}, "mode")
@@ -113,12 +118,6 @@ def connectionToGhzAlpha():
 
 """
 
-try:
-  ser = Serial('/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0', 9600, timeout=None)
-except:
-  print("cannot connect to serial device")
-  pass
-
 def connectionToHamBravo():
     global hamMessageBravo
     message = ''
@@ -129,7 +128,10 @@ def connectionToHamBravo():
       try:
         message = ser.read_all()
       except:
-        print('not reading serial device')
+        try:
+          ser = Serial('/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0', 9600, timeout=None)
+        except:
+          pass
       if message != '':
         print(message)
       f = depackageByteData(message)
@@ -161,6 +163,13 @@ def hasSomeMovement(s):
     if m != 0:
       return True
   return False
+
+def splitOutData(d):
+  if re.search(moveRegex, d):
+    m = re.search(moveRegex, s).groups()
+    m = map(int, m)
+    return m
+  return None
   
 def sendLatestMessage():
     global hasMovement, shouldGoToPoints
@@ -171,7 +180,7 @@ def sendLatestMessage():
     deadData = "0,0,0,0,0,0,0,0,0,0"
     #sockArd.bind(arduino_address)
     sockArd.settimeout(10)
-    global ghzMessageAlpha, hamMessageBravo, autonomousMessage, mode
+    global ghzMessageAlpha, hamMessageBravo, autonomousMessage, mode, message
     #while True:
     try:
       sockArd.sendto(deadData, arduino_address)
@@ -239,19 +248,19 @@ def sendLatestMessage():
 
 
 def getDataFromDeepstream():
-    global mode, gpsManual, shouldGoToPoints
+    global mode, gpsManual, shouldGoToPoints, currentLocation
     while True:
         try:
-          m = get('mode')
+          m = get('mode', 'localhost')
           if type(m) == dict and "mode" in m:
             mode = m
             #print(mode)
         except:
           pass
-        sleep(.05)
+        sleep(0.05)
 
         try:
-          p = get('gpsManual')
+          p = get('gpsManual', 'localhost')
           if type(p) == dict:
             if 'points' in p:
               if len(p['points']) > 0:
@@ -259,7 +268,56 @@ def getDataFromDeepstream():
                   gpsManual = p['points']
         except:
           pass
-        sleep(.05)
+
+        sleep(0.05)
+        try:
+          l = get('reach', 'localhost')
+          if type(l) == dict:
+            if 'lat' in l and 'lon' in l:
+              currentLocation = l
+        except:
+          pass
+        sleep(0.05)
+
+def calculateDistance(p1, p2):
+  a1, b1 = p1
+  a2, b2 = p2
+  radius = 6371 # km
+
+  da = math.radians(a2-a1)
+  db = math.radians(b2-b1)
+  a = math.sin(da/2) * math.sin(da/2) + math.cos(math.radians(a1)) \
+    * math.cos(math.radians(a2)) * math.sin(db/2) * math.sin(db/2)
+  c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+  d = radius * c
+  return d * 1000
+
+
+"""
+
+  This function stores telemetry data to be able to be read ater a long
+  day of testing.
+
+"""
+def storeData():
+  global currentLocation, message
+  baseLocation = (0,0)
+  while True:
+    print('running StoreData:', currentLocation, message)
+    if currentLocation is not None:
+      if 'lat' in currentLocation and 'lon' in currentLocation:
+        t = message[2]
+        ghzOrHam = None
+        roverLocation = (currentLocation['lat'], currentLocation['lon'])
+        distance = calculateDistance(baseLocation, roverLocation)
+        print(distance)
+        if message[0] == 'a':
+          ghzOrHam = 0
+        if message[0] == 'b':
+          ghzOrHam = 1 
+        if ghzOrHam is not None:
+          storeMessage(message[2], distance, ghzOrHam)
+    sleep(1)
         
 def goToWhenConnectionLost():
   global hasSomeMovement, shouldGoToPoints, gpsManual
@@ -273,34 +331,7 @@ def goToWhenConnectionLost():
       except:
         pass
   sleep(0.04)
-
-  
-
-
-# left or right function will check to make sure the range for the arm movements are ok
-def lor(am, p):
-  if p < 0 and p < o:
-    pass
-
-
-# for record, 'potentiometers', something like this: { 'pot1': 1000, 'pot2': 684, 'pot3': 983, 'pot4': 763 }
-def dontLetTheArmGetFuckedUp(p, armMovements):
-  armOffset1 = 500
-  armOffset2 = 500
-  armOffset3 = 500
-  armOffset4 = 500
-  if len(armMovements) == 4:
-    if type(p) == dict and p != {}:
-      if 'pot1' in p and 'pot2' in p and 'pot3' in p and 'pot4' in p:
-        if type(p['pot1']) == float and type(p['pot2']) == float and type(p['pot3']) == float and type(p['pot4']) == float:
-          v1 = p['pot1'] - armOffset1
-          v2 = p['pot2'] - armOffset2
-          v3 = p['pot3'] - armOffset3
-          v4 = p['pot4'] - armOffset4
-
-  return None
-
-  
+ 
 if os.getenv("roverType") is not None:
   if os.environ["roverType"] == "rover":
     # Create a TCP/IP socket for the base
@@ -324,10 +355,14 @@ if os.getenv("roverType") is not None:
     t2 = Thread(target = connectionToHamBravo)
     t3 = Thread(target = sendLatestMessage)
     t4 = Thread(target = getDataFromDeepstream)
+    t5 = Thread(target = storeData)
 
     t1.start()
     t2.start()
     t3.start()
     t4.start()
+    t5.start()
+  else:
+    print('Your roverType is set to base, so socketRelay will not start until roverType is set to: rover')
 else:
     print("You need to set the environment variable roverType=\"rover\"")

@@ -13,5 +13,5 @@ def storeMessage(time, distance, messageType):
     args = [time, distance, messageType]
     c.execute('''INSERT INTO telemetry (time, distance, messageType) VALUES (?, ?, ?)''', args)
     conn.commit()
-    except Error as e:
-      print(e)
+  except Error as e:
+    print(e)
