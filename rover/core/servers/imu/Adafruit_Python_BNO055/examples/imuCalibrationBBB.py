@@ -30,22 +30,16 @@ from Adafruit_BNO055 import BNO055
 #bno = BNO055.BNO055(serial_port= '/dev/ttyAMA0', rst=18)
 
 # I2C Connection (SCL=p9_19, SDA=P9_20, and RST connected to pin P9_12)
-bno = BNO055.BNO055(busnum=2)
+bno = BNO055.BNO055(busnum=1)
 
 # Enable verbose debug logging if -v is passed as a parameter.
 if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
     logging.basicConfig(level=logging.DEBUG)
 
 # Initialize the BNO055 and stop if something went wrong.
-while True:
-    try:
-        if not bno.begin():
-            print('Sensor not connected')
-            time.sleep(1)
-        else:
-            break
-    except:
-        print('Waiting for sensor...')
+while not bno.begin():
+    print('Waiting for sensor...')
+    time.sleep(1)
 
 # Print system status and self test result.
 status, self_test, error = bno.get_system_status()
@@ -66,6 +60,7 @@ print('Magnetometer ID:    0x{0:02X}'.format(mag))
 print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 
 print('Reading BNO055 data, press Ctrl-C to quit...')
+
 while True:
     # Read the Euler angles for heading, roll, pitch (all in degrees).
     heading, roll, pitch = bno.read_euler()
@@ -78,9 +73,6 @@ while True:
     if (sys == 3 and gyro == 3 and accel == 3 and mag == 3):
         break
 
-fileOut = open('calibrationData.txt','w')
-fileOut.write(bno.get_calibration())
-fileOut.close
 fileOut = open('calibrationData.txt', 'w')
 data = bno.get_calibration()
 for i in range(len(data)):
@@ -88,7 +80,7 @@ for i in range(len(data)):
     fileOut.write("\n")
 fileOut.close()
 
-print("BNO055 IMU successfully calibrated!")
+print("BNO055 IMU successfully calibrated")
 print("The calibration data is located in calibrationData.txt.")
-print("The calibration value is:")
+print("The calibration values are:")
 print(bno.get_calibration())

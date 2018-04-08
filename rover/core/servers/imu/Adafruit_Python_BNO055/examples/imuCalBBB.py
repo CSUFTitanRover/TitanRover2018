@@ -40,24 +40,18 @@ magneticDeclination = 11.88
 #bno = BNO055.BNO055(serial_port='/dev/ttyAMA0', rst=18)
 # BeagleBone Black configuration with default I2C connection (SCL=P9_19, SDA=P9_20),
 # and RST connected to pin P9_12:
-bno = BNO055.BNO055(busnum=2)
+bno = BNO055.BNO055(busnum=1)
 confMode = True
 
 # Enable verbose debug logging if -v is passed as a parameter.
 if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
     logging.basicConfig(level=logging.DEBUG)
 
+time.sleep(1)
 # Initialize the BNO055 and stop if something went wrong.
-while True:
-    try:
-        if not bno.begin():
-            print('Sensor not connected')
-            time.sleep(1)
-            #raise RuntimeError('Failed to initialize BNO055! Is the sensor connected?')
-        else:
-            break
-    except:
-        print('Waiting for sensor...')
+while not bno.begin():
+    print('Waiting for sensor...')
+    time.sleep(1)
 
 def magToTrue(h):
     return (h + magneticDeclination) % 360
@@ -87,17 +81,24 @@ print('Magnetometer ID:    0x{0:02X}'.format(mag))
 print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 
 print('Reading BNO055 data, press Ctrl-C to quit...')
+
 try:
     while True:
+        '''
+        if confMode == False and (sys != 3 or mag != 3):
+            print("Reloading calibration file...")
+            bno.set_calibration(data)
+        '''
+        
         # Read the Euler angles for heading, roll, pitch (all in degrees)
         heading, roll, pitch = bno.read_euler()
         # Read the calibration status, 0=uncalibrated and 3=fully calibrated
         sys, gyro, accel, mag = bno.get_calibration_status()
         heading = magToTrue(heading)
        
-	if (sys == 3 and gyro == 3 and accel == 3 and mag == 3 and confMode):
-		bno.set_mode(NDOF)
-		confMode = False	        
+        if sys == 3 and gyro == 3 and accel == 3 and mag == 3 and confMode:
+            bno.set_mode(0X0C)
+            confMode = False
 
         print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
             heading, roll, pitch, sys, gyro, accel, mag))
