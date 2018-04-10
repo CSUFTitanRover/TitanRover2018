@@ -87,9 +87,11 @@ global mode  # Current set name (string) in use
 global modeNames  # List of set names (strings) from .txt file
 global actionTime  # Seconds needed to trigger pause / mode change
 global pausedLEDs  # LED settings for paused mode
+global maxRotateSpeed
 paused = False
 modeNum = 0
 actionTime = 3
+maxRotateSpeed = 50
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
@@ -114,6 +116,7 @@ def setRoverActions():
     roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to support "mode" action
     roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
     roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0}  # Added to support button throttle
+    roverActions["rotate"] = {"special": "none", "rate": "none", "direction": 1, "value": 0}  # Added to support turn in place
     #roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
 
 setRoverActions()  # Initiate roverActions to enter loop
@@ -282,6 +285,16 @@ def checkDsButton():
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         dsButton = True
  
+def checkRotate(outValue):
+    global roverActions
+    if roverActions["rotate"]["value"] != 0:
+        outValue[0] = 0
+        outValue[1] = maxRotateSpeed
+        if roverActions["rotate"]["value"] == -1:
+            outValue[1] = -maxRotateSpeed
+        return outValue
+    return outValue
+
 def main(*argv):
     global paused, mobiliyMode, ser
     startUp(argv)  # Load appropriate controller(s) config file
@@ -312,11 +325,10 @@ def main(*argv):
             if paused:
                 outVals = list(map(getZero, actionList))
             else:
-                outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
+                outVals = checkRotate(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
             
 	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
             # we will also package the values to crunch the bytes down, instead of AF_INET, SOCK_STREAMsending a string
-            
             o = outVals
             t = round(time(), 3)
             ghzBytePack = pack('s 10h d s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, '#'.encode('utf-8'))
