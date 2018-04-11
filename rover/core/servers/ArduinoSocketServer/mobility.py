@@ -348,8 +348,13 @@ def main(*argv):
                       print('SENT HAM DATA')
                       #ser.write(hamBytePack) # packed bytes
                   except:
-                    hamPiRelaySocket.close()
-                    try:
+					try:
+					  hamPiRelaySocket.close()
+					  hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+            		  hamPiRelaySocket.connect(('192.168.1.5', 9005))
+					except:
+					  pass                    
+					try:
                       pass
                     except:
                       print('SOCKET CLOSED FOR RECONNECT')
