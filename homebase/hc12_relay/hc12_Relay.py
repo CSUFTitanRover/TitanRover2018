@@ -5,11 +5,11 @@ from time import time, sleep
 localAddress = "0.0.0.0" # bind to local address
 port = 9005 #listening port
 oDevice = "/dev/ttyUSB0" #hc12 device used for output to rover
-baudRate = 1200
+baudRate = 9600
 oSerial = serial.Serial(oDevice, baudRate, timeout=None)
 iSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-TIMEOUT = 5 #timeout in seconds 
-buf = bytearray(100)
+TIMEOUT = 1 #timeout in seconds 
+buf = bytearray(1024)
 try:
     iSock.bind((localAddress, port))
     print("binding")
@@ -30,7 +30,7 @@ try:
     while True:
         try:
             print("receiving")
-            buf = rSock.recv(100)
+            buf = rSock.recv(1024)
             print (len(buf))
             if (len(buf) > 1):
                 last_receive_time = time()
