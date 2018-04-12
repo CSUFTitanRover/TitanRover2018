@@ -11,20 +11,47 @@
 ### END INIT INFO
 
 from socket import *
+from struct import *
 from datetime import datetime
-import subprocess
-from subprocess import Popen
+import re
+from subprocess import Popen, PIPE
 from threading import Thread
 from deepstream import post, get
-import time
+from time import sleep, time
+from relayFunctions import ep
+from serial import Serial
 import pygame
 import numpy as np
 import sys
 import os
 
-uname = str(Popen([ "uname", "-m" ], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0].decode("utf-8"))
+uname = str(Popen([ "uname", "-m" ], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8"))
+
 isPi = True if (uname == "armv7l\n" or uname == "arm6l\n") else False
-isNvidia = True if uname == "arm64\n" else False
+isNvidia = True if uname == "aarch64\n" else False
+mobilityMode ={}
+gpsPoint = ( float(0), float(0) )
+serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
+
+hamPiRelaySock = None
+
+if 'roverType' in os.environ:
+    if os.environ['roverType'] == 'base':
+        try:
+          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+          try: 
+            hamPiRelaySocket.connect(('192.168.1.5', 9005))
+          except:
+            print('could not to connect to hamPiRelaySocket')
+          #ser = Serial(serDevice, 9600)
+          #print(ser.is_open)
+        except:
+          print('could not mack a ham socket.')
+          #print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
+
+
+
+
 
 if isPi:
     import RPi.GPIO as GPIO
@@ -38,12 +65,13 @@ if isPi:
     GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
 
 # System setup wait
-#time.sleep(5)
+sleep(5)
 
-# Arduino address and connection info
-address = ("192.168.1.10", 5000)
+# Tx2 address and connection info
+address = ("192.168.1.2", 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
-client_socket.settimeout(0.5)
+client_socket.settimeout(1)
+
 
 # Initialize pygame and joysticks
 os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -59,25 +87,12 @@ global mode  # Current set name (string) in use
 global modeNames  # List of set names (strings) from .txt file
 global actionTime  # Seconds needed to trigger pause / mode change
 global pausedLEDs  # LED settings for paused mode
+global maxRotateSpeed
 paused = False
 modeNum = 0
 actionTime = 3
+maxRotateSpeed = 50
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
-
-print("Going through startup process...")
-while True:
-    success = None
-    try:
-        success = post({"mode": dsMode}, "mode")
-    except:
-        pass
-    time.sleep(.1)
-
-    print(str(success))
-    if success == "SUCCESS":
-        break
-        
-print("Posted mode to manual...")
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
               "joint5b", "reserved1", "ledMode"]  # List in order of socket output values
@@ -101,18 +116,19 @@ def setRoverActions():
     roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to support "mode" action
     roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
     roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0}  # Added to support button throttle
+    roverActions["rotate"] = {"special": "none", "rate": "none", "direction": 1, "value": 0}  # Added to support turn in place
     #roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
 
 setRoverActions()  # Initiate roverActions to enter loop
 
-# Initialize connection to Arduino
+
 def initArduinoConnection():
     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-initArduinoConnection()
+#initArduinoConnection()
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
-    fileName = "logitech3dReset.txt"
+    fileName = "rumblepad.txt"
     if len(sys.argv) == 2:
         fileName = str(sys.argv[1])
     elif len(sys.argv) > 2:
@@ -268,35 +284,19 @@ def checkDsButton():
         datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         dsButton = True
+ 
+def checkRotate(outValue):
+    global roverActions
+    if roverActions["rotate"]["value"] != 0:
+        outValue[0] = 0
+        outValue[1] = maxRotateSpeed
+        if roverActions["rotate"]["value"] == -1:
+            outValue[1] = -maxRotateSpeed
+        return outValue
+    return outValue
 
-    global dsMode
-    while True:
-        try:
-            post({"mobilityTime": int(time.time())}, "mobilityTime")
-            time.sleep(.1)
-            m = get("mode")
-            if type(m) == dict:
-                dsMode = m["mode"]
-
-            if prevDsMode != dsMode:
-                client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-                
-        except:
-            print("Cannot send to Deepstream") 
-        time.sleep(.1)
-
-def requestControl():
-    try:
-        modeRecord = post({"mode": "manual"}, "mode")
-        print("Updated mode record:", str(modeRecord))
-        time.sleep(.1)
-        initArduinoConnection()
-        print("Trying to initialize a connection to the arduino...")
-    except:
-        print("Cannot access mode record")
-        
 def main(*argv):
-    global paused
+    global paused, mobiliyMode, ser
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -316,36 +316,130 @@ def main(*argv):
             checkPause()
             checkModes()
             setLed()
-            print("Sending Arduino command")
-            try:
+            #print("Sending Tx2 command")
+            
+            #re_data = client_socket.recvfrom(512)
+            #print(bytes.decode(re_data[0]))  # Debug
+            #if bytes.decode(re_data[0]) == "r":
+            #        print("Received packet")  # Debug
+            if paused:
+                outVals = list(map(getZero, actionList))
+            else:
+                outVals = checkRotate(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
+            
+	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
+            # we will also package the values to crunch the bytes down, instead of AF_INET, SOCK_STREAMsending a string
+            o = outVals
+            t = round(time(), 3)
+            ghzBytePack = pack('s 10h d s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, '#'.encode('utf-8'))
+            hamBytePack = pack('s 10h d s', 'b'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8],    3, t, '#'.encode('utf-8'))
 
-                #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-                re_data = client_socket.recvfrom(512)
-                #print(bytes.decode(re_data[0]))  # Debug
-                if bytes.decode(re_data[0]) == "r":
-                    #print("Received packet")  # Debug
-                    if paused:
-                        outVals = list(map(getZero, actionList))
-                    else:
-                        outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
-                    outVals = list(map(str, outVals))
-                    outString = ",".join(outVals)
-                    if dsMode == "manual":
-                        #print("Into the DSManual Mode")
-                        client_socket.sendto(bytes(outString,"utf-8"), address)
-                        #print("After Sending The Commands To The Socket")
-                        print(outString)
-                    else:
-                        print("Not in manual mode")
-            except:
-                print("Send failed")
-                #client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-               
+            if "mode" in mobilityMode:
+              if "roverType" in mobilityMode:
+                if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
+                  try:
+                    pass
+                    client_socket.sendto(ghzBytePack, address) # string bytes
+                  except:
+                    print("Couldn't send over Ghz")
+                  try:
+                    if os.environ['roverType'] == 'base' and hamPiRelaySocket != None:
+                      hamPiRelaySocket.sendto(hamBytePack, ('192.168.1.5', 9005))
+                      print('SENT HAM DATA')
+                      #ser.write(hamBytePack) # packed bytes
+                  except:
+					try:
+					  hamPiRelaySocket.close()
+					  hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+            		  hamPiRelaySocket.connect(('192.168.1.5', 9005))
+					except:
+					  pass                    
+					try:
+                      pass
+                    except:
+                      print('SOCKET CLOSED FOR RECONNECT')
+                    try:
+                      print('RECONNECTING TO HAM SOCKET')
+                      hamPiRelaySocket.connect(('192.168.1.5', 9005))
+                    except:
+                      print("COULD NOT RECONNECT")
+                      pass
+                    print("Coudn't send over Ham")
+                else:
+                  print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
+              else:
+                print("The key 'roverType' is missing from the deepstream record: mode")
+              print(ghzBytePack)
+              print(hamBytePack)
+              print()
+            else:
+              print("Not in Manual Mode, MobilityMode: " + ' HAS NOT BEEN SET IN DEEPSTREAM' if mobilityMode == {} else str(mobilityMode))
+
+def updateTimeAndSyncDeepStream():
+  global gpsPoint
+  if 'roverType' in os.environ:
+    if os.environ['roverType'] == 'base': 
+      while True:
+        out, err = Popen(["ssh", "-o", "StrictHostKeyChecking=no", "root@192.168.1.2", "date +%s"], stdout=PIPE, stderr=PIPE).communicate()
+        out = out.decode('utf-8')
+        err = err.decode('utf-8')
+        #print("OUT:", out)
+        if err != '':
+          print("TimeStamp Sync ERR:", err)
+        if len(err) > 0:
+            if err[0] == '@':
+                Popen(["ssh-keygen", "-f", "/root/.ssh/known_hosts", "-R", "192.168.1.2"], stdout=PIPE, stderr=PIPE).communicate()
+        if out != "":
+            date = out[:-1]
+            Popen(["date", "-s", "@" + str(date)])
+        sleep(10)
+
+def modeChecker():
+  global mobilityMode
+  while True:
+    try:
+      m = get("mode", '192.168.1.2')
+      if type(m) == dict:
+        if "mode" in m and "roverType" in m and m != {}:
+          mobilityMode = m
+    except: 
+      try:
+        sleep(0.1)
+        m = get("mode", "127.0.0.1")
+        print("Mode: " + str(m))
+        if type(m) == dict:
+          if "mode" in m and "roverType" in m and m != {}:
+            mobilityMode = m
+            sleep(1)
+            if "roverType" in m and "roverType" in os.environ:
+              if m["roverType"] == "base" and os.environ['roverType'] == 'base':
+                try:
+                  post(mobilityMode, "mode", "192.168.1.2")
+                except:
+                  print("could not post the mode over to the rover")
+                  pass          
+      except:
+        print("Not getting mobility mode from local deepstream")
+        pass
+    sleep(1)
+
+
 if __name__ == '__main__':
-    main()
-'''
+  #main()
+  if 'roverType' in os.environ:
     t1 = Thread(target = main)
-    t2 = Thread(target = sendToDeepstream)
+    t2 = Thread(target = updateTimeAndSyncDeepStream)
+    t3 = Thread(target = modeChecker)
+    t1.daemon = True
+    t2.daemon = True
+    t3.daemon = True
     t1.start()
     t2.start()
-'''
+    t3.start()
+
+    try:
+      while True:
+        sleep(1)
+    except KeyboardInterrupt:
+      print(' Interrupted! ')
+      hamPiRelaySocket.close()

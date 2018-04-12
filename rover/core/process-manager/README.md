@@ -18,33 +18,54 @@ Here is an example of the **processes.json** file where each process is an objec
         "path": "/TitanRover2018/rover/core/process-manager/motionConf/",
         "python": "sudo",
         "screenName": "motion",
-        "script": "motion"
+        "script": "motion",
+        "computer": "rover"
     },
     {
         "path": "/TitanRover2018/rover/core/servers/ArduinoSocketServer/",
-        "python": "python3.4",
+        "python": "python3.5",
         "screenName": "mobility",
-        "script": "mobility.py"
+        "script": "mobility.py",
+        "computer": "both"
     },
     {
         "path": "/TitanRover2018/rover/core/servers/iftop/",
         "python": "python",
         "screenName": "speed",
-        "script": "iftop.py"
+        "script": "iftop.py",
+        "computer": "rover"
     },
     {
         "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
         "python": "python",
         "screenName": "reach",
-        "script": "emlidreach.py"
+        "script": "emlidreach.py",
+        "computer": "rover"
     },
     {
         "path": "/TitanRover2018/rover/controls-systems/mobility/GNSS/",
         "python": "python",
         "screenName": "reachSocketServer",
-        "script": "socketServer.py"
+        "script": "socketServer.py",
+        "computer": "rover"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/servers/autonomanual/",
+        "python": "python3.5",
+        "screenName": "autonomanual",
+        "script": "autonomanual.py",
+        "computer": "rover"
+    },
+    {
+        "path": "/TitanRover2018/rover/core/process-manager/roverAPI/",
+        "python": "python3.5",
+        "screenName": "roverAPI",
+        "script": "roverAPI.py",
+        "computer": "rover"
     }
+
 ]
+
 ```
 There are three processes in this example above. All you need to do is add your process to the file.
 

@@ -50,6 +50,8 @@ else:
     p4 = Popen([ "whereis", "motion" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     p5 = Popen([ "whereis", "nmap" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     p6 = Popen([ "whereis", "arp-scan" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p7 = Popen([ "whereis", "pip3" ], stdout=PIPE, stderr=PIPE).communicate()[0]
+    p8 = Popen([ "whereis", "flask" ], stdout=PIPE, stderr=PIPE).communicate()[0]
     
     # automatically install dependencies if it does not exists.
     if p1[8:] == "":
@@ -63,6 +65,10 @@ else:
     if p3[5:] == "":
         print(c.YELLOW+"Installing python-pip, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "python-pip", "-y"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip", "install", "--upgrade", "pip"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip", "install", "simplekml"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip", "install", "pygame"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip", "install", "pyserial"], stdout=PIPE, stderr=PIPE).communicate()
 
     if p4[8:] == "" or len(p4) == 20:
         print(c.YELLOW+"Installing motion, Please wait..."+c.DEFAULT)
@@ -76,6 +82,16 @@ else:
         print(c.YELLOW+"Installing arp-scan, Please wait..."+c.DEFAULT)
         Popen([ "sudo", "apt-get", "install", "arp-scan", "-y"], stdout=PIPE, stderr=PIPE).communicate()
     
+    if p7[6:] == "":
+        print(c.YELLOW+"Installing python3-pip, Please wait..."+c.DEFAULT)
+        Popen([ "sudo", "apt-get", "install", "python3-pip", "-y"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip3", "install", "--upgrade", "pip"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip3", "install", "simplekml"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip3", "install", "pygame"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip3", "install", "pyserial"], stdout=PIPE, stderr=PIPE).communicate()
+    
+    if p8[7:] == "":
+        Popen([ "sudo", "pip3", "install", "flask"], stdout=PIPE, stderr=PIPE).communicate()
 
     # Always copy the motion config files (for now), as updates in the future may change
     try:
@@ -105,7 +121,8 @@ else:
         __import__("simplekml") 
     except:
         print(c.YELLOW+"Installing simplekml for python, Please wait..."+c.DEFAULT)
-        Popen([ "sudo", "pip", "install", "simplekml", "-y"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip", "install", "simplekml"], stdout=PIPE, stderr=PIPE).communicate()
+        Popen([ "sudo", "pip3", "install", "simplekml"], stdout=PIPE, stderr=PIPE).communicate()
 
 
 
