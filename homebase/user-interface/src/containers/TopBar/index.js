@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
+import Tooltip from 'material-ui/Tooltip';
 import IconButton from 'material-ui/IconButton';
 import MenuIcon from 'material-ui-icons/Menu';
-import Typography from 'material-ui/Typography';
-import { openLeftMenu } from '../../actions/';
+import { openLeftMenu } from '../../actions/menu';
+import Stopwatch from '../../components/Stopwatch/';
 
 const propTypes = {
   /** handles dispatching the method to open the left menu */
@@ -26,6 +27,11 @@ const mapStateToProps = state => ({ leftMenuActive: state.leftMenuActive });
 
 const mapDispatchToProps = dispatch => ({
   handleOnClick: () => {
+    // dispatch the window resize method to force the GL Playground to resize itself
+    // this gets rid of the extra spacing that appears
+    // although it's kind of a hacky approach
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 225);
+
     dispatch(openLeftMenu());
   },
 });
@@ -38,18 +44,18 @@ class TopBar extends Component {
   render() {
     const { leftMenuActive, handleOnClick, classNames } = this.props;
     const iconStyle = {
-      display: leftMenuActive ? 'none' : 'flex',
+      visibility: leftMenuActive ? 'hidden' : 'visible',
     };
 
     return (
       <AppBar position="static" className={classNames}>
         <Toolbar>
-          <IconButton color="contrast" aria-label="Menu" onClick={handleOnClick} style={iconStyle}>
-            <MenuIcon />
-          </IconButton>
-          <Typography type="title" color="inherit" >
-            Mission Elapsed Time
-          </Typography>
+          <Tooltip title="Open Menu" placement="bottom">
+            <IconButton color="inherit" aria-label="Open Menu" onClick={handleOnClick} style={iconStyle} >
+              <MenuIcon />
+            </IconButton>
+          </Tooltip>
+          <Stopwatch />
         </Toolbar>
       </AppBar >
     );
