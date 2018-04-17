@@ -8,6 +8,8 @@ import requests
 global ser, nvidiaIp
 nvidiaIp = "192.168.1.2"
 
+subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
+sleep(5)
 
 def reach():
     try:
