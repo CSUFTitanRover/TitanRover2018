@@ -1,6 +1,6 @@
 Reach System Requirements for Network Communications
 =============================================================================================================
-This system will enable the network packet forwarding between the Rasberry Pi and the Reach Via the USB cable
+This system will enable the network packet forwarding between the TX2 and the Reach Via the USB cable
 
 
 TX2 - Required Changes:
