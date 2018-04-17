@@ -3,7 +3,7 @@ Reach System Requirements for Network Communications
 This system will enable the network packet forwarding between the Rasberry Pi and the Reach Via the USB cable
 
 
-Raspberry Pi - Required Changes:
+TX2 - Required Changes:
 ================================
 
 Run bash command once:
@@ -23,16 +23,16 @@ ADD to /etc/network/interface file
 
 =============
 
-Startup script "reach_USB_OTG.sh" required on Rover Raspberry Pi
+Startup script "reach_USB_OTG_TX2.sh" required on Rover TX2
 
     #Bash Commands in script
     iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -J MASQUERADE
 
 
-Emlid Reach ON ROVER CONNECTED TO RASPBERRY PI VIA USB - Required Changes:
+Emlid Reach ON ROVER CONNECTED TO TX2 VIA USB - Required Changes:
 ================================
 
-Startup script "reach_USB_OTG.sh" required on Rover Emlid Reach
+Startup script "reach_USB_OTG_Reach.sh" required on Rover Emlid Reach
 
     #Bash Commands in script
     HOST_USB_IP=192.168.2.2
