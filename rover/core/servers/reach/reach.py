@@ -8,21 +8,33 @@ import requests
 global ser, nvidiaIp
 nvidiaIp = "192.168.1.2"
 
-subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
-sleep(5)
+
+#sleep(10)
+#subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
+#subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
 
 def reach():
+    subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
+    subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
     try:
+        while True:
+            try:
+                proc = subprocess.Popen(['ssh', 'root@192.168.2.15'], stdout = subprocess.PIPE,)
+                out = proc.communicate()[0]
+                if out:
+                    break
+            except:
+                pass
         while True:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 s.bind(('', 7072))
-                s.listen(5)
+                s.listen(2)
                 break
             except:
                 subprocess.call(' sudo lsof -t -i tcp:7072 | xargs kill -9', shell = True)
                 print("Waiting For Connection")
-                sleep(5)
+                sleep(2)
 
 
         while True:
@@ -66,7 +78,8 @@ def reach():
                     
             else:
                 print("No valid regex data")
-                sleep(1)
+                s.close()
+                break
 
             print(data)
     except KeyboardInterrupt:
