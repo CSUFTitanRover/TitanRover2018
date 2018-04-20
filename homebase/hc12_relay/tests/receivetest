@@ -2,20 +2,14 @@
 import socket
 import serial
 from time import time, sleep
-localAddress = "0.0.0.0" # bind to local address
+localAddress = "127.0.0.1" # bind to local address
 port = 9005 #listening port
-oDevice = "/dev/ttyUSB0" #hc12 device used for output to rover
-baudRate = 9600
+#oDevice = "/dev/ttyUSB0" #hc12 device used for output to rover
+baudRate = 1200
+#oSerial = serial.Serial(oDevice, baudRate, timeout=None)
 iSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 TIMEOUT = 1 #timeout in seconds 
-buf = bytearray(1024)
-while True:
-    try:
-        oSerial = serial.Serial(oDevice, baudRate, timeout=None)
-        break
-    except:
-        print("Plug in hc12 then restart")
-        sleep(1)
+buf = bytearray(100)
 try:
     iSock.bind((localAddress, port))
     print("binding")
@@ -36,12 +30,12 @@ try:
     while True:
         try:
             print("receiving")
-            buf = rSock.recv(1024)
+            buf = rSock.recv(100)
             print (len(buf))
             if (len(buf) > 1):
                 last_receive_time = time()
-                print("last receive time")
-                print(last_receive_time)
+                #print("last receive time")
+                #print(last_receive_time)
             else:
                 current_time = time()
                 inactivity_duration = current_time - last_receive_time
@@ -51,13 +45,13 @@ try:
                     print("rose timeout")
                     raise TimeoutError('TIMEOUT')
                 
-            #sleep(1)
+            sleep(1)
         except:
             print('TIMED OUT\n reopening socket')
             rSock.close()
             iSock.close()
-            #print("sleeping")
-            #sleep(1)
+            print("sleeping")
+            sleep(1)
             try:
                 iSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
                 print("remake isock")
@@ -82,14 +76,10 @@ try:
 
         try:
             print("writing")
-            oSerial.write(buf)
-            #sleep(1)
+            #oSerial.write(buf)
+            sleep(1)
         except:
             print("Failed to write.")
-            sleep(1)
-            oSerial = serial.Serial(oDevice, baudRate, timeout=None)
-
-
 except:
     print("Connection interuppted!")
     rSock.close()
