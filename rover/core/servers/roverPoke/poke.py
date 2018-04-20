@@ -3,6 +3,8 @@ from time import sleep
 from serial import Serial
 from threading import Thread
 
+sleep(8.5)
+
 while True:
     try:
         ser = Serial('/dev/serial/by-id/usb-Silicon_Labs_poke_3387-if00-port0', 9600)
