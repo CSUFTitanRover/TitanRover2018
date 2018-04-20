@@ -45,13 +45,13 @@ try:
                     print("rose timeout")
                     raise TimeoutError('TIMEOUT')
                 
-            sleep(1)
+            #sleep(1)
         except:
             print('TIMED OUT\n reopening socket')
             rSock.close()
             iSock.close()
-            print("sleeping")
-            sleep(1)
+            #print("sleeping")
+            #sleep(1)
             try:
                 iSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
                 print("remake isock")
@@ -77,7 +77,7 @@ try:
         try:
             print("writing")
             oSerial.write(buf)
-            sleep(1)
+            #sleep(1)
         except:
             print("Failed to write.")
 except:
