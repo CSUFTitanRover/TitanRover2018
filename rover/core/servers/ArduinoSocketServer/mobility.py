@@ -338,7 +338,7 @@ def main(*argv):
               if "roverType" in mobilityMode:
                 if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
                   try:
-                    pass
+                    pass        #check - What is this pass for?
                     client_socket.sendto(ghzBytePack, address) # string bytes
                   except:
                     print("Couldn't send over Ghz")
@@ -356,6 +356,7 @@ def main(*argv):
                       pass                    
                     print("Coudn't send over Ham")
                 else:
+                    #check -how does this pause the rover???
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
               else:
                 print("The key 'roverType' is missing from the deepstream record: mode")
@@ -427,6 +428,7 @@ if __name__ == '__main__':
     t2.start()
     t3.start()
 
+    #check - is this for the ham close or for a keyboard interrupt?  do we need this?
     try:
       while True:
         sleep(1)
