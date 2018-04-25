@@ -349,8 +349,8 @@ def main(*argv):
                       #ser.write(hamBytePack) # packed bytes
                   except:
                     try:
-                      hamPiRelaySocket.close()
-                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+                      hamPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
+                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)      #check - shouldn't this be UDP
                       hamPiRelaySocket.connect(('192.168.1.5', 9005))
                     except:
                       pass                    
@@ -391,7 +391,7 @@ def modeChecker():
     try:
       m = get("mode", '192.168.1.2')
       if type(m) == dict:
-        if "mode" in m and "roverType" in m and m != {}:
+        if "mode" in m and "roverType" in m and m != {}:   #check - isn't  m != {} not needed
           mobilityMode = m
     except: 
       try:
@@ -401,8 +401,8 @@ def modeChecker():
         if type(m) == dict:
           if "mode" in m and "roverType" in m and m != {}:
             mobilityMode = m
-            sleep(1)
-            if "roverType" in m and "roverType" in os.environ:
+            sleep(1)                #check - why is sleep so long
+            if "roverType" in m and "roverType" in os.environ:    #check - duplicate check of 1st variable
               if m["roverType"] == "base" and os.environ['roverType'] == 'base':
                 try:
                   post(mobilityMode, "mode", "192.168.1.2")
