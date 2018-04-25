@@ -38,7 +38,7 @@ hamPiRelaySock = None
 if 'roverType' in os.environ:
     if os.environ['roverType'] == 'base':
         try:
-          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)  #check - why is the ham on tcp wont this lag the connection when it is having connection issues
           try: 
             hamPiRelaySocket.connect(('192.168.1.5', 9005))
           except:
@@ -67,14 +67,14 @@ if isPi:
 # System setup wait
 sleep(5)
 
-# Tx2 address and connection info
+# Tx2 address and connection info - UPD connection
 address = ("192.168.1.2", 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(1)
 
 
 # Initialize pygame and joysticks
-os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_VIDEODRIVER"] = "dummy"  #pygame will error since we don't use a video source, prevents that issue
 pygame.init()
 pygame.joystick.init()
 
@@ -124,7 +124,6 @@ setRoverActions()  # Initiate roverActions to enter loop
 
 def initArduinoConnection():
     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-#initArduinoConnection()
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
