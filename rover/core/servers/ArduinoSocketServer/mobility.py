@@ -38,7 +38,7 @@ hamPiRelaySock = None
 if 'roverType' in os.environ:
     if os.environ['roverType'] == 'base':
         try:
-          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)  #check - why is the ham on tcp wont this lag the connection when it is having connection issues
           try: 
             hamPiRelaySocket.connect(('192.168.1.5', 9005))
           except:
@@ -67,14 +67,14 @@ if isPi:
 # System setup wait
 sleep(5)
 
-# Tx2 address and connection info
+# Tx2 address and connection info - UPD connection
 address = ("192.168.1.2", 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(1)
 
 
 # Initialize pygame and joysticks
-os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_VIDEODRIVER"] = "dummy"  #pygame will error since we don't use a video source, prevents that issue
 pygame.init()
 pygame.joystick.init()
 
@@ -124,7 +124,6 @@ setRoverActions()  # Initiate roverActions to enter loop
 
 def initArduinoConnection():
     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-#initArduinoConnection()
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -338,7 +337,7 @@ def main(*argv):
               if "roverType" in mobilityMode:
                 if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
                   try:
-                    pass
+                    pass        #check - What is this pass for?
                     client_socket.sendto(ghzBytePack, address) # string bytes
                   except:
                     print("Couldn't send over Ghz")
@@ -349,13 +348,14 @@ def main(*argv):
                       #ser.write(hamBytePack) # packed bytes
                   except:
                     try:
-                      hamPiRelaySocket.close()
-                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+                      hamPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
+                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)      #check - shouldn't this be UDP
                       hamPiRelaySocket.connect(('192.168.1.5', 9005))
                     except:
                       pass                    
                     print("Coudn't send over Ham")
                 else:
+                    #check -how does this pause the rover???
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
               else:
                 print("The key 'roverType' is missing from the deepstream record: mode")
@@ -390,7 +390,7 @@ def modeChecker():
     try:
       m = get("mode", '192.168.1.2')
       if type(m) == dict:
-        if "mode" in m and "roverType" in m and m != {}:
+        if "mode" in m and "roverType" in m and m != {}:   #check - isn't  m != {} not needed
           mobilityMode = m
     except: 
       try:
@@ -400,8 +400,8 @@ def modeChecker():
         if type(m) == dict:
           if "mode" in m and "roverType" in m and m != {}:
             mobilityMode = m
-            sleep(1)
-            if "roverType" in m and "roverType" in os.environ:
+            sleep(1)                #check - why is sleep so long
+            if "roverType" in m and "roverType" in os.environ:    #check - duplicate check of 1st variable
               if m["roverType"] == "base" and os.environ['roverType'] == 'base':
                 try:
                   post(mobilityMode, "mode", "192.168.1.2")
@@ -427,6 +427,7 @@ if __name__ == '__main__':
     t2.start()
     t3.start()
 
+    #check - is this for the ham close or for a keyboard interrupt?  do we need this?
     try:
       while True:
         sleep(1)
