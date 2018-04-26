@@ -2,7 +2,7 @@
     "Set 1":{
         "Logitech Logitech Cordless RumblePad 2": {
             "buttons": {0 : ("joint5a", -1), 1 : ("joint4", 1), 2 : ("joint5a", 1),
-                        3 : ("joint4", -1), 7 : ("joint5b", 1), 5 : ("joint5b", -1),
+                        3 : ("joint4", -1), 7 : ("joint5b", -1), 5 : ("joint5b", 1),
                         6 : ("throttleStep", -1), 4 : ("throttleStep", 1), 8 : ("mode", 1),
                         9 : ("pause", 1) },
             "axes":    {0 : ("motor2", 1), 1 : ("motor1", -1), 2 : ("arm2", 1), 3 : ("arm3", 1) },
