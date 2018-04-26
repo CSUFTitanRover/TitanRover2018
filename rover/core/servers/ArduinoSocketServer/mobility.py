@@ -114,7 +114,7 @@ def setRoverActions():
     # Not rover actions, but stored in same location. These actions trigger events within this module
     roverActions["pause"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "pause" action
     roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to support "mode" action
-    roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
+    roverActions["throttle"] = {"direction": 1, "value": 0.0}  # Throttle value for "motor" rate multiplier (-1 to 1)
     roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0}  # Added to support button throttle
     roverActions["rotate"] = {"special": "none", "rate": "none", "direction": 1, "value": 0}  # Added to support turn in place
     #roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
