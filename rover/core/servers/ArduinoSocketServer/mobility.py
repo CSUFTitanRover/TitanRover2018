@@ -284,15 +284,15 @@ def checkDsButton():
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         dsButton = True
  
-def checkRotate(outValue):
+def checkRotate():
     global roverActions
     if roverActions["rotate"]["value"] != 0:
-        outValue[0] = 0
-        outValue[1] = maxRotateSpeed
+        roverActions["motor1"]["value"] = 0
+        roverActions["motor2"]["value"] = maxRotateSpeed
         if roverActions["rotate"]["value"] == -1:
-            outValue[1] = -maxRotateSpeed
-        return outValue
-    return outValue
+            roverActions["motor2"]["value"] = -maxRotateSpeed
+        return
+    return
 
 def main(*argv):
     global paused, mobiliyMode, ser
@@ -312,6 +312,7 @@ def main(*argv):
             checkHats(joystick)
             checkButtons(joystick)
             throttleStep()
+	    checkRotate()
             checkPause()
             checkModes()
             setLed()
@@ -324,7 +325,7 @@ def main(*argv):
             if paused:
                 outVals = list(map(getZero, actionList))
             else:
-                outVals = checkRotate(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
+                outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
             
 	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
             # we will also package the values to crunch the bytes down, instead of AF_INET, SOCK_STREAMsending a string
