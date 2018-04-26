@@ -1,12 +1,12 @@
 {
     "Set 1":{
         "Logitech Logitech Cordless RumblePad 2": {
-            "buttons": {0 : ("joint5a", -1), 1 : ("joint4", 1), 2 : ("joint5a", 1),
-                        3 : ("joint4", -1), 6 : ("joint5b", -1), 4 : ("joint5b", 1),
-                        7 : ("throttleStep", -1), 5 : ("throttleStep", 1), 8 : ("mode", 1),
+            "buttons": {0 : ("rotate", -1), 1 : ("throttleStep", 1), 2 : ("rotate", 1),
+                        3 : ("throttleStep", -1), 6 : ("joint5a", -1), 4 : ("joint5a", 1),
+                        7 : ("joint5b", -1), 5 : ("joint5b", 1), 8 : ("mode", 1),
                         9 : ("pause", 1) },
             "axes":    {0 : ("motor2", 1), 1 : ("motor1", -1), 2 : ("arm2", 1), 3 : ("arm3", 1) },
-            "hats":    {(0,0) : ("rotate", 1), (0,1) : ("joint1", 1) } },
+            "hats":    {(0,0) : ("joint1", 1), (0,1) : ("joint4", 1) } },
         "Logitech Logitech Extreme 3D": {},
         "leds": {"R" : False, "G" : True, "B" : False},
         "ledCode": 1
