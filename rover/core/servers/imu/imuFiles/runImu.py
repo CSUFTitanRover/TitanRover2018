@@ -23,9 +23,12 @@
 # THE SOFTWARE.
 import logging
 import sys
+import subprocess
 import time
 from deepstream import get, post
 from Adafruit_BNO055 import BNO055
+
+subprocess.run(['python3.5', 'calibrate.py'])
 
 try:
     obj = {}

@@ -67,7 +67,7 @@ while True:
     # Read the calibration status, 0=uncalibrated and 3=fully calibrated.
     sys, gyro, accel, mag = bno.get_calibration_status()
     # Print everything out.
-    print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
+    print('CAL: Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
           heading, roll, pitch, sys, gyro, accel, mag))
     # Break loop when fully calibrated
     if (sys == 3 and gyro == 3 and accel == 3 and mag == 3):
@@ -84,3 +84,4 @@ print("BNO055 IMU successfully calibrated")
 print("The calibration data is located in calibrationData.txt.")
 print("The calibration values are:")
 print(bno.get_calibration())
+time.sleep(1)
