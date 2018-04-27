@@ -40,7 +40,7 @@ magneticDeclination = 11.88
 #bno = BNO055.BNO055(serial_port='/dev/ttyAMA0', rst=18)
 # BeagleBone Black configuration with default I2C connection (SCL=P9_19, SDA=P9_20),
 # and RST connected to pin P9_12:
-bno = BNO055.BNO055(busnum=1)
+bno = BNO055.BNO055(busnum=0)
 confMode = True
 
 # Enable verbose debug logging if -v is passed as a parameter.
