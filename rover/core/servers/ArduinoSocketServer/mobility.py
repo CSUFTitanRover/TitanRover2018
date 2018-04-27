@@ -312,7 +312,7 @@ def main(*argv):
             checkHats(joystick)
             checkButtons(joystick)
             throttleStep()
-	    checkRotate()
+            checkRotate()
             checkPause()
             checkModes()
             setLed()
