@@ -110,7 +110,7 @@ class Map extends Component {
 
     return (
       <DeepstreamRecordProvider recordPath={['rover/reach', 'rover/imu']} onNewPayload={this.handleNewPayload}>
-        {subscribed => this.renderMap(currentDataPoint, subscribed)}
+        {({ subscribed }) => this.renderMap(currentDataPoint, subscribed)}
       </DeepstreamRecordProvider >
     );
   }

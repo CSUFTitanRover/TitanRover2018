@@ -128,6 +128,18 @@ class ComponentMenuList extends Component {
             icon={<NavigationIcon />}
             className={classes.nested}
           />
+          <ComponentMenuItem
+            title="Gps Coordinator"
+            componentname="GpsCoordinator"
+            icon={<NavigationIcon />}
+            className={classes.nested}
+          />
+          <ComponentMenuItem
+            title="Coordinate List"
+            componentname="CoordinateList"
+            icon={<NavigationIcon />}
+            className={classes.nested}
+          />
         </Collapse>
       </List>
     );

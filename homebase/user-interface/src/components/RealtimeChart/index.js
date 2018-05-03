@@ -95,7 +95,7 @@ class RealtimeChart extends Component {
 
     return (
       <DeepstreamPubSubProvider eventName={eventName} onNewPayload={this.handleNewPayload}>
-        {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+        {({ subscribed, subscribeToUpdates, unsubscribeToUpdates }) => (
           <Grid
             container
             spacing={16}

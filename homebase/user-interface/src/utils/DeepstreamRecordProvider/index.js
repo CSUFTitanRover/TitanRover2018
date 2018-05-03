@@ -88,7 +88,7 @@ class DeepstreamRecordProvider extends PureComponent {
     // add the generated callback by using its record name as
     // it's key for later usage when unsubscribing
     this.recordCallbacks[record.name] = callback;
-    record.subscribe(callback);
+    record.subscribe(callback, true);
   }
 
   _unsubscribe = (record) => {
@@ -140,11 +140,12 @@ class DeepstreamRecordProvider extends PureComponent {
   }
 
   render() {
+    const { subscribeToUpdates, unsubscribeToUpdates } = this;
     const { subscribed } = this.state;
     const { children } = this.props;
 
     return (
-      children(subscribed, this.subscribeToUpdates, this.unsubscribeToUpdates)
+      children({ subscribed, subscribeToUpdates, unsubscribeToUpdates })
     );
   }
 }

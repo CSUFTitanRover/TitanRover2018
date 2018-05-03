@@ -4,6 +4,8 @@ import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 import ResizeAwareMap from '../../components/ResizeAwareMap/';
+import GpsCoordinator from '../../components/GpsCoordinator/';
+import CoordinateList from '../../components/CoordinateList/';
 
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
@@ -46,6 +48,8 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
   glNode.registerComponent('RealtimeChart', RealtimeChart);
+  glNode.registerComponent('GpsCoordinator', GpsCoordinator);
+  glNode.registerComponent('CoordinateList', CoordinateList);
 }
 
 export function initializeGL(glNode) {

@@ -15,10 +15,20 @@ const config = {
         //   title: 'Decagon Realtime Chart',
         //   props: { chartName: 'Decagon-5TE', eventName: 'science/decagon' },
         // },
+        // {
+        //   type: 'react-component',
+        //   component: 'ResizeAwareMap',
+        //   title: 'Map',
+        // },
         {
           type: 'react-component',
-          component: 'ResizeAwareMap',
-          title: 'Map',
+          component: 'GpsCoordinator',
+          title: 'Gps Coordinator',
+        },
+        {
+          type: 'react-component',
+          component: 'CoordinateList',
+          title: 'CoordinateList',
         },
       ],
     },

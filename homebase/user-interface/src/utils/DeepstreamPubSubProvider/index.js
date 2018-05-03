@@ -118,11 +118,12 @@ class DeepstreamPubSubProvider extends PureComponent {
   }
 
   render() {
+    const { subscribeToUpdates, unsubscribeToUpdates } = this;
     const { subscribed } = this.state;
     const { children } = this.props;
 
     return (
-      children(subscribed, this.subscribeToUpdates, this.unsubscribeToUpdates)
+      children({ subscribed, subscribeToUpdates, unsubscribeToUpdates })
     );
   }
 }
