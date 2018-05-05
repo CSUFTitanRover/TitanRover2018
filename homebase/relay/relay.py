@@ -52,9 +52,9 @@ def initSocket(localAddress, port):
         return iSock, rSock#if everything works then don't retry anything
 
 #receive from socket, send over uart to rf module
-print("Initializing RF device")
+print("calling RF function")
 oSerial = initRF(oDevice, baudRate)     #initialize rf and socket the first time no matter what
-print("Initializing socket")
+print("calling socket function")
 iSock, rSock = initSocket(localAddress, port)
 
 while True:
