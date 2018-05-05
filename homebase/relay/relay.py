@@ -9,47 +9,6 @@ baudRate = 9600
 TIMEOUT = 1 #timeout in seconds 
 buf = bytearray(1024)
 
-#receive from socket, send over uart to rf module
-while True:
-    try:
-        oSerial = initRF(oDevice, baudRate)     #initialize rf and socket the first time no matter what
-        iSock, rSock = initSocket(localAddress, port)
-        break #if nothing goes wrong then don't retry anything
-    except:
-        continue#this is redundant with the retries in the functions and also redundant with the retries in the functions
-
-while True:
-    oSerial.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
-    oSerial.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
-    try:
-        print("receiving")
-        buf = rSock.recv(1024)
-        print (len(buf))#prints number of bytes received
-        if (len(buf) > 1):#if it received something update the time of last received data
-            last_receive_time = time()
-            #print("last receive time")
-            #print(last_receive_time)
-        else:#if nothing was received check how long it was since the last reception and raise a timeout if appropriate
-            current_time = time()
-            inactivity_duration = current_time - last_receive_time
-            print("inactivity")
-            print(inactivity_duration)
-            if inactivity_duration > TIMEOUT:
-                print("rose timeout")
-                raise TimeoutError('TIMEOUT')
-    except:
-        print('TIMED OUT\n reopening socket')
-        rSock.close()#closed for good measure but this socket is never used so it doesn't matter
-        iSock.close()
-        iSock, rSock = initSocket(localAddress, port)
-        continue
-    try:
-        print("writing")
-        oSerial.write(buf)
-    except:
-        print("Failed to write.")
-        oSerial = initRF(oDevice, baudRate)
-
 def initRF(oDevice, baudRate):
     while True:#try to initialize device until it works
         try:
@@ -85,3 +44,42 @@ def initSocket(localAddress, port):
             sleep(1)
             continue 
         return iSock, rSock#if everything works then don't retry anything
+        
+#receive from socket, send over uart to rf module
+print("Initializing RF device")
+oSerial = initRF(oDevice, baudRate)     #initialize rf and socket the first time no matter what
+print("Initializing socket")
+iSock, rSock = initSocket(localAddress, port)
+
+while True:
+    oSerial.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
+    oSerial.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+    try:
+        print("receiving")
+        buf = rSock.recv(1024)
+        print (len(buf))#prints number of bytes received
+        if (len(buf) > 1):#if it received something update the time of last received data
+            last_receive_time = time()
+            #print("last receive time")
+            #print(last_receive_time)
+        else:#if nothing was received check how long it was since the last reception and raise a timeout if appropriate
+            current_time = time()
+            inactivity_duration = current_time - last_receive_time
+            print("inactivity")
+            print(inactivity_duration)
+            if inactivity_duration > TIMEOUT:
+                print("rose timeout")
+                raise TimeoutError('TIMEOUT')
+    except:
+        print('TIMED OUT\n reopening socket')
+        rSock.close()#closed for good measure but this socket is never used so it doesn't matter
+        iSock.close()
+        iSock, rSock = initSocket(localAddress, port)
+        continue
+    try:
+        print("writing")
+        oSerial.write(buf)
+    except:
+        print("Failed to write.")
+        oSerial = initRF(oDevice, baudRate)
+
