@@ -13,6 +13,7 @@ def initRF(oDevice, baudRate):
     while True:#try to initialize device until it works
         try:
             oSerial = serial.Serial(oDevice, baudRate, timeout=None) #no timeout on uart rf module
+            print("Device assigned")
             return oSerial
         except:
             print("Check connection to rf module")
