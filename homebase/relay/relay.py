@@ -22,9 +22,15 @@ def initRF(oDevice, baudRate):
 def initSocket(localAddress, port):
     while True: #used like a label, if an initialization fails retry all
         try:
+            print("initializing socket")
             iSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            iSock.bind((localAddress, port))
+        except:
+            print("couldn't initialize")
+            sleep(1)
+            continue
+        try:
             print("binding")
+            iSock.bind((localAddress, port))
         except:
             print("Failed to bind!")
             sleep(1)
@@ -44,7 +50,7 @@ def initSocket(localAddress, port):
             sleep(1)
             continue 
         return iSock, rSock#if everything works then don't retry anything
-        
+
 #receive from socket, send over uart to rf module
 print("Initializing RF device")
 oSerial = initRF(oDevice, baudRate)     #initialize rf and socket the first time no matter what
