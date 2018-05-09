@@ -16,14 +16,15 @@ from datetime import datetime
 import re
 from subprocess import Popen, PIPE
 from threading import Thread
-from deepstream import post, get
 from time import sleep, time
-from relayFunctions import ep
 from serial import Serial
 import pygame
 import numpy as np
 import sys
 import os
+from deepstream import post, get
+from relayFunctions import ep
+from leds import writeToBus
 
 uname = str(Popen([ "uname", "-m" ], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8"))
 
@@ -48,10 +49,6 @@ if 'roverType' in os.environ:
         except:
           print('could not mack a ham socket.')
           #print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
-
-
-
-
 
 if isPi:
     import RPi.GPIO as GPIO
@@ -88,10 +85,12 @@ global modeNames  # List of set names (strings) from .txt file
 global actionTime  # Seconds needed to trigger pause / mode change
 global pausedLEDs  # LED settings for paused mode
 global maxRotateSpeed
+global turnInPlace
 paused = False
 modeNum = 0
 actionTime = 3
 maxRotateSpeed = 50
+turnInPlace = None
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
@@ -285,14 +284,20 @@ def checkDsButton():
         dsButton = True
 
 def checkRotate():
-    global roverActions
-    if roverActions["rotate"]["value"] != 0:
-        roverActions["motor1"]["value"] = 0
-        roverActions["motor2"]["value"] = maxRotateSpeed
-        if roverActions["rotate"]["value"] == -1:
-            roverActions["motor2"]["value"] = -maxRotateSpeed
-        return
-    return
+    global turnInPlace
+    if roverActions["rotate"]["value"] !=0:
+        turnInPlace = roverActions["rotate"]["direction"]
+
+def turn(outVal):
+    global turnInPlace
+    if turnInPlace == 1:
+        outVal[0]
+        outVal[1] = maxRotateSpeed
+    elif turnInPlace == -1:
+        outVal[0]
+        outVal[1] = -maxRotateSpeed
+    turnInPlace = None
+    return outVal
 
 def main(*argv):
     global paused, mobiliyMode, ser
@@ -325,7 +330,7 @@ def main(*argv):
             if paused:
                 outVals = list(map(getZero, actionList))
             else:
-                outVals = list(map(computeSpeed, actionList)) # Output string determined by actionList[] order
+                outVals = turn(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
 
 	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
             # we will also package the values to crunch the bytes down, instead of AF_INET, SOCK_STREAMsending a string
@@ -333,6 +338,7 @@ def main(*argv):
             t = round(time(), 3)
             ghzBytePack = pack('s 10h d s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, '#'.encode('utf-8'))
             hamBytePack = pack('s 10h d s', 'b'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8],    3, t, '#'.encode('utf-8'))
+            #writeToBus(o[9], o[9])
 
             if "mode" in mobilityMode:
               if "roverType" in mobilityMode:
@@ -340,6 +346,8 @@ def main(*argv):
                   try:
                     pass        #check - What is this pass for?
                     client_socket.sendto(ghzBytePack, address) # string bytes
+                    writeToBus(1, o[9])
+                    print(outVals)
                   except:
                     print("Couldn't send over Ghz")
                   '''
@@ -362,7 +370,7 @@ def main(*argv):
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
               else:
                 print("The key 'roverType' is missing from the deepstream record: mode")
-              print(ghzBytePack)
+              #print(ghzBytePack)
               #print(hamBytePack)
               print()
             else:
@@ -395,7 +403,7 @@ def modeChecker():
       if type(m) == dict:
         if "mode" in m and "roverType" in m and m != {}:   #check - isn't  m != {} not needed
           mobilityMode = m
-    except: 
+    except:
       try:
         sleep(0.1)
         m = get("mode", "127.0.0.1")
