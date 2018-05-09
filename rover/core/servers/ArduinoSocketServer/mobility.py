@@ -16,14 +16,15 @@ from datetime import datetime
 import re
 from subprocess import Popen, PIPE
 from threading import Thread
-from deepstream import post, get
 from time import sleep, time
-from relayFunctions import ep
 from serial import Serial
 import pygame
 import numpy as np
 import sys
 import os
+from deepstream import post, get
+from relayFunctions import ep
+from leds import writeToBus
 
 uname = str(Popen([ "uname", "-m" ], stdout=PIPE, stderr=PIPE).communicate()[0].decode("utf-8"))
 
@@ -38,7 +39,7 @@ hamPiRelaySock = None
 if 'roverType' in os.environ:
     if os.environ['roverType'] == 'base':
         try:
-          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+          hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)  #check - why is the ham on tcp wont this lag the connection when it is having connection issues
           try: 
             hamPiRelaySocket.connect(('192.168.1.5', 9005))
           except:
@@ -48,10 +49,6 @@ if 'roverType' in os.environ:
         except:
           print('could not mack a ham socket.')
           #print("The Ham Radio device ( HC12 ) is either not attached or not at:", serDevice)
-
-
-
-
 
 if isPi:
     import RPi.GPIO as GPIO
@@ -67,14 +64,14 @@ if isPi:
 # System setup wait
 sleep(5)
 
-# Tx2 address and connection info
+# Tx2 address and connection info - UPD connection
 address = ("192.168.1.2", 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
 client_socket.settimeout(1)
 
 
 # Initialize pygame and joysticks
-os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_VIDEODRIVER"] = "dummy"  #pygame will error since we don't use a video source, prevents that issue
 pygame.init()
 pygame.joystick.init()
 
@@ -88,10 +85,12 @@ global modeNames  # List of set names (strings) from .txt file
 global actionTime  # Seconds needed to trigger pause / mode change
 global pausedLEDs  # LED settings for paused mode
 global maxRotateSpeed
+global turnInPlace
 paused = False
 modeNum = 0
 actionTime = 3
 maxRotateSpeed = 50
+turnInPlace = None
 pausedLEDs = { "R" : True, "G" : False, "B" : False }  # Red for paused
 
 actionList = ["motor1", "motor2", "arm2", "arm3", "joint1", "joint4", "joint5a",
@@ -114,7 +113,7 @@ def setRoverActions():
     # Not rover actions, but stored in same location. These actions trigger events within this module
     roverActions["pause"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "pause" action
     roverActions["mode"] = {"held": False, "direction": 1, "value": 0}  # Added to support "mode" action
-    roverActions["throttle"] = {"direction": 1, "value": 0.5}  # Throttle value for "motor" rate multiplier (-1 to 1)
+    roverActions["throttle"] = {"direction": 1, "value": 0.0}  # Throttle value for "motor" rate multiplier (-1 to 1)
     roverActions["throttleStep"] = {"held": False, "direction": 1, "value": 0}  # Added to support button throttle
     roverActions["rotate"] = {"special": "none", "rate": "none", "direction": 1, "value": 0}  # Added to support turn in place
     #roverActions["auto"] = {"held": False, "direction": 1, "value": 0, "set": 0}  # Added to support "autoManual" mode
@@ -124,7 +123,6 @@ setRoverActions()  # Initiate roverActions to enter loop
 
 def initArduinoConnection():
     client_socket.sendto(bytes("0,0,0,0,0,0,0,0,0,1", "utf-8"), address)
-#initArduinoConnection()
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -284,16 +282,22 @@ def checkDsButton():
         datetime.now() - roverActions["auto"]["lastpress"]).seconds >= actionTime):  # Button held for required time
         roverActions["auto"]["lastpress"] = datetime.now()  # Keep updating time as button may continue to be held
         dsButton = True
- 
-def checkRotate(outValue):
-    global roverActions
-    if roverActions["rotate"]["value"] != 0:
-        outValue[0] = 0
-        outValue[1] = maxRotateSpeed
-        if roverActions["rotate"]["value"] == -1:
-            outValue[1] = -maxRotateSpeed
-        return outValue
-    return outValue
+
+def checkRotate():
+    global turnInPlace
+    if roverActions["rotate"]["value"] !=0:
+        turnInPlace = roverActions["rotate"]["direction"]
+
+def turn(outVal):
+    global turnInPlace
+    if turnInPlace == 1:
+        outVal[0]
+        outVal[1] = maxRotateSpeed
+    elif turnInPlace == -1:
+        outVal[0]
+        outVal[1] = -maxRotateSpeed
+    turnInPlace = None
+    return outVal
 
 def main(*argv):
     global paused, mobiliyMode, ser
@@ -313,11 +317,12 @@ def main(*argv):
             checkHats(joystick)
             checkButtons(joystick)
             throttleStep()
+            checkRotate()
             checkPause()
             checkModes()
             setLed()
             #print("Sending Tx2 command")
-            
+
             #re_data = client_socket.recvfrom(512)
             #print(bytes.decode(re_data[0]))  # Debug
             #if bytes.decode(re_data[0]) == "r":
@@ -325,23 +330,27 @@ def main(*argv):
             if paused:
                 outVals = list(map(getZero, actionList))
             else:
-                outVals = checkRotate(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
-            
+                outVals = turn(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
+
 	    # make a copy of the outVals List because this is what we will package and send over the socket, and ham frequency
             # we will also package the values to crunch the bytes down, instead of AF_INET, SOCK_STREAMsending a string
             o = outVals
             t = round(time(), 3)
             ghzBytePack = pack('s 10h d s', 'a'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8], o[9], t, '#'.encode('utf-8'))
             hamBytePack = pack('s 10h d s', 'b'.encode('utf-8'), o[0], o[1], o[2], o[3], o[4], o[5], o[6], o[7], o[8],    3, t, '#'.encode('utf-8'))
+            #writeToBus(o[9], o[9])
 
             if "mode" in mobilityMode:
               if "roverType" in mobilityMode:
                 if mobilityMode["mode"] == "manual" and mobilityMode["roverType"] == os.environ["roverType"]:
                   try:
-                    pass
+                    pass        #check - What is this pass for?
                     client_socket.sendto(ghzBytePack, address) # string bytes
+                    writeToBus(1, o[9])
+                    print(outVals)
                   except:
                     print("Couldn't send over Ghz")
+                  '''
                   try:
                     if os.environ['roverType'] == 'base' and hamPiRelaySocket != None:
                       hamPiRelaySocket.sendto(hamBytePack, ('192.168.1.5', 9005))
@@ -349,18 +358,20 @@ def main(*argv):
                       #ser.write(hamBytePack) # packed bytes
                   except:
                     try:
-                      hamPiRelaySocket.close()
-                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
+                      hamPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
+                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)      #check - shouldn't this be UDP
                       hamPiRelaySocket.connect(('192.168.1.5', 9005))
                     except:
-                      pass                    
+                      pass
                     print("Coudn't send over Ham")
+                  '''
                 else:
+                    #check -how does this pause the rover???
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
               else:
                 print("The key 'roverType' is missing from the deepstream record: mode")
-              print(ghzBytePack)
-              print(hamBytePack)
+              #print(ghzBytePack)
+              #print(hamBytePack)
               print()
             else:
               print("Not in Manual Mode, MobilityMode: " + ' HAS NOT BEEN SET IN DEEPSTREAM' if mobilityMode == {} else str(mobilityMode))
@@ -390,9 +401,9 @@ def modeChecker():
     try:
       m = get("mode", '192.168.1.2')
       if type(m) == dict:
-        if "mode" in m and "roverType" in m and m != {}:
+        if "mode" in m and "roverType" in m and m != {}:   #check - isn't  m != {} not needed
           mobilityMode = m
-    except: 
+    except:
       try:
         sleep(0.1)
         m = get("mode", "127.0.0.1")
@@ -400,14 +411,14 @@ def modeChecker():
         if type(m) == dict:
           if "mode" in m and "roverType" in m and m != {}:
             mobilityMode = m
-            sleep(1)
-            if "roverType" in m and "roverType" in os.environ:
+            sleep(1)                #check - why is sleep so long
+            if "roverType" in m and "roverType" in os.environ:    #check - duplicate check of 1st variable
               if m["roverType"] == "base" and os.environ['roverType'] == 'base':
                 try:
                   post(mobilityMode, "mode", "192.168.1.2")
                 except:
                   print("could not post the mode over to the rover")
-                  pass          
+                  pass
       except:
         print("Not getting mobility mode from local deepstream")
         pass
@@ -427,6 +438,7 @@ if __name__ == '__main__':
     t2.start()
     t3.start()
 
+    #check - is this for the ham close or for a keyboard interrupt?  do we need this?
     try:
       while True:
         sleep(1)

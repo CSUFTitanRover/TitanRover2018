@@ -30,7 +30,7 @@ from Adafruit_BNO055 import BNO055
 #bno = BNO055.BNO055(serial_port= '/dev/ttyAMA0', rst=18)
 
 # I2C Connection (SCL=p9_19, SDA=P9_20, and RST connected to pin P9_12)
-bno = BNO055.BNO055(busnum=1)
+bno = BNO055.BNO055(busnum=0)
 
 # Enable verbose debug logging if -v is passed as a parameter.
 if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
@@ -67,7 +67,7 @@ while True:
     # Read the calibration status, 0=uncalibrated and 3=fully calibrated.
     sys, gyro, accel, mag = bno.get_calibration_status()
     # Print everything out.
-    print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
+    print('CAL: Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
           heading, roll, pitch, sys, gyro, accel, mag))
     # Break loop when fully calibrated
     if (sys == 3 and gyro == 3 and accel == 3 and mag == 3):
@@ -84,3 +84,4 @@ print("BNO055 IMU successfully calibrated")
 print("The calibration data is located in calibrationData.txt.")
 print("The calibration values are:")
 print(bno.get_calibration())
+time.sleep(1)

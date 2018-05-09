@@ -1,11 +1,11 @@
 ######################################################################################
 #    Filename: driver.py
 #    Description: Autonomous traversal module - TitanRover2018
-#         Given a single GPS coordinate, the Rover will drive to this point (within a 
-#         predetermined threshold). Driving occurs in a linear fashion. 
-#         Given a heading and distance (cm), GPS coordinate will be generated and 
+#         Given a single GPS coordinate, the Rover will drive to this point (within a
+#         predetermined threshold). Driving occurs in a linear fashion.
+#         Given a heading and distance (cm), GPS coordinate will be generated and
 #         the Rover will drive to this point.
-#         Give a heading, the Rover will rotate in place to face this direction. 
+#         Give a heading, the Rover will rotate in place to face this direction.
 #         Adapted from TitanRover2017 autonomous script
 ######################################################################################
 import time
@@ -33,18 +33,18 @@ class Driver:
         self.__client_socket = socket(AF_INET, SOCK_DGRAM)
         self.__client_socket.settimeout(0.5)
 
-        # Tailered to Runt Rover
+        '''
+        # Tailored to Runt Rover
         self.__angleX = [5, 15, 25]
         self.__rotateY = [40, 50, 90]
         self.__distanceX = [60, 120]
         self.__speedY = [65, 110]
-
         '''
+        # Tailored to Rover
         self.__angleX = [5, 15, 25]
         self.__rotateY = [25, 42.5, 60]
-        self.__distanceX = [20, 60]
+        self.__distanceX = [20, 45]
         self.__speedY = [25, 45]
-        '''
 
         self.__gps = (None, None)
         self.__nextWaypoint = (None, None)
@@ -66,18 +66,16 @@ class Driver:
         Description:
             Takes a GPS point, heading, and distance and calculates the next GPS point
         Args:
-            Heading, Origin --> (lat, lon), and distance in Cms
+            Heading, Origin --> (lat, lon), and distance in cms
         Returns:
             A tuple (lat, lon)
         '''
 
         if type(heading) != float or type(heading) != int or type(distance) != int or type(distance) != float:
             raise TypeError("Only Int or Float allowed")
-            pass
-        
+
         if type(origin) != tuple:
             raise TypeError("Only Tuples allowed")
-            pass
 
         heading = math.radians(heading)
         radius = 6371 # km
@@ -94,7 +92,7 @@ class Driver:
         lon2 = round(math.degrees(lon2), 9)
 
         return (lat2, lon2)
-    
+
 
     def spiralPoints(self, origin, radius):
         '''
@@ -103,16 +101,16 @@ class Driver:
         Args:
             Origin --> (lat, lon), radius in Cms
         Returns:
-            A list of waypoints that starts from the farthest point from the center 
+            A list of waypoints that starts from the farthest point from the center
         '''
 
         if type(radius) != float or type(radius) != int:
-            raise TypeError("Only Int or Float allowed")
-            pass
-        
+            #raise TypeError("Only Int or Float allowed")
+            print("spiralPoints break - invalid radius", radius)
+
         if type(origin) != tuple:
-            raise TypeError("Only Tuples allowed")
-            pass
+            #raise TypeError("Only Tuples allowed")
+            print("not float or int")
 
         center = origin
         spiral = []
@@ -137,7 +135,7 @@ class Driver:
         return spiral
 
 
-        
+
     def roverViewer(self):
         '''
         Description:
@@ -166,7 +164,7 @@ class Driver:
         myDict[abs(self.__targetHeading - self.__heading - 360)] = self.__targetHeading - self.__heading - 360 
         b = myDict[min(myDict.keys())]
         self.__clockwise = True if b > 0 else False
-    
+
     def setHeadingDifference(self):
         '''
         Description:
@@ -263,7 +261,7 @@ class Driver:
     def setHeading(self):
         '''
         Description:
-            Retrieves current heading from deepstream, sets self.__heading 
+            Retrieves current heading from deepstream, sets self.__heading
         Args:
             None
         Returns:
@@ -288,15 +286,15 @@ class Driver:
     def calculateMotors(self):
         '''
         Description:
-            Uses self.__deltaDirection and self.__distance to calculate and set speed and turn values 
-            for self.__motor1 and self.__motor2. 
+            Uses self.__deltaDirection and self.__distance to calculate and set speed and turn values
+            for self.__motor1 and self.__motor2.
         Args:
             None
         Returns:
             Nothing
         '''
         self.__motor2 = int(np.interp(self.__deltaDirection, self.__angleX, self.__rotateY))
-        self.__motor1 = np.interp(self.__distance, self.__distanceX, self.__speedY) 
+        self.__motor1 = np.interp(self.__distance, self.__distanceX, self.__speedY)
         self.__motor1 = int(self.__motor1 * np.interp(self.__deltaDirection,[3,30],[1,0])) # Scale speed the further off target Rover is pointing
         if not self.__clockwise:
             self.__motor2 = -self.__motor2
@@ -304,7 +302,7 @@ class Driver:
     def checkStop(self):
         '''
         Description:
-            Used to exit the current goTo function indefinitely. 
+            Used to exit the current goTo function indefinitely.
         '''
         try:
             stopped = get("driver")["stop"]
@@ -316,7 +314,7 @@ class Driver:
     def checkPause(self):
         '''
         Description:
-            Suspends Rover movement until further update in Deepstream. 
+            Suspends Rover movement until further update in Deepstream.
         '''
         try:
             pause = get("driver")["paused"]
@@ -330,8 +328,8 @@ class Driver:
     def notifyArrival(self):
         '''
         Description:
-            Updates deepstream record 'arrival' with self.__nextWaypoint and arrivalTime once 
-            the destination has been reached. Flashes LED pattern for on board visual cue. 
+            Updates deepstream record 'arrival' with self.__nextWaypoint and arrivalTime once
+            the destination has been reached. Flashes LED pattern for on board visual cue.
         Args:
             None
         Returns:
@@ -352,8 +350,8 @@ class Driver:
         for i in range(20):  # Blink red, green, and blue for 5 seconds
             try:
               t = round(time.time(), 3)
-              o = pack('s 10h d s', 'c'.encode('utf-8'), 0, 0, 
-                0, 0, 0, 0, 0, 0, 0, 4, 
+              o = pack('s 10h d s', 'c'.encode('utf-8'), 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 4,
                 t, '#'.encode('utf-8'))
               self.__client_socket.sendto(o, self.__address)
               time.sleep(0.25)
@@ -363,12 +361,12 @@ class Driver:
                 color = leds[toggle]
             except:
               print("Arduino send failed")
-        self.sendMotors()        
+        self.sendMotors()
 
     def setMinMaxFwdSpeeds(self, min, max):
         '''
         Description:
-            Method overwrites default speedY[min, max] speeds. Confined to MINFORWARDSPEED 
+            Method overwrites default speedY[min, max] speeds. Confined to MINFORWARDSPEED
             and MAXFORWARDSPEED.
         Args:
             min (int): desired minimum forward speed, max (int): desired maximum forward speed
@@ -384,12 +382,12 @@ class Driver:
         if min < MINFORWARDSPEED:
             min = MINFORWARDSPEED
         self.__speedY = [min, max]
-        
+
     def rotateToHeading(self, newHeading):
         '''
         Description:
             Given a desired heading, Rover will rotate in place until oriented in the given direction
-            (within a predetermined threshold). 
+            (within a predetermined threshold).
         Args:
             heading (float): The desired heading the Rover will face.
         Returns:
@@ -397,9 +395,8 @@ class Driver:
         '''
         if type(newHeading) != float or type(newHeading) != int:
             raise TypeError("Only float/int allowed")
-            pass
 
-        self.__targetHeading = newHeading 
+        self.__targetHeading = newHeading
         self.setHeading()
         self.setHeadingDifference()
         self.setDeltaDirection()
@@ -437,12 +434,12 @@ class Driver:
         self.setGps()
         self.setHeading()
         self.setDistance()
-        self.checkPause()
-        self.checkStop()
-        while self.__distance > TARGETTHRESHOLD and not self.__stop:
-            while self.__paused:
-                checkPause()
-                pass
+        #self.checkPause()
+        #self.checkStop()
+        while self.__distance > TARGETTHRESHOLD: # and not self.__stop:
+            #while self.__paused:
+            #checkPause()
+            #pass
             self.setTargetHeading()
             self.setHeadingDifference()
             self.setDeltaDirection()
@@ -451,31 +448,33 @@ class Driver:
             if self.__deltaDirection < CORRECTIONTHRESHOLD:
                 self.__motor2 = 0
                 self.__headingDifference = None
-            if self.__paused:
-                self.__motor1 = self.__motor2 = 0            
+            #if self.__paused:
+            #self.__motor1 = self.__motor2 = 0
             self.sendMotors()
-            self.roverViewer()
+            #self.roverViewer()
 
-            '''
+
             # Debug print
             print("------------------------------------------------")
             print("destWaypoint: ", self.__nextWaypoint, "\ncurrentGPS: ", self.__gps, "\ndist(cm): ", self.__distance, "\ncurrentHeading: ", self.__heading, "\ntargetHeading: ", self.__targetHeading, "\ndeltaDirection: ", self.__deltaDirection, "\nmotor1: ", self.__motor1, "\nmotor2: ", self.__motor2, "\nclockwise: ", self.__clockwise, "\nheadingDiff: ", self.__headingDifference, "\ntime: ", int(time.time()), "\n")    
             print("------------------------------------------------")
-            '''
+
 
             time.sleep(0.04)
             self.setGps()
             self.setHeading()
             self.setDistance()
-            self.checkPause()
-            self.checkStop()
+            #self.checkPause()
+            #self.checkStop()
 
-        '''
+
         # Debug print
         print("--------------------END DATA--------------------")
         print("Destination Waypoint: ", self.__nextWaypoint, "\nCurrent GPS: ", self.__gps, "\nDistance(cm): ",self.__distance, "\nCurrent Heading: ", self.__heading)
         print("------------------------------------------------")
+
         '''
         if not self.__stop:
             self.notifyArrival()
         self.__stop = False
+        '''
