@@ -1,7 +1,7 @@
 import serial
-import deepstreamPubSub
+import deepstream
 
-NoOfValues = 16 #No of values written by Arduino to Serial
+NoOfValues = 14 #No of values written by Arduino to Serial
 ArduinoPort = '/dev/ttyACM0'
 BaudRate = 57600
 
@@ -48,8 +48,8 @@ def ListToDict(values):
     dictValues['5TE_Temperature']           = values[11]
     dictValues['DHT11_TemperatureInC']      = float(values[12]) / 100
     dictValues['DHT11_HumidityInPerc']      = float(values[13]) / 100
-    dictValues['K30_CO2_ValueInPPM']        = int(values[14])
-    dictValues['Anemometer_WindSpeed']        = int(values[15]) / 100
+    #dictValues['K30_CO2_ValueInPPM']        = int(values[14])
+    #dictValues['Anemometer_WindSpeed']        = int(values[15]) / 100
     
     return dictValues
 
@@ -58,9 +58,9 @@ def ListToDict(values):
 def PublishEvent(dictData, event, dictName):
     try:
         if(dictName == ''):
-            mesg = deepstreamPubSub.publish(event, dictData)
+            mesg = deepstream.publish(event, dictData)
         else:
-            mesg = deepstreamPubSub.publish(event, dictData[dictName])
+            mesg = deepstream.publish(event, dictData[dictName])
         
         if(mesg.upper() == "SUCCESS"):
             print("Event {0} published to Deepstream".format(event))
@@ -83,8 +83,8 @@ def SaveData(dictData):
     PublishEvent(dictData,"sensors/Decagon5TE_EC",'Electrical_Conductivity')
     PublishEvent(dictData,"sensors/Decagon5TE_VWC",'Volumetric_Water_Content')
     PublishEvent(dictData,"sensors/DHT11",'DHT11_HumidityInPerc')
-    PublishEvent(dictData,"sensors/K30",'K30_CO2_ValueInPPM')
-    PublishEvent(dictData,"sensors/Anemometer",'Anemometer_WindSpeed')
+    #PublishEvent(dictData,"sensors/K30",'K30_CO2_ValueInPPM')
+    #PublishEvent(dictData,"sensors/Anemometer",'Anemometer_WindSpeed')
     
 
 

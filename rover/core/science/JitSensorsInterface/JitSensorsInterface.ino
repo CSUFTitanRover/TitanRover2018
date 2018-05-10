@@ -89,11 +89,11 @@ void loop() {
   loopHumidity_DHT11();
 
   /* Code for K-30 CO2 Sensor */
-  loopCO2sensor_Jit_K30();
+  //loopCO2sensor_Jit_K30();
 
 
   /* Loop code for Anemometer */
-  loopWindSpeed();
+  //loopWindSpeed();
 
   Serial.write("END");
   Serial.write("\n");
