@@ -84,7 +84,7 @@ def post(obj, recordName, ip="192.168.1.2"):
 
 
 def publish(eventName, data, ip="192.168.1.2"):
-     '''
+    '''
         This function will publish an event the deepstream server.
 
         Arguments:
