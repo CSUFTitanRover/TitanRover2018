@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
-import Collapse from 'material-ui/transitions/Collapse';
-import ShowChartIcon from 'material-ui-icons/ShowChart';
-import InboxIcon from 'material-ui-icons/Inbox';
-import VideocamIcon from 'material-ui-icons/Videocam';
-import ExpandLess from 'material-ui-icons/ExpandLess';
-import ExpandMore from 'material-ui-icons/ExpandMore';
-import SettingsIcon from 'material-ui-icons/Settings';
-import GpsFixedIcon from 'material-ui-icons/GpsFixed';
-import NavigationIcon from 'material-ui-icons/Navigation';
+import { withStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
+import ShowChartIcon from '@material-ui/icons/ShowChart';
+import InboxIcon from '@material-ui/icons/Inbox';
+import VideocamIcon from '@material-ui/icons/Videocam';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import SettingsIcon from '@material-ui/icons/Settings';
+import GpsFixedIcon from '@material-ui/icons/GpsFixed';
+import NavigationIcon from '@material-ui/icons/Navigation';
 import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {

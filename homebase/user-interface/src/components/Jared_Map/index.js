@@ -7,8 +7,8 @@ Show rover and heading on map and in text
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Paper from 'material-ui/Paper';
-import Grid from 'material-ui/Grid';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 
 import 'mapbox-gl/dist/mapbox-gl.css';
 import ReactMapGL, { NavigationControl } from 'react-map-gl';

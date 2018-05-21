@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import CssBaseline from 'material-ui/CssBaseline';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import Layout from './containers/Layout';
 import GoldenLayout from './containers/GoldenLayout/';
 import './App.css';

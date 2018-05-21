@@ -1,22 +1,18 @@
 import React, { Component } from 'react';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
-import grey from 'material-ui/colors/grey';
-import List, {
-  ListItem,
-  ListItemAvatar,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
-} from 'material-ui/List';
+import grey from '@material-ui/core/colors/grey';
+import List from '@material-ui/core/List';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItem from '@material-ui/core/ListItem';
 import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
 
-const styles = theme => ({
+const styles = () => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
     background: grey[200],
-    alignItems: 'center'
+    alignItems: 'center',
   },
 });
 
@@ -28,7 +24,7 @@ class CoordinateList extends Component {
   state = { waypoints: null };
 
   handleNewPayload = (data) => {
-    this.setState({ waypoints: data })
+    this.setState({ waypoints: data });
   }
 
   render() {
@@ -49,7 +45,7 @@ class CoordinateList extends Component {
           )}
         </DeepstreamRecordProvider>
       </div>
-    )
+    );
   }
 }
 

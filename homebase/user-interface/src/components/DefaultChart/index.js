@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
 import c3 from 'c3';
 import 'c3/c3.css';
 

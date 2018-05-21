@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
-import ChangeHistoryIcon from 'material-ui-icons/ChangeHistory';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ChangeHistoryIcon from '@material-ui/icons/ChangeHistory';
 
 /**
  * The ComponentMenuItem provides an easy way to define the text and icon of each menu item.

@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-import { withStyles } from 'material-ui/styles';
-import TextField from 'material-ui/TextField';
-import Button from 'material-ui/Button';
+import { withStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
-import grey from 'material-ui/colors/grey';
-import { getClient, getRecord, syncInitialRecordState } from '../../utils/deepstream';
+import grey from '@material-ui/core/colors/grey';
 import { toast } from 'react-toastify';
+import { getClient, getRecord, syncInitialRecordState } from '../../utils/deepstream';
 
 const styles = theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
     background: grey[200],
-    alignItems: 'center'
+    alignItems: 'center',
   },
   textField: {
     marginLeft: theme.spacing.unit,
@@ -24,8 +24,8 @@ const styles = theme => ({
   },
   button: {
     margin: theme.spacing.unit,
-    maxHeight: 20
-  }
+    maxHeight: 20,
+  },
 });
 
 class GpsCoordinator extends Component {
@@ -46,13 +46,13 @@ class GpsCoordinator extends Component {
     const lon = this.longitudeRef.value;
 
     if (!lat || !lon) {
-      toast.error('Latitude or Longitude cannot be empty!')
+      toast.error('Latitude or Longitude cannot be empty!');
       return;
     }
 
     const waypoints = this.waypointsRecord.get();
     waypoints.push({ lat, lon });
-    console.log(waypoints, typeof waypoints)
+    console.log(waypoints, typeof waypoints);
     this.waypointsRecord.set(waypoints);
 
     console.log(`Added the following to deepstream... Lat: ${lat}, Lon:${lon}`);
@@ -67,7 +67,7 @@ class GpsCoordinator extends Component {
     return (
       <form className={classes.container} noValidate autoComplete="off" onSubmit={this.handleSubmit}>
         <TextField
-          inputRef={(ref) => { this.latitudeRef = ref }}
+          inputRef={(ref) => { this.latitudeRef = ref; }}
           id="latitude"
           label="Latitude"
           className={classes.textField}
@@ -77,7 +77,7 @@ class GpsCoordinator extends Component {
           required
         />
         <TextField
-          inputRef={(ref) => { this.longitudeRef = ref }}
+          inputRef={(ref) => { this.longitudeRef = ref; }}
           id="longitude"
           label="Longitude"
           className={classes.textField}
@@ -91,11 +91,12 @@ class GpsCoordinator extends Component {
           variant="raised"
           color="primary"
           size="small"
-          className={classes.button}>
+          className={classes.button}
+        >
           Add Coordinate
         </Button>
       </form>
-    )
+    );
   }
 }
 
