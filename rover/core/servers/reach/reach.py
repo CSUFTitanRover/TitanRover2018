@@ -6,7 +6,7 @@ import socket
 import subprocess
 import requests
 global ser, nvidiaIp
-nvidiaIp = "192.168.1.2"
+nvidiaIp = "192.168.1.8"
 
 
 #sleep(10)
@@ -14,8 +14,8 @@ nvidiaIp = "192.168.1.2"
 #subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
 
 def reach():
-    subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
-    subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
+    #subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
+    #subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
     try:
         while True:
             try:
@@ -28,11 +28,11 @@ def reach():
         while True:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                s.bind(('', 7072))
+                s.bind(('', 7074))
                 s.listen(2)
                 break
             except:
-                subprocess.call(' sudo lsof -t -i tcp:7072 | xargs kill -9', shell = True)
+                subprocess.call(' sudo lsof -t -i tcp:7074 | xargs kill -9', shell = True)
                 print("Waiting For Connection")
                 sleep(2)
 
@@ -65,7 +65,7 @@ def reach():
                 "ratio":float(m.group(15)) }} ]}
                 try:
                     print("Dumping to deepstream...")
-                    request = requests.post('http://' + nvidiaIp + ':4080', json=payload)
+                    request = requests.post('http://' + nvidiaIp + ':3080', json=payload)
                     print request.text
                 except:
                     print("Deepstream doesn't seem to be online")
