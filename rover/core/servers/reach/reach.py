@@ -6,7 +6,7 @@ import socket
 import subprocess
 import requests
 global ser, nvidiaIp
-nvidiaIp = "192.168.1.8"
+nvidiaIp = "192.168.1.253"
 
 
 #sleep(10)
@@ -56,6 +56,10 @@ def reach():
             m = re.match(pattern, data)
             if m:
                 payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
+                "data": {"lat": float(m.group(3)), "lon": float(m.group(4))}} ] }
+
+                '''
+                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4)),
                 "altitude": float(m.group(5)), "fix": (True if (int(m.group(6)) > 0) else False),
                 "nos": int(m.group(7)), "sdn":float(m.group(8)), 
@@ -63,6 +67,7 @@ def reach():
                 "sdne":float(m.group(11)), "sdeu":float(m.group(12)),
                 "sdun":float(m.group(13)), "age":float(m.group(14)), 
                 "ratio":float(m.group(15)) }} ]}
+                '''
                 try:
                     print("Dumping to deepstream...")
                     request = requests.post('http://' + nvidiaIp + ':3080', json=payload)
