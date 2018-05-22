@@ -17,7 +17,8 @@ import requests
 
 
 # gnss connection info
-__antenna_gps_address = "192.168.1.38", 3777
+__antenna_gps_address = "192.168.1.232"
+__antenna_gps_port = 7075
 __antenna_gps_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 __antenna_gps_socket.settimeout(0.5)
 
@@ -39,65 +40,42 @@ __stop = False
 def getAntennaGPS():
     while True:
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.bind(('', 7075))
-            s.listen(2)
-            break
+            print("Initializing socket")
+            __antenna_gps_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #this needs to be re-called in a loop when attempting to reconnect
         except:
-            print("Waiting For Connection")
-            sleep(2)
-
-
-    while True:
+            print("failed to initialize socket.")
+            sleep(0.5)
+            continue
         try:
-            conn, address = s.accept()
-            print("Connection from", address)
+            print("connecting")
+            __antenna_gps_socket.connect((__antenna_gps_address, __antenna_gps_port))
+            print("connected")
             break
         except:
-            print("ERROR CONNECTING")
-            sleep(3)
-        
-    pattern = re.compile('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
+            print("Failed to connect!")
+            sleep(0.5)
+            continue
+    pattern = re.compile(b'(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
     print("Waiting for GPS Lock...")
 
-    while True:
-        try:
-            data = conn.recv(2048)
-            print(data)
-            m = re.match(pattern, data)
-            if m:
-                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
-                "data": {"lat": float(m.group(3)), "lon": float(m.group(4)),
-                "altitude": float(m.group(5)), "fix": (True if (int(m.group(6)) > 0) else False),
-                "nos": int(m.group(7)), "sdn":float(m.group(8)), 
-                "sde": float(m.group(9)), "sdu":float(m.group(10)),
-                "sdne":float(m.group(11)), "sdeu":float(m.group(12)),
-                "sdun":float(m.group(13)), "age":float(m.group(14)), 
-                "ratio":float(m.group(15)) }} ]}
-                __antenna_gps = (payload["lat"] + payload["lon"])
-                sys.stdout.write(payload["lat"] + payload["lon"])   
-                #sys.stdout.write(m.group(1) + ' ' + m.group(2) + ' ' + m.group(2) + ' '
-                #+ m.group(3) + ' ' + m.group(4) + m.group(5) + ' ' + m.group(6) + ' ' 
-                #+ m.group(7) + ' ' + m.group(8) + ' ' + m.group(9) + ' ' + m.group(10) + ' ' 
-                #+ m.group(11) + ' '+ m.group(12) + ' '+ m.group(13) + ' ' + m.group(14) + ' '
-                #+ m.group(15) + ' '+ '\n')
-                    
-            else:
-                print("No valid regex data")
-                s.close()
-                break
-
-            print(data)
-        except KeyboardInterrupt:
-            pass
-
+    try:
+        data = __antenna_gps_socket.recv(2048)
+        m = re.match(pattern, data)
+        if m:
+            __antenna_gps = (float(m.group(3)), float(m.group(4)))        
+        else:
+            print("No valid regex data")
+            __antenna_gps_socket.close()
+    except KeyboardInterrupt:
+        pass
     return __antenna_gps
 
 def getRoverGPS():
-    __rover_gps = (get('gps')['lat'], get('gps')['lon'])
-    return __rover_gps
+    data = get('gps')
+    return (data["lat"], data["lon"])
+    #return (get('gps')['lat'], get('gps')['lon'])
 
-def setTargetHeading(__antena_gps, __rover_gps):
+def getTargetHeading(__antena_gps, __rover_gps):
     '''
     Description:
         Code adapted from https://gist.github.com/jeromer
@@ -123,10 +101,8 @@ def setTargetHeading(__antena_gps, __rover_gps):
 
     initial_heading = math.degrees(initial_heading)
     compass_heading = (initial_heading + 360) % 360
-
-    __targetHeading = compass_heading
-    return __targetHeading
-def setHeading():
+    return compass_heading
+def getHeading():
     '''
     Description:
         Retrieves current heading from IMU subprocess
@@ -136,9 +112,9 @@ def setHeading():
         heading
     '''
     print("checking heading")
-    __antenna_heading = subprocess.check_output(["python3", "IMU_Acc_Mag_Gyro.py"])
-    return __antenna_heading
-def setHeadingDifference(__antenna_heading, __targetHeading):
+    data = subprocess.check_output(["python3", "IMU_Acc_Mag_Gyro.py"])
+    return float(data)
+def getHeadingDifference(__antenna_heading, __targetHeading):
     '''
     Description:
         Calculates and sets __headingDifference to degress between __antenna_heading and __targetHeading
@@ -150,7 +126,7 @@ def setHeadingDifference(__antenna_heading, __targetHeading):
     __headingDifference = (__targetHeading - __antenna_heading + 180) % 360 - 180
     __headingDifference = __headingDifference + 360 if __headingDifference < -180 else __headingDifference
     return __headingDifference
-def setDeltaDirection(__headingDifference):
+def getDeltaDirection(__headingDifference):
     '''
     Description:
         Uses __headingDifference to retrieve positive representation of delta change, sets __deltaDirection
@@ -160,8 +136,9 @@ def setDeltaDirection(__headingDifference):
         Nothing
     '''
     __deltaDirection = abs(__headingDifference)
+    return __deltaDirection
 
-def setShouldTurnClockwise():
+def getShouldTurnClockwise():
     '''
     Description:
         Sets __clockwise to True if shorter turn is clockwise, else False for counterclockwise
@@ -176,16 +153,42 @@ def setShouldTurnClockwise():
     myDict[abs(__targetHeading - __antenna_heading - 360)] = __targetHeading - __antenna_heading - 360 
     b = myDict[min(myDict.keys())]
     __clockwise = True if b > 0 else False
+    return __clockwise
 
 #ard = Serial.serial(ARDUINO_PORT, BAUD_RATE)
 #ard.open()
 #rover_gps = __rover_gps_socket.recv(64)
 #get antenna gps point from gnss
 #antenna_gps = __antenna_gps_socket.recv(64) #grabs gps being sent from gnss module over network socket
-print("running")
-testheading = setHeading()
+__rover_gps = getRoverGPS()
+print("rover gps")
+print(__rover_gps)
+
+
+__antenna_gps = getAntennaGPS()
+print("antenna gps")
+print(__antenna_gps)
+
+__antenna_heading = getHeading()
 print("got heading")
-print(testheading)
+print(__antenna_heading)
+
+__targetHeading = getTargetHeading(__antenna_gps, __rover_gps)
+print("got target heading")
+print(__targetHeading)
+
+__headingDifference = getHeadingDifference(__antenna_heading, __targetHeading)
+print("got heading difference")
+print(__headingDifference)
+
+
+__deltaDirection = getDeltaDirection(__headingDifference)
+print("got delta direction")
+print(__deltaDirection)
+
+__clockwise = getShouldTurnClockwise()
+print("got clock direction")
+print(__clockwise)
 
 
 

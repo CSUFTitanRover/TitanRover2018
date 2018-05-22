@@ -9,7 +9,7 @@ import subprocess
 from subprocess import Popen
 
 
-roverIp = "192.168.1.8"   # This ip will change periodically, 
+roverIp = "192.168.1.253"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
 '''
@@ -27,7 +27,7 @@ except:
     roverIp = "127.0.0.1"
 '''
 
-def get(recordName, ip="192.168.1.8"):
+def get(recordName, ip="192.168.1.253"):
     '''
         The get function will get the entire record "rover/" + recordName
         and returns the record as an object.
@@ -42,7 +42,7 @@ def get(recordName, ip="192.168.1.8"):
     if type(recordName) is not str:
         raise "Your argument needs to be a string when getting from deepstream"
     payload = {"body":[{"topic": "record", "action":"read", "recordName": "rover/" + recordName}]}
-    request = requests.post('http://' + roverIp + ':4080', json=payload)
+    request = requests.post('http://' + roverIp + ':3080', json=payload)
     if type(request.content) is bytes:
         response = json.loads(request.content.decode('utf-8'))
     elif type(request.content) is str:

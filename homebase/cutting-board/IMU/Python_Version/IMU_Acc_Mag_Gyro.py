@@ -434,4 +434,5 @@ def main():
 	print("%5.8f" % (heading))
 	#sys.stdout.flush()
 	sys.exit(heading)
-	return heading
+	#return heading
+main()
