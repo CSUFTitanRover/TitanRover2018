@@ -20,6 +20,7 @@ while(True):
     try:
         print("connecting")
         oSock.connect((oAddress, oPort))
+        print("connected")
     except:
         print("Failed to connect!")
         sleep(0.5)
@@ -27,7 +28,7 @@ while(True):
     try:
         while True:
             print("sending")
-            oSock.send(bytearray(0xFFFFFFFFFFFFFFFF))
+            oSock.send(bytes(b'0000000000abcdefghijklmnoppqrstuvwxyzabcdefghijklmnop0000000000\n'))
             sleep(0.5)
             #oSock.send(bytearray('World!', 'utf-8'))
             #sleep(0.5)
