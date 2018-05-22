@@ -8,7 +8,7 @@ import socket
 import subprocess
 import requests
 global ser, nvidiaIp
-nvidiaIp = "192.168.1.253"
+nvidiaIp = "192.168.1.8"                # eth0 of homebase
 
 
 #sleep(10)
