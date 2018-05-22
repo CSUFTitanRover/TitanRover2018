@@ -1,6 +1,6 @@
 // SLAM-Basic-Maze.cpp : Defines the entry point for the console application.
 //
-
+//g++ main.cpp -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
 #else
