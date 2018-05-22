@@ -8,7 +8,7 @@ import socket
 import subprocess
 import requests
 global ser, nvidiaIp
-nvidiaIp = "192.168.1.2"
+nvidiaIp = "192.168.1.8"                # eth0 of homebase
 
 
 #sleep(10)
@@ -16,11 +16,13 @@ nvidiaIp = "192.168.1.2"
 #subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
 
 def reach():
-    subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
-    subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
+    #print("into reach")
+    #subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
+    #subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
     try:
         while True:
             try:
+                #print("trying to connect")
                 proc = subprocess.Popen(['ssh', 'root@192.168.2.15'], stdout = subprocess.PIPE,)
                 out = proc.communicate()[0]
                 #print(out)
@@ -60,6 +62,9 @@ def reach():
             m = re.match(pattern, data)
             if m:
                 payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
+                "data": {"lat": float(m.group(3)), "lon": float(m.group(4)) }} ]}
+                '''
+                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4)),
                 "altitude": float(m.group(5)), "fix": (True if (int(m.group(6)) > 0) else False),
                 "nos": int(m.group(7)), "sdn":float(m.group(8)), 
@@ -67,9 +72,10 @@ def reach():
                 "sdne":float(m.group(11)), "sdeu":float(m.group(12)),
                 "sdun":float(m.group(13)), "age":float(m.group(14)), 
                 "ratio":float(m.group(15)) }} ]}
+                '''
                 try:
                     print("Dumping to deepstream...")
-                    request = requests.post('http://' + nvidiaIp + ':4080', json=payload)
+                    request = requests.post('http://' + nvidiaIp + ':3080', json=payload)
                     print request.text
                 except:
                     print("Deepstream doesn't seem to be online")
