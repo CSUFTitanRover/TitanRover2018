@@ -5,7 +5,7 @@ import pickle
 class Gnss:
 
     def connect(self):
-        host = "localhost" 
+        host = "192.168.1.120" 
         port = 9090
         BUFFER_SIZE = 4096 
 
