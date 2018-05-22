@@ -526,6 +526,7 @@ void renderTopDownScene()
 	glutSwapBuffers();
 }
 
+int render_index = 0;
 // Global render func
 void renderSceneAll() 
 {
@@ -559,33 +560,41 @@ void renderSceneAll()
 		}
 	}
 	
-	try
+	render_index++;
+	
+	if(render_index > 15)
 	{
-		object main_module ((handle<>(borrowed(PyImport_AddModule("__main__")))));
-		object main_namespace = main_module.attr("__dict__");
-		object ignored = exec("import socket", main_namespace);
-		ignored = exec("import sys", main_namespace);
-		ignored = exec("", main_namespace);
+		try
+		{
+			object main_module ((handle<>(borrowed(PyImport_AddModule("__main__")))));
+			object main_namespace = main_module.attr("__dict__");
+			object ignored = exec("import socket", main_namespace);
+			ignored = exec("import sys", main_namespace);
+			ignored = exec("", main_namespace);
+			
+			ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
+			ignored = exec("print \"Socket successfully created\"",main_namespace);
+			//ignored = exec("except socket.error as err:", main_namespace);
+			//ignored = exec("print \"socket creation failed with error %s\" %(err)", main_namespace);
+			
+			ignored = exec("port = 80",main_namespace);
+			//ignored = exec("try:", main_namespace);
+			ignored = exec("host_ip = socket.gethostbyname('www.google.com')", main_namespace);
+			//ignored = exec("print \"there was an error resolving the host\"", main_namespace);
+			//ignored = exec("sys.exit()", main_namespace);
+			ignored = exec("s.connect((host_ip, port))", main_namespace);
+			//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
+			ignored = exec("print 'Received', host_ip", main_namespace);
+			//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
+		}
+		catch(error_already_set)
+		{
+			PyErr_Print();
+		}
 		
-		ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
-		ignored = exec("print \"Socket successfully created\"",main_namespace);
-		//ignored = exec("except socket.error as err:", main_namespace);
-		//ignored = exec("print \"socket creation failed with error %s\" %(err)", main_namespace);
-		
-		ignored = exec("port = 80",main_namespace);
-		//ignored = exec("try:", main_namespace);
-		ignored = exec("host_ip = socket.gethostbyname('www.google.com')", main_namespace);
-		//ignored = exec("print \"there was an error resolving the host\"", main_namespace);
-		//ignored = exec("sys.exit()", main_namespace);
-		ignored = exec("s.connect((host_ip, port))", main_namespace);
-		//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
-		ignored = exec("print 'Received', host_ip", main_namespace);
-		//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
+		render_index = 0;
 	}
-	catch(error_already_set)
-	{
-		PyErr_Print();
-	}
+
 	
 	//create latency before rendering
 	std::chrono::seconds duration(5);
