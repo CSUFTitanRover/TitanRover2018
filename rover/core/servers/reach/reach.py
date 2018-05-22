@@ -5,6 +5,7 @@ import sys
 import socket
 import subprocess
 import requests
+from threading import Thread 
 global ser, nvidiaIp, gpsPoint
 nvidiaIp = "192.168.1.8"
 gpsPoint = ()
@@ -82,7 +83,7 @@ def reach():
             print(data)
             m = re.match(pattern, data)
             if m:
-                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
+from threading import Thread                 payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4))}} ] }
 
                 gpsPoint = (float(m.group(3)), float(m.group(4)))
