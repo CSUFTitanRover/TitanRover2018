@@ -1,6 +1,8 @@
 // SLAM-Basic-Maze.cpp : Defines the entry point for the console application.
 //
-//g++ main.cpp -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11
+//export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/usr/include/python2.7/"
+//g++ initial.cpp -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11 -lboost_python -lpython2.7 -lboost_system -lboost_thread -lpthread
+//
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
 #else
@@ -16,15 +18,19 @@
 #include <mutex>
 #include <math.h>
 #include <sstream>
+#include <chrono>
+#include <boost/python.hpp>
+
 using namespace std;
+using namespace boost::python;
 
 int flag_tennis = 0;
 int flag_obs    = 0;
 bool auto_path  = false;
 
 #define earthRadiusKm 6371.0
-std::vector<double> _lat_incoming; //Incoming GPS coordinates
-std::vector<double> _lon_incoming; //Incoming GPS coordinates
+std::vector<double> _lat_incoming; //Incoming lat GPS coordinates
+std::vector<double> _lon_incoming; //Incoming lon GPS coordinates
 size_t incoming_index = 0;
 
 vector<double> _lat_outgoing;//Outgoing GPS coordinates
@@ -43,8 +49,8 @@ double _distance_; // Global Calculations
  */
 void set_lat(double temp_lat)
 {
-	_lat_.push_back(lat_points[i]);  	
-	incoming_index++;
+	//_lat_.push_back(lat_points[i]);  	
+	//incoming_index++;
 }
 
 /* @param temp_lon
@@ -52,7 +58,7 @@ void set_lat(double temp_lat)
  */
 void set_lon(double temp_lon)
 {
-	_lon_.push_back(lon_points[i]);	
+	//_lon_.push_back(lon_points[i]);	
 }
 
 // This function converts decimal degrees to radians
@@ -114,8 +120,8 @@ void calculation_func()
 	{
 		if(_lat_incoming.size() > 1 && _lon_incoming.size() > 1)
 		{
-			_angle_    = angleFromCoordinate(deg2rad(_lat_[incoming_index-2]),deg2rad(_lon_[incoming_index-2]),deg2rad(_lat_[incoming_index-1]),deg2rad(_lon_[incoming_index-1]));
-			_distance_ = distanceEarth(_lat_[incoming_index-2],_lon_[incoming_index-2],_lat_[incoming_index-1],_lon_[incoming_index-1]);
+			//_angle_    = angleFromCoordinate(deg2rad(_lat_[incoming_index-2]),deg2rad(_lon_[incoming_index-2]),deg2rad(_lat_[incoming_index-1]),deg2rad(_lon_[incoming_index-1]));
+			//_distance_ = distanceEarth(_lat_[incoming_index-2],_lon_[incoming_index-2],_lat_[incoming_index-1],_lon_[incoming_index-1]);
 		}
 	}
 }
@@ -230,6 +236,7 @@ void drawRadCircle()
 		{
 			glVertex3f(cos(pi_short*i / rad_short), 0.0, sin(pi_short*i / rad_short));
 		}
+		
 	glEnd();
 }
 
@@ -251,7 +258,7 @@ void drawTennisBall()
 }
 
 //Static Drawcube object for rendering.
-void drawRock()
+void drawCubeObject()
 {
 	//Generic cube size
 	GLdouble cube_size;
@@ -269,7 +276,7 @@ void drawRock()
 void drawPoint()
 {
 	//Handle the next gps cordination.
-		//Generic cube size
+	//Generic cube size
 	GLdouble cube_size;
 	
 	cube_size = 0.20;
@@ -294,11 +301,8 @@ void drawPoint()
 
 //---------------------------------------------------------------------------------
 
-void renderBitmapString(GLfloat x, GLfloat y, GLfloat z,
-	void *font,
-	char *string) 
+void renderBitmapString(GLfloat x, GLfloat y, GLfloat z, void *font, char *string) 
 {
-
 	char *c;
 	glRasterPos2i(x, y);
 	for (c = string; *c != '\0'; c++)
@@ -348,7 +352,6 @@ void renderSubWindowScene()
 	object_pos   = 10.0f;
 
 	// Draw ground
-
 	GLuint tex;
 	glGenTextures(1, &tex);
 
@@ -420,17 +423,6 @@ void renderTopDownScene()
 
 	std::atomic<int> index;
 	index.store(0,std::memory_order_relaxed);
-
-	if(auto_path)
-	{
-		set_lat();
-		set_lon();
-		
-		if((_lon_incoming.size() > 1) && (_lat_incoming.size() > 1))
-		{
-			calculation_func();
-		}
-	}
   
 	//Main Camera Position, starting position for top down view.
 	gluLookAt(_openGLCV_.x, _openGLCV_.y + 15, _openGLCV_.z, _openGLCV_.x,
@@ -448,7 +440,7 @@ void renderTopDownScene()
   cout << _distance_ << endl;
   cout << (_angle_)/100 << endl;
   
-		// Main object, main camera.
+		// GPS Object, GPS camera.
 		glPushMatrix();
 			glColor3f(1.0, 0.0, 1.0); //<R,G,B>
 			glTranslatef(_distance_*10, 0 ,_distance_*10);
@@ -555,6 +547,51 @@ void renderSceneAll()
 	}
 	renderScene();
 
+	//
+	if(auto_path)
+	{
+		//set_lat();
+		//set_lon();
+		
+		if((_lon_incoming.size() > 1) && (_lat_incoming.size() > 1))
+		{
+			calculation_func();
+		}
+	}
+	
+	try
+	{
+		object main_module ((handle<>(borrowed(PyImport_AddModule("__main__")))));
+		object main_namespace = main_module.attr("__dict__");
+		object ignored = exec("import socket", main_namespace);
+		ignored = exec("import sys", main_namespace);
+		ignored = exec("", main_namespace);
+		
+		ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
+		ignored = exec("print \"Socket successfully created\"",main_namespace);
+		//ignored = exec("except socket.error as err:", main_namespace);
+		//ignored = exec("print \"socket creation failed with error %s\" %(err)", main_namespace);
+		
+		ignored = exec("port = 80",main_namespace);
+		//ignored = exec("try:", main_namespace);
+		ignored = exec("host_ip = socket.gethostbyname('www.google.com')", main_namespace);
+		//ignored = exec("print \"there was an error resolving the host\"", main_namespace);
+		//ignored = exec("sys.exit()", main_namespace);
+		ignored = exec("s.connect((host_ip, port))", main_namespace);
+		//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
+		ignored = exec("print 'Received', host_ip", main_namespace);
+		//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
+	}
+	catch(error_already_set)
+	{
+		PyErr_Print();
+	}
+	
+	//create latency before rendering
+	std::chrono::seconds duration(5);
+	//std::this_thread::sleep_for(duration);
+	
+	
 	//Sub-Render Scenes with multi-view camera angles.
 	renderTopDownScene();
 }
@@ -706,15 +743,59 @@ int main(int argc, char **argv)
 	glutDisplayFunc(renderSceneAll);
 	glutReshapeFunc(changeSize);
 
-	init();
+	//init();
 
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	
+	// register callbacks
+	glutKeyboardFunc(processNormalKeys);
+	glutSpecialFunc(pressKey);
+	glutIgnoreKeyRepeat(1);
+	glutSpecialUpFunc(releaseKey);
+
+	//Physical Camera Movement functions;
+	glutMouseFunc(mouseButton);
+	glutMotionFunc(physicalCameraMove);
+	
+	
 	//-----------------------------------------------------------------------------
 	//Top down view window decleration.
 	std::cout << "Registering callbacks for Top Down started..." << std::endl;
 	_openGLMV_.TopDownWindow = glutCreateSubWindow(_openGLMV_.mainWindow, 10, 10, 400, 400);
 	glutDisplayFunc(renderTopDownScene);
 
-	init();
+	//init();
+	
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	
+	// register callbacks
+	glutKeyboardFunc(processNormalKeys);
+	glutSpecialFunc(pressKey);
+	glutIgnoreKeyRepeat(1);
+	glutSpecialUpFunc(releaseKey);
+
+	//Physical Camera Movement functions;
+	glutMouseFunc(mouseButton);
+	glutMotionFunc(physicalCameraMove);
+	
+	try
+	{
+		cout << "Python Module Starting..." << endl;
+		cout << "-------------------------" << endl;
+		
+		Py_Initialize();
+
+		
+		cout << "Python Module Initialized..." << endl;
+	}
+	catch(error_already_set)
+	{
+		PyErr_Print();
+	}
 
 	std::cout << "All callbacks have been initialized..." << std::endl;
 	std::cout << "--------------------------------------" << std::endl;
