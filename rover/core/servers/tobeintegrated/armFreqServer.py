@@ -23,7 +23,8 @@ def StringToBytes(val):
     return retVal
 
 def writeToBus(addr, deg, client):
-    bus.write_i2c_block_data(addr, 0x00, StringToBytes(deg))
+    print(addr, type(int(addr)))
+    bus.write_i2c_block_data(int(addr), 0x00, StringToBytes(deg))
     if deg[0] == '9':
         block = bus.read_word_data(addr, 0)
         client.send(block)
@@ -36,7 +37,7 @@ def handle_client(client):
     while True : 
         data = client.recv(4096)
         value = data.split(',')
-        print(value)
+        #print(value)
 
         writeToBus(value[0], value[1], client)
 
