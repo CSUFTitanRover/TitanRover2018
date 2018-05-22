@@ -1,30 +1,36 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import PropTypes from 'prop-types';
+import Stepper from '@material-ui/core/Stepper';
+import StepLabel from '@material-ui/core/StepLabel';
+import Step from '@material-ui/core/Step';
 import grey from '@material-ui/core/colors/grey';
 import { toast } from 'react-toastify';
 import { getClient, getRecord, syncInitialRecordState } from '../../utils/deepstream';
+import CoordinateTypeSelect from '../CoordinateTypeSelect/';
 
 const styles = theme => ({
-  container: {
+  form: {
     display: 'flex',
     flexWrap: 'wrap',
-    background: grey[200],
     alignItems: 'center',
+    padding: theme.spacing.unit * 2,
   },
-  textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    width: 200,
+  stepper: {
+    background: grey[50],
   },
-  menu: {
-    width: 200,
+  contentWrapper: {
+    background: grey[200],
   },
-  button: {
-    margin: theme.spacing.unit,
-    maxHeight: 20,
+  buttons: {
+    padding: theme.spacing.unit * 2,
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  actionButton: {
+    justifySelf: 'flex-end',
   },
 });
 
@@ -33,6 +39,60 @@ class GpsCoordinator extends Component {
     classes: PropTypes.object.isRequired,
   };
 
+  state = {
+    activeStep: 0,
+    coordinateType: 'decimal-degrees',
+  };
+
+  steps = [
+    'Select Type',
+    'Waypoint Input',
+    'Confirm',
+  ];
+
+  handleCoordinateTypeChange = (value) => {
+    this.setState({ coordinateType: value });
+  }
+
+  getStepContent = (stepIndex) => {
+    const { coordinateType } = this.state;
+
+    switch (stepIndex) {
+      case 0:
+        return (
+          <CoordinateTypeSelect
+            coordinateType={coordinateType}
+            handleChange={this.handleCoordinateTypeChange}
+          />
+        );
+      case 1:
+        return '<Input />';
+      case 2:
+        return '<Confirm />';
+      default:
+        return 'Error: Unknown step.';
+    }
+  }
+
+  handleNext = () => {
+    this.setState(prevState => ({
+      activeStep: prevState.activeStep + 1,
+    }));
+  };
+
+  handleBack = () => {
+    this.setState(prevState => ({
+      activeStep: prevState.activeStep - 1,
+    }));
+  };
+
+  handleReset = () => {
+    this.setState({
+      activeStep: 0,
+    });
+  };
+
+
   async componentDidMount() {
     this.client = await getClient('rover');
     this.waypointsRecord = await getRecord(this.client, 'rover/waypoints');
@@ -40,62 +100,62 @@ class GpsCoordinator extends Component {
     await syncInitialRecordState.call(this, this.client, 'rover/waypoints', initialState);
   }
 
-  handleSubmit = (event) => {
-    event.preventDefault();
-    const lat = this.latitudeRef.value;
-    const lon = this.longitudeRef.value;
+  renderContent = ({ activeStep, classes }) => (
+    <div className={classes.contentWrapper}>
+      <form className={classes.form} noValidate autoComplete="off" >
+        {this.getStepContent(activeStep)}
+      </form>
+      <div className={classes.buttons}>
+        <Button
+          variant="raised"
+          color="default"
+          disabled={activeStep === 0}
+          onClick={this.handleBack}
+        >
+          Back
+        </Button>
+        {activeStep === this.steps.length - 1 ? (
+          <Button
+            variant="raised"
+            color="primary"
+            className={classes.actionButton}
+            onClick={this.handleNext}
+          >
+            Finish
+          </Button>
+        ) : (
+          <Button
+            variant="raised"
+            color="primary"
+            className={classes.actionButton}
+            onClick={this.handleNext}
+          >
+              Next
+          </Button>
+        )}
+      </div>
+    </div>
+  )
 
-    if (!lat || !lon) {
-      toast.error('Latitude or Longitude cannot be empty!');
-      return;
-    }
-
-    const waypoints = this.waypointsRecord.get();
-    waypoints.push({ lat, lon });
-    console.log(waypoints, typeof waypoints);
-    this.waypointsRecord.set(waypoints);
-
-    console.log(`Added the following to deepstream... Lat: ${lat}, Lon:${lon}`);
-
-    this.latitudeRef.value = null;
-    this.longitudeRef.value = null;
-  }
 
   render() {
+    const { activeStep } = this.state;
     const { classes } = this.props;
 
     return (
-      <form className={classes.container} noValidate autoComplete="off" onSubmit={this.handleSubmit}>
-        <TextField
-          inputRef={(ref) => { this.latitudeRef = ref; }}
-          id="latitude"
-          label="Latitude"
-          className={classes.textField}
-          margin="normal"
-          type="number"
-          step="any"
-          required
-        />
-        <TextField
-          inputRef={(ref) => { this.longitudeRef = ref; }}
-          id="longitude"
-          label="Longitude"
-          className={classes.textField}
-          margin="normal"
-          type="number"
-          step="any"
-          required
-        />
-        <Button
-          type="submit"
-          variant="raised"
-          color="primary"
-          size="small"
-          className={classes.button}
-        >
-          Add Coordinate
-        </Button>
-      </form>
+      <React.Fragment>
+        <Stepper activeStep={activeStep} alternativeLabel className={classes.stepper}>
+          {this.steps.map(label => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+
+        <div>
+          {this.renderContent({ activeStep, classes })}
+        </div>
+      </React.Fragment >
     );
   }
 }

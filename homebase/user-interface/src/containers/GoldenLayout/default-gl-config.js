@@ -25,11 +25,11 @@ const config = {
           component: 'GpsCoordinator',
           title: 'Gps Coordinator',
         },
-        {
-          type: 'react-component',
-          component: 'CoordinateList',
-          title: 'CoordinateList',
-        },
+        // {
+        //   type: 'react-component',
+        //   component: 'CoordinateList',
+        //   title: 'CoordinateList',
+        // },
       ],
     },
   ],
