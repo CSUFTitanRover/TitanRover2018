@@ -7,7 +7,7 @@ function handleNewPayload(payload, recordName) {
 }
 
 <DeepstreamRecordProvider recordPath="rover/reach" onNewPayload={handleNewPayload}>
-  {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+  {({subscribed, subscribeToUpdates, unsubscribeToUpdates}) => (
     <div>
       <h1>This component's subscription is currently: {subscribed.toString()}</h1>
 
@@ -29,7 +29,7 @@ function handleNewPayload(payload, recordName) {
 }
 
 <DeepstreamRecordProvider recordPath={['rover/reach', 'rover/imu']} onNewPayload={handleNewPayload}>
-  {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+  {({subscribed, subscribeToUpdates, unsubscribeToUpdates}) => (
     <div>
       <h1>This component's subscription is currently: {subscribed.toString()}</h1>
 

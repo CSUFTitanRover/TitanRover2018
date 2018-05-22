@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
-import Select from 'material-ui/Select';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import { MenuItem } from 'material-ui/Menu';
-import { withStyles } from 'material-ui/styles';
-import grey from 'material-ui/colors/grey';
-import blueGrey from 'material-ui/colors/blueGrey';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Select from '@material-ui/core/Select';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import MenuItem from '@material-ui/core/MenuItem';
+import { withStyles } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
+import blueGrey from '@material-ui/core/colors/blueGrey';
 import FlowChart from '../FlowChart/';
 import DeepstreamPubSubProvider from '../../utils/DeepstreamPubSubProvider';
 
@@ -95,7 +95,7 @@ class RealtimeChart extends Component {
 
     return (
       <DeepstreamPubSubProvider eventName={eventName} onNewPayload={this.handleNewPayload}>
-        {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+        {({ subscribed, subscribeToUpdates, unsubscribeToUpdates }) => (
           <Grid
             container
             spacing={16}

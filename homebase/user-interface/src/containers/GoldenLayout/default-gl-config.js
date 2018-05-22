@@ -3,12 +3,12 @@ const config = {
     {
       type: 'row',
       content: [
-        {
-          type: 'react-component',
-          component: 'Camera',
-          title: 'Camera #1',
-          props: { cameraID: '1' },
-        },
+        // {
+        //   type: 'react-component',
+        //   component: 'Camera',
+        //   title: 'Camera #1',
+        //   props: { cameraID: '1' },
+        // },
         // {
         //   type: 'react-component',
         //   component: 'RealtimeChart',
@@ -20,6 +20,16 @@ const config = {
         //   component: 'ResizeAwareMap',
         //   title: 'Map',
         // },
+        {
+          type: 'react-component',
+          component: 'GpsCoordinator',
+          title: 'Gps Coordinator',
+        },
+        {
+          type: 'react-component',
+          component: 'CoordinateList',
+          title: 'CoordinateList',
+        },
       ],
     },
   ],

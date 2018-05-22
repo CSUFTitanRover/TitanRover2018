@@ -7,7 +7,7 @@ function handleNewPayload(payload, eventName) {
 }
 
 <DeepstreamPubSubProvider eventName="science/decagon" onNewPayload={handleNewPayload}>
-  {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+  {({subscribed, subscribeToUpdates, unsubscribeToUpdates}) => (
     <div>
       <h1>This component's subscription is currently: {subscribed.toString()}</h1>
 
@@ -28,7 +28,7 @@ function handleNewPayload(payload, recordName) {
 }
 
 <DeepstreamPubSubProvider eventName={['science/decagon', 'science/atmospheric']} onNewPayload={handleNewPayload}>
-  {(subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+  {({subscribed, subscribeToUpdates, unsubscribeToUpdates}) => (
     <div>
       <h1>This component's subscription is currently: {subscribed.toString()}</h1>
 

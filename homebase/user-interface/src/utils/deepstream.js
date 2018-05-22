@@ -6,72 +6,34 @@ import isEmpty from 'lodash.isempty';
 const deepstream = require('deepstream.io-client-js');
 const appSettings = require('../appSettings.json');
 
-const { rover, homebase } = appSettings.deepstream;
-let roverClient; // singleton for deepstream client connected to the rover
+const { homebase } = appSettings.deepstream;
 let homebaseClient; // singleton for deepstream client connected to the homebase
 
 /**
  * Returns a Promise that resolves a deepstream client object.
- *
- * @param {string} clientType: the type of deepstream client to use. Can be "rover" or "homebase"
  */
-export function getClient(clientType) {
-  let endpoint;
-  let client;
-  switch (clientType) {
-    case 'rover':
-      endpoint = rover.ws;
-      client = roverClient;
-      break;
-    case 'homebase':
-      endpoint = homebase.ws;
-      client = homebaseClient;
-      break;
-    default:
-      throw new SyntaxError('clientType must be either "rover" or "homebase".');
-  }
-
-
+export function getClient() {
   return new Promise((resolve, reject) => {
-    if (client !== undefined) {
-      resolve(client);
-    } else if (client === undefined) {
-      // we need to get the deepstream client with the clientType in mind
-      if (clientType === 'rover') {
-        roverClient = deepstream(endpoint);
+    if (homebaseClient !== undefined) {
+      resolve(homebaseClient);
+    } else if (homebaseClient === undefined) {
+      // we need to get the deepstream client
+      const endpoint = homebase.ws;
+      homebaseClient = deepstream(endpoint);
 
-        roverClient.on('error', (error) => {
-          reject(error);
-        });
+      homebaseClient.on('error', (error) => {
+        reject(error);
+      });
 
-        roverClient.login({}, (success) => {
-          if (success) {
-            resolve(roverClient);
-          } else {
-            reject('Deepstream Client Login was not successful.');
-          }
-        });
-      } else {
-        homebaseClient = deepstream(endpoint);
-        homebaseClient.on('error', (error) => {
-          reject(error);
-        });
-
-        homebaseClient.login({}, (success) => {
-          if (success) {
-            resolve(homebaseClient);
-          } else {
-            reject('Deepstream Client Login was not successful.');
-          }
-        });
-      }
+      homebaseClient.login({}, (success) => {
+        if (success) {
+          resolve(homebaseClient);
+        } else {
+          reject('Deepstream Client Login was not successful.');
+        }
+      });
     }
   });
-}
-
-// Closes the rover client connection to deepstream
-export function closeRoverClient() {
-  roverClient.close();
 }
 
 // Closes the homebase client connection to deepstream
@@ -116,13 +78,13 @@ export function getRecordList(dsClient, path) {
  * recordName: The deepstream record name
  * states: list of states to listen for changes
  */
-export function withDeepstreamState(WrappedComponent, clientType = 'rover', recordName, states) {
+export function withDeepstreamState(WrappedComponent, recordName, states) {
   return class DeepStreamWrapper extends Component {
     constructor(props) {
       super(props);
 
       // Get the deepstream client, then get the record
-      getClient(clientType).then((result) => {
+      getClient().then((result) => {
         this.client = result;
         this.record = this.client.record.getRecord(recordName);
         this.record.subscribe(this.handleDataChange, true);
