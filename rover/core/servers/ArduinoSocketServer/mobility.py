@@ -32,6 +32,7 @@ isPi = True if (uname == 'armv7l\n' or uname == 'arm6l\n') else False
 isNvidia = True if uname == 'aarch64\n' else False
 serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
 
+'''
 # MHz initialization
 mhzPiRelaySocket = None
 try:
@@ -44,6 +45,7 @@ try:
         #print(ser.is_open)
 except:
     print("socket(AF_INET, SOCK_STREAM) at start failed...")
+'''
 
 if isPi:
     import RPi.GPIO as GPIO
@@ -343,6 +345,8 @@ def main(*argv):
 
             # GHz failed, try mhz
             except:
+                pass
+                '''
                 print("GHz failed... trying MHz")
                 try:
                     o = outVals
@@ -356,8 +360,15 @@ def main(*argv):
                     mhzPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
                     mhzPiRelaySocket = socket(AF_INET, SOCK_STREAM)      #check - shouldn't this be UDP
                     mhzPiRelaySocket.connect(('192.168.1.5', 9005))
+                '''
 
 
 if __name__ == '__main__':
-    main(*argv)
+    main()
+    try:
+        while True:
+            sleep(1)
+    except:
+        print("Keyboard Interrupt...")
+        #mhzPiRelaySocket.close()
 
