@@ -77,3 +77,7 @@ Jetson TX2- Model
 Jetson TX2 – Has pascal architecture (research needed) 
 Schematics for NVIDIA – Under schematics in github  for 2018 
 
+### Compile Notes:
+* export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/usr/include/python2.7/"
+* g++ initial.cpp -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11 -lboost_python -lpython2.7 -lboost_system -lboost_thread -lpthread
+
