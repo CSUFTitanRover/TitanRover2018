@@ -5,8 +5,34 @@ import sys
 import socket
 import subprocess
 import requests
-global ser, nvidiaIp
-nvidiaIp = "192.168.1.253"
+global ser, nvidiaIp, gpsPoint
+nvidiaIp = "192.168.1.8"
+gpsPoint = ()
+
+
+
+def broadcastGps():
+    global gpsPoint
+    HOST = ''
+    BUFSIZ = 4096
+    ADDR = (HOST, 8080)
+    SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    while True:
+        try:
+            SERVER.bind(ADDR)
+            SERVER.listen(2)
+            client, client_address = SERVER.accept()
+            break
+        except:
+            subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
+    
+    while True:
+        try:
+            print(gpsPoint)
+            client.send(gpsPoint)
+        except:
+            pass
+
 
 
 #sleep(10)
@@ -14,6 +40,7 @@ nvidiaIp = "192.168.1.253"
 #subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
 
 def reach():
+    global gpsPoint
     #subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
     #subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
     try:
@@ -58,6 +85,8 @@ def reach():
                 payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4))}} ] }
 
+                gpsPoint = (float(m.group(3)), float(m.group(4)))
+
                 '''
                 payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4)),
@@ -94,3 +123,4 @@ def reach():
 while True:
     reach()
 
+Thread(target=broadcastGps).start()
