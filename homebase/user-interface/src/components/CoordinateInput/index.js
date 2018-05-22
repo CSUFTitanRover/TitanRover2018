@@ -56,6 +56,10 @@ class CoordinateInput extends PureComponent {
     this.props.handleChange(target.value);
   }
 
+  renderDDInput = () => (
+
+  )
+
   render() {
     const { value } = this.state;
     const { classes } = this.props;
