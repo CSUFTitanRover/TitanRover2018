@@ -15,7 +15,8 @@ import re
 import requests
 
 
-
+#Arduino Serial Out
+#ardOut = 
 # gnss connection info
 __antenna_gps_address = "192.168.1.232"
 __antenna_gps_port = 7075

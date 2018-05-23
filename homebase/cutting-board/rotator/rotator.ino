@@ -14,6 +14,7 @@
 
 int potPin = 0;    // select the input pin for the potentiometer
 int val = 0;       // variable to store the value coming from the sensor
+float heading = 0;
 
 void setup() 
 {
