@@ -222,14 +222,14 @@ class Coordinator extends Component {
             onClick={this.handleNext}
           >
               Next
-            </Button>
+          </Button>
         )}
       </div>
     </div>
   )
 
   async componentDidMount() {
-    this.client = await getClient('rover');
+    this.client = await getClient();
   }
 
   render() {
