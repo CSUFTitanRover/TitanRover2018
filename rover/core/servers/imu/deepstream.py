@@ -8,22 +8,22 @@ import json
 #import commands
 
 
-roverIp = "192.168.1.2"   # This ip will change periodically, 
+roverIp = "192.168.1.253"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
 '''
 try:
     if "titan" in commands.getoutput("iwgetid -r"):
-        roverIp = "192.168.1.2"
+        roverIp = "192.168.1.253"
         #print('Your Deepstream IP address is : ' + str(roverIp))
     elif "30:5a:3a:51:a5:70" in commands.getoutput("nmap -sP 192.168.1.1"):
-        roverIp = "192.168.1.2"
+        roverIp = "192.168.1.253"
         #print('Your Deepstream IP address is : ' + str(roverIp))
     else:
-        roverIp = "192.168.1.2"
+        roverIp = "192.168.1.253"
         #print('Your Deepstream IP address is : ' + str(roverIp))
 except:
-    roverIp = "192.168.1.2"
+    roverIp = "192.168.1.253"
 
 '''
 def get(recordName):
@@ -40,7 +40,7 @@ def get(recordName):
     if type(recordName) is not str:
         raise "Your argument needs to be a string when getting from deepstream"
     payload = {"body":[{"topic": "record", "action":"read", "recordName": "rover/" + recordName}]}
-    request = requests.post('http://' + roverIp + ':4080', json=payload)
+    request = requests.post('http://' + roverIp + ':3080', json=payload)
     if type(request.content) is bytes:
         response = json.loads(request.content.decode('utf-8'))
     elif type(request.content) is str:
@@ -67,7 +67,7 @@ def post(obj, recordName):
     if type(obj) is not dict:
         raise "Your first argument needs to be a dict setting data to deepstream"
     payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/" + recordName, "data": obj}]}
-    request = requests.post('http://' + roverIp + ':4080', json=payload)
+    request = requests.post('http://' + roverIp + ':3080', json=payload)
     if request is not None:
         if type(request) is bytes:
             request = request.decode('utf-8')    

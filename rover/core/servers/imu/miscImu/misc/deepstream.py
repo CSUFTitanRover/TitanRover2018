@@ -9,16 +9,16 @@ import subprocess
 from subprocess import Popen
 
 
-roverIp = "192.168.1.2"   # This ip will change periodically, 
+roverIp = "192.168.1.253"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
 
 try:
     if "titan" == Popen(["iwgetid", "-r"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
-        roverIp = "192.168.1.2"
+        roverIp = "192.168.1.253"
         #print('Your Deepstream IP address is : ' + str(roverIp))
     elif "00:24:B2:CA:8B:86" in Popen(["nmap", "-sP", "192.168.1.1"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
-        roverIp = "192.168.1.2"
+        roverIp = "192.168.1.253"
         #print('Your Deepstream IP address is : ' + str(roverIp))
     else:
         roverIp = "127.0.0.1"
