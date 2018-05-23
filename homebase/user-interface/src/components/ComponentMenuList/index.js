@@ -132,8 +132,8 @@ class ComponentMenuList extends Component {
             className={classes.nested}
           />
           <ComponentMenuItem
-            title="Gps Coordinator"
-            componentname="GpsCoordinator"
+            title="Coordinator"
+            componentname="Coordinator"
             icon={<NavigationIcon />}
             className={classes.nested}
           />

@@ -22,8 +22,8 @@ const config = {
         // },
         {
           type: 'react-component',
-          component: 'GpsCoordinator',
-          title: 'Gps Coordinator',
+          component: 'Coordinator',
+          title: 'Coordinator',
         },
         // {
         //   type: 'react-component',

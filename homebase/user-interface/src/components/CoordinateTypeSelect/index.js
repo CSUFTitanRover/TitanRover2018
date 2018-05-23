@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -6,30 +6,17 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import grey from '@material-ui/core/colors/grey';
+import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
-  container: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    background: grey[200],
-    alignItems: 'center',
-  },
-  textField: {
-    marginLeft: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
-    width: 200,
-  },
-  menu: {
-    width: 200,
-  },
-  button: {
-    margin: theme.spacing.unit,
-    maxHeight: 20,
+  coordinateInput: {
+    padding: theme.spacing.unit * 2,
+    marginTop: theme.spacing.unit * 2,
+    marginBottom: theme.spacing.unit * 2,
   },
 });
 
-class CoordinateTypeSelect extends PureComponent {
+class CoordinateTypeSelect extends Component {
   static propTypes = {
     classes: PropTypes.object.isRequired,
     handleChange: PropTypes.func.isRequired,
@@ -61,22 +48,24 @@ class CoordinateTypeSelect extends PureComponent {
     const { classes } = this.props;
 
     return (
-      <FormControl className={classes.formControl}>
-        <InputLabel htmlFor="coordinate-type">Coordinate Type</InputLabel>
-        <Select
-          value={value}
-          onChange={this.handleChange}
-          inputProps={{
-            name: 'coordinate-type',
-            id: 'coordinate-type',
-          }}
-        >
-          <MenuItem value="decimal-degrees">Decimal Degrees</MenuItem>
-          <MenuItem value="degrees-minutes-seconds">Degrees, Minutes and Seconds</MenuItem>
-          <MenuItem value="degrees-decimal-minutes">Degrees and Decimal Minutes</MenuItem>
-        </Select>
-        <FormHelperText>{this.getHelperText(value)}</FormHelperText>
-      </FormControl>
+      <Paper square={false} className={classes.coordinateInput}>
+        <FormControl>
+          <InputLabel htmlFor="coordinate-type">Coordinate Type</InputLabel>
+          <Select
+            value={value}
+            onChange={this.handleChange}
+            inputProps={{
+              name: 'coordinate-type',
+              id: 'coordinate-type',
+            }}
+          >
+            <MenuItem value="decimal-degrees">Decimal Degrees</MenuItem>
+            <MenuItem value="degrees-minutes-seconds">Degrees, Minutes and Seconds</MenuItem>
+            <MenuItem value="degrees-decimal-minutes">Degrees and Decimal Minutes</MenuItem>
+          </Select>
+          <FormHelperText>{this.getHelperText(value)}</FormHelperText>
+        </FormControl>
+      </Paper>
     );
   }
 }

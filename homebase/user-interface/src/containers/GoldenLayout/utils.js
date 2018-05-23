@@ -4,7 +4,7 @@ import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 import ResizeAwareMap from '../../components/ResizeAwareMap/';
-import GpsCoordinator from '../../components/GpsCoordinator/';
+import Coordinator from '../../components/Coordinator/';
 import CoordinateList from '../../components/CoordinateList/';
 
 /**
@@ -48,7 +48,7 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
   glNode.registerComponent('RealtimeChart', RealtimeChart);
-  glNode.registerComponent('GpsCoordinator', GpsCoordinator);
+  glNode.registerComponent('Coordinator', Coordinator);
   glNode.registerComponent('CoordinateList', CoordinateList);
 }
 
