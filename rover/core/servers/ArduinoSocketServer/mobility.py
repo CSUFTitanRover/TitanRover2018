@@ -348,23 +348,23 @@ def main(*argv):
                       print('SENT HAM DATA')
                       #ser.write(hamBytePack) # packed bytes
                   except:
-					try:
-					  hamPiRelaySocket.close()
-					  hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
-            		  hamPiRelaySocket.connect(('192.168.1.5', 9005))
-					except:
-					  pass                    
-					try:
-                      pass
-                    except:
-                      print('SOCKET CLOSED FOR RECONNECT')
                     try:
-                      print('RECONNECTING TO HAM SOCKET')
+                      hamPiRelaySocket.close()
+                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
                       hamPiRelaySocket.connect(('192.168.1.5', 9005))
                     except:
-                      print("COULD NOT RECONNECT")
-                      pass
-                    print("Coudn't send over Ham")
+                      pass                    
+                  try:
+                    pass
+                  except:
+                    print('SOCKET CLOSED FOR RECONNECT')
+                  try:
+                    print('RECONNECTING TO HAM SOCKET')
+                    hamPiRelaySocket.connect(('192.168.1.5', 9005))
+                  except:
+                    print("COULD NOT RECONNECT")
+                    pass
+                  print("Coudn't send over Ham")
                 else:
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
               else:
