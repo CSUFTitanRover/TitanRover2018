@@ -3,7 +3,7 @@ from threading import Thread
 import pickle
 import subprocess
 from time import sleep
-#from deepstream import post
+from deepstream import post
 
 global currentPoints
 global previousPoints
@@ -22,7 +22,8 @@ def handle_client(client):
     global currentPoints
     while True : 
         data = client.recv(4096) 
-        #print("Server received data:", data)
+        print("Server received data:", data)
+        print(type(data))
         if data[0] == '0':
             currentPoints = []
             client.send(pickle.dumps(currentPoints))
@@ -71,11 +72,11 @@ def deletePoints(MESSAGE):
     points = MESSAGE.split(",")
 
     #print("The points is ", points)
-    if len(points) > '3':
-        for x in range(1, len(points), 2):
-            temp = (points[x],points[x+1])
-            previousPoints.append(temp)
-            del currentPoints[currentPoints.index(temp)]
+    #print("size of point is ", len(points))
+    if len(points) == 3:
+        temp = (points[1],points[2])
+        previousPoints.append(temp)
+        del currentPoints[currentPoints.index(temp)]
     elif len(currentPoints) != 0:
         previousPoints.append(currentPoints[-1])
         del currentPoints[-1]
@@ -94,14 +95,14 @@ def readTopPoint(MESSAGE):
 def sendToBaseStation():
     global currentPoints
     global previousPoints
-    '''
-    try:
-        post(currentPoints, "currentPoints")
-        post(previousPoints, "previousPoints")
-    except:
-        print("Cannot Send to HomeBase")
-    '''
-    sleep(5)
+    while True:
+        try:
+            post({ 'cp' : currentPoints}, "currentPoints")
+            post({ 'pp' : previousPoints}, "previousPoints")
+            print("Successful Post")
+        except:
+            print("Cannot Send to HomeBase")
+        sleep(5)
 
 
 Thread(target=sendToBaseStation).start()
