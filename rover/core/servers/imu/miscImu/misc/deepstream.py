@@ -5,27 +5,29 @@
 '''
 import requests
 import json
-#import commands
+import subprocess
+from subprocess import Popen
 
 
-roverIp = "192.168.1.2"   # This ip will change periodically, 
+roverIp = "192.168.1.253"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
-'''
+
 try:
-    if "titan" in commands.getoutput("iwgetid -r"):
-        roverIp = "192.168.1.2"
+    if "titan" == Popen(["iwgetid", "-r"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
+        roverIp = "192.168.1.253"
         #print('Your Deepstream IP address is : ' + str(roverIp))
-    elif "30:5a:3a:51:a5:70" in commands.getoutput("nmap -sP 192.168.1.1"):
-        roverIp = "192.168.1.2"
+    elif "00:24:B2:CA:8B:86" in Popen(["nmap", "-sP", "192.168.1.1"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]:
+        roverIp = "192.168.1.253"
         #print('Your Deepstream IP address is : ' + str(roverIp))
     else:
-        roverIp = "192.168.1.2"
+        roverIp = "127.0.0.1"
         #print('Your Deepstream IP address is : ' + str(roverIp))
 except:
-    roverIp = "192.168.1.2"
+    roverIp = "127.0.0.1"
+    roverIp = "127.0.0.1"
 
-'''
+
 def get(recordName):
     '''
         The get function will get the entire record "rover/" + recordName

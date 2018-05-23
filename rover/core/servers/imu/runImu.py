@@ -23,9 +23,14 @@
 # THE SOFTWARE.
 import logging
 import sys
+import subprocess
 import time
 from deepstream import get, post
 from Adafruit_BNO055 import BNO055
+
+
+subprocess.run(["python3.5", "calImu.py"])
+time.sleep(3)
 
 try:
     obj = {}
@@ -55,7 +60,7 @@ while not bno.begin():
 
 def magToTrue(h):
     return (h + magneticDeclination) % 360
-    
+
 fileIn = open('calibrationData.txt','r')
 data = fileIn.read().splitlines()
 for i in range(len(data)):
