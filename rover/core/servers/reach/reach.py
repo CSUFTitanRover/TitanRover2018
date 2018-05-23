@@ -26,13 +26,18 @@ def broadcastGps():
             break
         except:
             subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
+            print("Waiting for Client to connect")
+            sleep(1)
     
     while True:
         try:
             print(gpsPoint)
+            gpsPoint = ",".join(gpsPoint)
             client.send(gpsPoint)
+            sleep(0.5)
         except:
-            pass
+            print("Error sending to client")
+            sleep(1)
 
 
 
@@ -83,7 +88,7 @@ def reach():
             print(data)
             m = re.match(pattern, data)
             if m:
-from threading import Thread                 payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
+                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4))}} ] }
 
                 gpsPoint = (float(m.group(3)), float(m.group(4)))
@@ -121,7 +126,7 @@ from threading import Thread                 payload = {"body":[{"topic": "recor
         #s.close()
         pass
 
+Thread(target=broadcastGps).start()
+
 while True:
     reach()
-
-Thread(target=broadcastGps).start()
