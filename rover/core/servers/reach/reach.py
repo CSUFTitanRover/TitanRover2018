@@ -8,53 +8,28 @@ import requests
 from threading import Thread 
 global ser, nvidiaIp, gpsPoint
 nvidiaIp = "192.168.1.253"
-gpsPoint = (0,0)
+gpsPoint = ()
 
 
-
-def broadcastGps():
-    global gpsPoint
-    HOST = ''
-    BUFSIZ = 4096
-    ADDR = (HOST, 8080)
-    SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def acceptConnections():
     while True:
-        try:
-            print("Connecting")
-            SERVER.bind(ADDR)
-            SERVER.listen(5)
-            break
-        except:
-            subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
-            print("Waiting for Client to connect")
-            sleep(1)
+        client, client_address = SERVER.accept()
+        print("%s:%s has connected." % client_address)
+        Thread(target=broadcastGps, args=(client, )).start()
 
-    while True:
-        try:
-            client, client_address = SERVER.accept()
-            print("Connection from", client_address)
-            break
-        except:
-            print("ERROR CONNECTING")
-            sleep(3)
+def broadcastGps(client):
+        global gpsPoint
+        while True:
+            try:
+                temp = ",".join(str(x) for x in gpsPoint)
+                #print("points = ", temp, "type ", type(temp))
+                client.send(temp)
+                print("Send to Client Successful")
+                sleep(0.5)
+            except:
+                print("Error sending to client")
+                sleep(5)
 
-    
-    while True:
-        try:
-            temp = ",".join(str(x) for x in gpsPoint)
-            #print("points = ", temp)
-            client.send(temp)
-            sleep(0.5)
-        except:
-            print("Error sending to client")
-            client.close()
-            sleep(1)
-
-
-
-#sleep(10)
-#subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
-#subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
 
 def reach():
     global gpsPoint
@@ -118,8 +93,8 @@ def reach():
                 '''
                 try:
                     print("Dumping to deepstream...")
-                    request = requests.post('http://' + nvidiaIp + ':3080', json=payload)
-                    print request.text
+                    #request = requests.post('http://' + nvidiaIp + ':3080', json=payload)
+                    #print request.text
                 except:
                     print("Deepstream doesn't seem to be online")
                     
@@ -139,7 +114,31 @@ def reach():
         #s.close()
         pass
 
-Thread(target=broadcastGps).start()
+def startReach():
+    while True:
+        reach()
+
+Thread(target=startReach).start()
+
+clients = {}
+
+HOST = ''
+BUFSIZ = 4096
+ADDR = (HOST, 8080)
+
+SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 while True:
-    reach()        
+    try:
+        SERVER.bind(ADDR)
+        break
+    except:
+        subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
+
+if __name__ == "__main__":
+    SERVER.listen(5)
+    print("Waiting for connection...")
+    ACCEPT_THREAD = Thread(target=acceptConnections)
+    ACCEPT_THREAD.start()
+    ACCEPT_THREAD.join()
+SERVER.close()
 
