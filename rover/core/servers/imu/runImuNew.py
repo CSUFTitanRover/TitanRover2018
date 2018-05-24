@@ -25,12 +25,27 @@ import logging
 import sys
 import subprocess
 import time
+import socket
+import requests
 from threading import Thread
 #from deepstream import get, post
 from Adafruit_BNO055 import BNO055
 
-global imuData, confMode, bno
+global imuData
 imuData = {}
+
+
+subprocess.call(["python3.5", "calImu.py"])
+time.sleep(3)
+
+'''
+try:
+    obj = {}
+    post(obj, 'imu')
+except:
+    print("Not connected to deepstream")
+'''
+magneticDeclination = 11.88
 
 # Create and configure the BNO sensor connection.  Make sure only ONE of the
 # below 'bno = ...' lines is uncommented:
@@ -46,119 +61,141 @@ if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
     logging.basicConfig(level=logging.DEBUG)
 
 time.sleep(1)
+# Initialize the BNO055 and stop if something went wrong.
+while not bno.begin():
+    print('Waiting for sensor...')
+    time.sleep(1)
 
-#subprocess.call(["python3.5", "calImu.py"])
-#time.sleep(3)
-class FuckingImu:
+def magToTrue(h):
+    return (h + magneticDeclination) % 360
 
-    '''
-    try:
-        obj = {}
-        post(obj, 'imu')
-    except:
-        print("Not connected to deepstream")
-    '''
+fileIn = open('calibrationData.txt','r')
+data = fileIn.read().splitlines()
+for i in range(len(data)):
+    data[i] = int(data[i])
+bno.set_calibration(data)
+fileIn.close()
 
-    def magToTrue(self, h):
-        magneticDeclination = 11.88
-        return (h + magneticDeclination) % 360
+# Print system status and self test result.
+status, self_test, error = bno.get_system_status()
+print('System status: {0}'.format(status))
+print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
+# Print out an error if system status is in error mode.
+if status == 0x01:
+    print('System error: {0}'.format(error))
+    print('See datasheet section 4.3.59 for the meaning.')
 
-    def main(self):
-        # Initialize the BNO055 and stop if something went wrong.
-        while not bno.begin():
-            print('Waiting for sensor...')
-            time.sleep(1)
+# Print BNO055 software revision and other diagnostic data.
+sw, bl, accel, mag, gyro = bno.get_revision()
+print('Software version:   {0}'.format(sw))
+print('Bootloader version: {0}'.format(bl))
+print('Accelerometer ID:   0x{0:02X}'.format(accel))
+print('Magnetometer ID:    0x{0:02X}'.format(mag))
+print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 
+print('Reading BNO055 data, press Ctrl-C to quit...')
 
-        fileIn = open('calibrationData.txt','r')
-        data = fileIn.read().splitlines()
-        for i in range(len(data)):
-            data[i] = int(data[i])
-        bno.set_calibration(data)
-        fileIn.close()
+try:
+    while True:
+        '''
+        if confMode == False and (sys != 3 or mag != 3):
+            print("Reloading calibration file...")
+            bno.set_calibration(data)
+        '''
+        
+        # Read the Euler angles for heading, roll, pitch (all in degrees)
+        heading, roll, pitch = bno.read_euler()
+        # Read the calibration status, 0=uncalibrated and 3=fully calibrated
+        sys, gyro, accel, mag = bno.get_calibration_status()
+        heading = magToTrue(heading)
+       
+        if sys == 3 and gyro == 3 and accel == 3 and mag == 3 and confMode:
+            bno.set_mode(0X0C)
+            confMode = False
 
-        # Print system status and self test result.
-        status, self_test, error = bno.get_system_status()
-        print('System status: {0}'.format(status))
-        print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
-        # Print out an error if system status is in error mode.
-        if status == 0x01:
-            print('System error: {0}'.format(error))
-            print('See datasheet section 4.3.59 for the meaning.')
-
-        # Print BNO055 software revision and other diagnostic data.
-        sw, bl, accel, mag, gyro = bno.get_revision()
-        print('Software version:   {0}'.format(sw))
-        print('Bootloader version: {0}'.format(bl))
-        print('Accelerometer ID:   0x{0:02X}'.format(accel))
-        print('Magnetometer ID:    0x{0:02X}'.format(mag))
-        print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
-
-        print('Reading BNO055 data, press Ctrl-C to quit...')
-        self.imuLoop()
-
-
-    def imuLoop(self):
-        global imuData, confMode
+        print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
+            heading, roll, pitch, sys, gyro, accel, mag))
+        '''
         try:
-            while True:
-                '''
-                if confMode == False and (sys != 3 or mag != 3):
-                    print("Reloading calibration file...")
-                    bno.set_calibration(data)
-                '''
-                
-                # Read the Euler angles for heading, roll, pitch (all in degrees)
-                heading, roll, pitch = bno.read_euler()
-                # Read the calibration status, 0=uncalibrated and 3=fully calibrated
-                sys, gyro, accel, mag = bno.get_calibration_status()
-                heading = self.magToTrue(heading)
-            
-                if sys == 3 and gyro == 3 and accel == 3 and mag == 3 and confMode:
-                    bno.set_mode(0X0C)
-                    confMode = False
-
-                print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
-                    heading, roll, pitch, sys, gyro, accel, mag))
-
-                imuData = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
-                '''
-                try:
-                    response = post({ "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }, 'imu')
-                except:
-                    print("Cannot Post to Deepstream")            
-                response = None
-                '''
-                # Other values you can optionally read:
-                # Orientation as a quaternion:
-                #x,y,z,w = bno.read_quaterion()
-                # Sensor temperature in degrees Celsius:
-                #temp_c = bno.read_temp()
-                # Magnetometer data (in micro-Teslas):
-                #x,y,z = bno.read_magnetometer()
-                # Gyroscope data (in degrees per second):
-                #x,y,z = bno.read_gyroscope()
-                # Accelerometer data (in meters per second squared):
-                #x,y,z = bno.read_accelerometer()
-                # Linear acceleration data (i.e. acceleration from movement, not gravity--
-                # returned in meters per second squared):
-                #x,y,z = bno.read_linear_acceleration()
-                # Gravity acceleration data (i.e. acceleration just from gravity--returned
-                # in meters per second squared):
-                #x,y,z = bno.read_gravity()
-                # Sleep for a second until the next reading.
-                time.sleep(0.02)
+            response = post({ "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }, 'imu')
         except:
-            print("Error")
+            print("Cannot Post to Deepstream")            
+        response = None
+        '''
+        # Other values you can optionally read:
+        # Orientation as a quaternion:
+        #x,y,z,w = bno.read_quaterion()
+        # Sensor temperature in degrees Celsius:
+        #temp_c = bno.read_temp()
+        # Magnetometer data (in micro-Teslas):
+        #x,y,z = bno.read_magnetometer()
+        # Gyroscope data (in degrees per second):
+        #x,y,z = bno.read_gyroscope()
+        # Accelerometer data (in meters per second squared):
+        #x,y,z = bno.read_accelerometer()
+        # Linear acceleration data (i.e. acceleration from movement, not gravity--
+        # returned in meters per second squared):
+        #x,y,z = bno.read_linear_acceleration()
+        # Gravity acceleration data (i.e. acceleration just from gravity--returned
+        # in meters per second squared):
+        #x,y,z = bno.read_gravity()
+        # Sleep for a second until the next reading.
+        time.sleep(0.02)
+except:
+    print("Error")
 
+def acceptConnections():
+    while True:
+        client, client_address = SERVER.accept()
+        print("%s:%s has connected." % client_address)
+        Thread(target=broadcastImu, args=(client, )).start()
 
-    def imuPost(self):
+def broadcastImu(client):
         global imuData
-        print(type(imuData))
-        temp = imuData['heading']
-        print(temp)
-        #return temp
+        while True:
+            try:
+                temp = imuData['heading']
+                client.send(temp)
+                print("Send to Client Successful")
+                time.sleep(0.5)
+            except:
+                print("Error sending to client")
+                time.sleep(5)
+
+def postToDeepstream():
+    global imuData
+    payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", 
+                "data": imuData} ] }
+
+    try:
+        print("Dumping to deepstream...")
+        #request = requests.post('http://192.168.1.8:3080', json=payload)
+        #print request.text
+    except:
+        print("Deepstream doesn't seem to be online")
 
 
-start = FuckingImu()
-start.main()
+
+clients = {}
+
+HOST = ''
+BUFSIZ = 4096
+ADDR = (HOST, 8080)
+
+SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+while True:
+    try:
+        SERVER.bind(ADDR)
+        break
+    except:
+        subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
+
+if __name__ == "__main__":
+    SERVER.listen(5)
+    print("Waiting for connection...")
+    Thread(target=postToDeepstream).start()
+    ACCEPT_THREAD = Thread(target=acceptConnections)
+    ACCEPT_THREAD.start()
+    ACCEPT_THREAD.join()
+    
+SERVER.close()

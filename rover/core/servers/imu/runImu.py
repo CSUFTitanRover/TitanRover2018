@@ -142,9 +142,3 @@ except:
     print("Error")
 
 
-def imuPost():
-    global imuData
-    temp = imuData['heading']
-    print(temp)
-    #return temp
-
