@@ -142,6 +142,7 @@ except:
     print("Error")
 
 
+<<<<<<< HEAD
 def imuPost():
     global imuData
     temp = imuData['heading']
@@ -149,3 +150,5 @@ def imuPost():
     time.sleep(2)
     #return temp
 
+=======
+>>>>>>> 29123acf6ee757149985fc2081fca00dbfbf6b26
