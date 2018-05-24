@@ -120,8 +120,8 @@ void calculation_func()
 	{
 		if(_lat_incoming.size() > 1 && _lon_incoming.size() > 1)
 		{
-			//_angle_    = angleFromCoordinate(deg2rad(_lat_[incoming_index-2]),deg2rad(_lon_[incoming_index-2]),deg2rad(_lat_[incoming_index-1]),deg2rad(_lon_[incoming_index-1]));
-			//_distance_ = distanceEarth(_lat_[incoming_index-2],_lon_[incoming_index-2],_lat_[incoming_index-1],_lon_[incoming_index-1]);
+			_angle_    = angleFromCoordinate(deg2rad(_lat_incoming[incoming_index-2]),deg2rad(_lon_incoming[incoming_index-2]),deg2rad(_lat_incoming[incoming_index-1]),deg2rad(_lon_incoming[incoming_index-1]));
+			_distance_ = distanceEarth(_lat_incoming[incoming_index-2],_lon_incoming[incoming_index-2],_lat_incoming[incoming_index-1],_lon_incoming[incoming_index-1]);
 		}
 	}
 }
@@ -436,18 +436,8 @@ void renderTopDownScene()
 				glutSolidCone(0.2, 0.5f, 2, 2);
 				drawRadCircle();
 			glPopMatrix();
-
-  cout << _distance_ << endl;
-  cout << (_angle_)/100 << endl;
-  
-		// GPS Object, GPS camera.
-		glPushMatrix();
-			glColor3f(1.0, 0.0, 1.0); //<R,G,B>
-			glTranslatef(_distance_*10, 0 ,_distance_*10);
-			glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
-			drawPoint();
-		glPopMatrix();
 				
+	
 	//Only register points in 15 intervals	
 	for (int i = 0; i < _openGLRT_.past_x.size(); i++)
 	{
@@ -470,20 +460,6 @@ void renderTopDownScene()
 	}
 
 	
-	if(auto_path)
-	{
-	
-		glPushMatrix();
-				glColor3f(1.0, 1.0, 1.0); //<R,G,B>
-				glBegin(GL_LINE_STRIP);
-				glTranslatef(_openGLCV_.x, 0.0f, _openGLCV_.z);
-				glVertex3f(_openGLCV_.x, 0.0f, _openGLCV_.z);
-				glVertex3f(1.5, 0.0f, -1.0);
-				glEnd();
-		
-		glPopMatrix();
-		
-	}
 	//Draws the tracer red-line from the first point of view.
 	//Needs a better rework of the y direction calculation between matrices.
 	// Draw the interpolated points second.
@@ -510,7 +486,6 @@ void renderTopDownScene()
 	
 	glColor3f(1.0, 0.0, 0.8); //<R,G,B>
 	glBegin(GL_TRIANGLE_FAN);
-		//#pragma omp parallel for ordered schedule(static)
 		for (int i = 1; i < _openGLRLT_.line_x.size(); i++)
 		{
 			glVertex3f(_openGLRLT_.line_x[i], 0.0f, _openGLRLT_.line_z[i]);
@@ -547,22 +522,9 @@ void renderSceneAll()
 		glutPostRedisplay();
 	}
 	renderScene();
-
-	//
-	if(auto_path)
-	{
-		//set_lat();
-		//set_lon();
-		
-		if((_lon_incoming.size() > 1) && (_lat_incoming.size() > 1))
-		{
-			calculation_func();
-		}
-	}
 	
 	render_index++;
-	
-	if(render_index > 15)
+	if(render_index > 10)
 	{
 		try
 		{
@@ -570,22 +532,37 @@ void renderSceneAll()
 			object main_namespace = main_module.attr("__dict__");
 			object ignored = exec("import socket", main_namespace);
 			ignored = exec("import sys", main_namespace);
-			ignored = exec("", main_namespace);
+			ignored = exec("from binascii import hexlify, unhexlify, a2b_hex, b2a_hex, b2a_qp, a2b_qp", main_namespace);
+			
+			ignored = exec("g = bytearray(b\' \x02\x73\x52\x4e\x20\x4c\x4d\x44\x73\x63\x61\x6e\x64\x61\x74\x61\x03\')", main_namespace);
 			
 			ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
 			ignored = exec("print \"Socket successfully created\"",main_namespace);
-			//ignored = exec("except socket.error as err:", main_namespace);
-			//ignored = exec("print \"socket creation failed with error %s\" %(err)", main_namespace);
 			
-			ignored = exec("port = 80",main_namespace);
+			ignored = exec("port = 2111",main_namespace);
 			//ignored = exec("try:", main_namespace);
-			ignored = exec("host_ip = socket.gethostbyname('www.google.com')", main_namespace);
+			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace);
 			//ignored = exec("print \"there was an error resolving the host\"", main_namespace);
 			//ignored = exec("sys.exit()", main_namespace);
 			ignored = exec("s.connect((host_ip, port))", main_namespace);
 			//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
 			ignored = exec("print 'Received', host_ip", main_namespace);
-			//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
+			ignored = exec("degree = 90", main_namespace);
+			ignored = exec("distance = []", main_namespace);
+			
+			ignored = exec("s.send(g)", main_namespace);
+			ignored = exec("d = s.recv(4096)", main_namespace);
+			ignored = exec("print d", main_namespace);
+			
+			ignored = exec("data = d.split(\" \")", main_namespace);
+			ignored = exec("dataPoints = int(\"0x\" + str(data[25]), 16)", main_namespace);
+			ignored = exec("print(dataPoints)", main_namespace);
+
+			//ignored = exec("print(\"\n\nHEX VALUE -----\") print(distance)", main_namespace);
+			//ignored = exec("map(lambda x: distance.append(x),(i for i in range(26, 26 + dataPoints, 1)))",main_namespace);
+			//ignored = exec("z = [for x in range(len(distance)) distance[x] = (int(\"0x\" + str(distance[x]), 16), degree) degree -= 0.5]", main_namespace);
+			//ignored = exec("print z", main_namespace);
+			
 		}
 		catch(error_already_set)
 		{
@@ -594,13 +571,44 @@ void renderSceneAll()
 		
 		render_index = 0;
 	}
+	
+	//Create GPS connection
+	
+	
+	//Calculate Distance
+	calculation_func();
+	
+	//Calculate Pathing
+	//D*Star
+	
+	//Send Back to the server
+	bool send_back = false;
+	if(send_back)
+	{
+		try
+		{
+			object main_module ((handle<>(borrowed(PyImport_AddModule("__main__")))));
+			object main_namespace = main_module.attr("__dict__");
+			object ignored = exec("import socket", main_namespace);
+			ignored = exec("import sys", main_namespace);
+			ignored = exec("s_back = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
+			ignored = exec("print \"Socket successfully created\"",main_namespace);
+			
+			ignored = exec("port = 2111",main_namespace);
+			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace);
+			ignored = exec("s_back.connect((host_ip, port))", main_namespace);
+			ignored = exec("print 'Received', host_ip", main_namespace);
+			
+			//Send the GPS data back to the server;
+			//ignored = exec("s.send("")", main_namespace);
+		}
+		catch(error_already_set)
+		{
+			PyErr_Print();
+		}
+	}
+	
 
-	
-	//create latency before rendering
-	std::chrono::seconds duration(5);
-	//std::this_thread::sleep_for(duration);
-	
-	
 	//Sub-Render Scenes with multi-view camera angles.
 	renderTopDownScene();
 }
