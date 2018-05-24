@@ -142,13 +142,16 @@ except:
     print("Error")
 
 
-<<<<<<< HEAD
-def imuPost():
-    global imuData
-    temp = imuData['heading']
-    print(temp)
-    time.sleep(2)
-    #return temp
 
-=======
->>>>>>> 29123acf6ee757149985fc2081fca00dbfbf6b26
+def postToDeepstream():
+    global imuData
+    while True:
+        payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", 
+                    "data": imuData} ] }
+
+        try:
+            print("Dumping to deepstream...")
+            #request = requests.post('http://192.168.1.8:3080', json=payload)
+            #print request.text
+        except:
+            print("Deepstream doesn't seem to be online")

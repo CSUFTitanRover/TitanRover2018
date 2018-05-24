@@ -25,32 +25,27 @@ import logging
 import sys
 import subprocess
 import time
+from threading import Thread
 import socket
 import requests
-from threading import Thread
 #from deepstream import get, post
 from Adafruit_BNO055 import BNO055
 
 global imuData
 imuData = {}
 
-def acceptConnections():
-    while True:
-        client, client_address = SERVER.accept()
-        print("%s:%s has connected." % client_address)
-        Thread(target=broadcastImu, args=(client, )).start()
+HOST = ''
+PORT = 8090
+BUFSIZ = 4096
+ADDR = (HOST, PORT)
 
-def broadcastImu(client):
-        global imuData
-        while True:
-            try:
-                temp = imuData['heading']
-                client.send(temp)
-                print("Send to Client Successful")
-                time.sleep(0.5)
-            except:
-                print("Error sending to client")
-                time.sleep(5)
+SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+while True:
+    try:
+        SERVER.bind(ADDR)
+        break
+    except:
+        subprocess.call(' sudo lsof -t -i tcp:9090 | xargs kill -9', shell = True)
 
 def postToDeepstream():
     global imuData
@@ -65,36 +60,10 @@ def postToDeepstream():
         except:
             print("Deepstream doesn't seem to be online")
 
+Thread(target=postToDeepstream).start()
 
-
-clients = {}
-
-HOST = ''
-BUFSIZ = 4096
-ADDR = (HOST, 8080)
-
-SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-while True:
-    try:
-        SERVER.bind(ADDR)
-        break
-    except:
-        subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
-
-if __name__ == "__main__":
-    SERVER.listen(5)
-    print("Waiting for connection...")
-    Thread(target=postToDeepstream).start()
-    ACCEPT_THREAD = Thread(target=acceptConnections)
-    ACCEPT_THREAD.start()
-    ACCEPT_THREAD.join()
-    
-SERVER.close()
-
-#The main Imu programs
-
-subprocess.call(["python3.5", "calImu.py"])
-time.sleep(3)
+#subprocess.call(["python3.5", "calImu.py"])
+#time.sleep(3)
 
 '''
 try:
@@ -153,6 +122,11 @@ print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 
 print('Reading BNO055 data, press Ctrl-C to quit...')
 
+while True:
+    client, client_address = SERVER.accept()
+    print("%s:%s has connected." % client_address)
+
+
 try:
     while True:
         '''
@@ -171,8 +145,12 @@ try:
             bno.set_mode(0X0C)
             confMode = False
 
-        print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
-            heading, roll, pitch, sys, gyro, accel, mag))
+        #print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
+        #    heading, roll, pitch, sys, gyro, accel, mag))
+
+        imuData = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
+        temp = imuData['heading']
+        client.send(temp)
         '''
         try:
             response = post({ "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }, 'imu')
@@ -201,4 +179,6 @@ try:
         time.sleep(0.02)
 except:
     print("Error")
+    client.close()
+
 
