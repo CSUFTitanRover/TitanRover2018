@@ -89,6 +89,8 @@ def getImuValue():
 
     print('Reading BNO055 data, press Ctrl-C to quit...')
 
+    Thread(target=postToDeepstream).start()
+
     try:
         while True:
             '''
@@ -166,4 +168,3 @@ def postToDeepstream():
 
 
 Thread(target=getImuValue).start()
-Thread(target=postToDeepstream).start()
