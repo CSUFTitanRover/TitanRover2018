@@ -12,12 +12,10 @@ def getArduinoValues():
     listIndex = 0
     
     ser = serial.Serial(ArduinoPort,BaudRate)
-    
-    while True:       
+    while True:
         if(ser.inWaiting() > 0):
             readstr = ser.readline()
             readstr = bytes.decode(readstr).rstrip()            
-
             if("START" in readstr):
                 printValues = True
                 continue
@@ -27,9 +25,7 @@ def getArduinoValues():
 
             if(printValues):
                 sensorValues.append(readstr)
-                #print(readstr)  #Print each value coming from sensor
-
-
+                print(readstr)  #Print each value coming from sensor
 
 def ListToDict(values):
     dictValues = {}

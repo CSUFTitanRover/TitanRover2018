@@ -49,17 +49,17 @@ void setup() {
   //Serial.begin(9600);  // Start serial for output
   Serial.begin(57600);  // Start serial for output
 
-  
+
   myPressure.begin(); // Get sensor online
 
+/*
   // Configure the sensor
   //myPressure.setModeAltimeter(); // Measure altitude above sea level in meters
   myPressure.setModeBarometer(); // Measure pressure in Pascals from 20 to 110 kPa  
   myPressure.setOversampleRate(7); // Set Oversample to the recommended 128
   myPressure.enableEventFlags(); // Enable all three pressure and temp event flags
 
-  
-  
+  */
   //Serial.write("Adafruit MLX90614 test");
   mlx.begin();
 
@@ -69,18 +69,17 @@ void setup() {
 }
 
 void loop() {
-
   Serial.write("START");
   Serial.write("\n");
   
   /* Code for Pressure/Altitude sensor MPL3115A2 */  
-  loopPressure();
+  //loopPressure();
 
   /* Code for UV Light sensor GUVA-S12SD */
   loopUVLight();  
 
   /* Code for Temperature sensor Melexis MLX90614 */
-  loopTempSensor();
+  //loopTempSensor();
 
   /* Code for 5TE Sensor */
   loopSoilSensor_5TE();
