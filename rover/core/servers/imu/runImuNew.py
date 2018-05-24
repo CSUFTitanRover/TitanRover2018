@@ -112,7 +112,7 @@ def postToDeepstream():
             print("NO_DEEPSTREAM")
 
 def calcImuValue():
-    global imuval, confMode
+    global imuVal, confMode
     Thread(target=postToDeepstream).start()
     #print("Started Posting To deepstream")
 
@@ -135,10 +135,11 @@ def calcImuValue():
                 bno.set_mode(0X0C)
                 confMode = False
 
-            print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
-                heading, roll, pitch, sys, gyro, accel, mag))
+            #print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
+            #   heading, roll, pitch, sys, gyro, accel, mag))
             
             imuVal = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
+            print(imuVal)
             '''
             try:
                 response = post(imuVal, 'imu')
@@ -171,7 +172,8 @@ def calcImuValue():
 
 
 def getImuValue():
-    global imuval
+    global imuVal
+    print("Sending Data to function call")
     temp = imuVal['heading']
     return temp
 
