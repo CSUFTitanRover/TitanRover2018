@@ -172,7 +172,8 @@ def calcImuValue():
 
 def getImuValue():
     global imuval
-    return imuVal['heading']
+    temp = imuVal['heading']
+    return temp
 
 
 Thread(target=calcImuValue).start()
