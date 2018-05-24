@@ -4,7 +4,7 @@ from time import sleep
 
 
 def connect():
-    host = "192.168.1.2" 
+    host = "192.168.1.120" 
     port = 8080
     BUFFER_SIZE = 4096 
 
