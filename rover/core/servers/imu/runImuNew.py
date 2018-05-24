@@ -174,6 +174,7 @@ def calcImuValue():
 def getImuValue():
     global imuVal
     print("Sending Data to function call")
+    time.sleep(2)
     temp = imuVal['heading']
     return temp
 

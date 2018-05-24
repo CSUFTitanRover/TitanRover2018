@@ -28,6 +28,9 @@ import time
 #from deepstream import get, post
 from Adafruit_BNO055 import BNO055
 
+global imuData
+imuData = {}
+
 
 subprocess.call(["python3.5", "calImu.py"])
 time.sleep(3)
@@ -137,3 +140,11 @@ try:
         time.sleep(0.02)
 except:
     print("Error")
+
+
+def imuPost():
+    global imuData
+    temp = imuData['heading']
+    print(temp)
+    #return temp
+
