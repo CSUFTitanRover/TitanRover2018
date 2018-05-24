@@ -16,6 +16,8 @@ const styles = theme => ({
     paddingRight: theme.spacing.unit * 2,
     paddingLeft: theme.spacing.unit * 2,
     background: grey[200],
+    height: 'inherit',
+    overflow: 'scroll',
   },
   listItem: {
     marginTop: theme.spacing.unit * 2,
@@ -32,11 +34,11 @@ class WaypointList extends Component {
   static propTypes = {
     data: PropTypes.arrayOf(PropTypes.array),
     classes: PropTypes.object.isRequired,
-    waypointListType: PropTypes.string,
+    waypointListType: PropTypes.oneOf(['currentPoints', 'previousPoints']),
   };
 
   static defaultProps = {
-    data: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]],
+    // data: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]],
     waypointListType: 'currentPoints',
   }
 
@@ -52,11 +54,12 @@ class WaypointList extends Component {
     }
   }
 
-  handleWaypointDelete = () => {
+  handleWaypointDelete = (latitude, longitude) => () => {
     if (this.client) {
       this.setState({ isDeletingWaypoint: true });
+      const computedData = `${latitude},${longitude}`;
 
-      this.client.rpc.make('deleteCoordinate', null, (error, result) => {
+      this.client.rpc.make('deleteCoordinate', computedData, (error, result) => {
         if (error) {
           toast.error(error);
         }
@@ -69,7 +72,7 @@ class WaypointList extends Component {
     }
   }
 
-  renderAdditionalContent = () => {
+  renderAdditionalContent = (latitude, longitude) => {
     const { classes } = this.props;
     const { isDeletingWaypoint } = this.state;
 
@@ -82,7 +85,7 @@ class WaypointList extends Component {
         className={classes.button}
         variant="raised"
         color="secondary"
-        onClick={this.handleWaypointDelete}
+        onClick={this.handleWaypointDelete(latitude, longitude)}
       >
         Delete
         <DeleteIcon className={classes.deleteIcon} />
@@ -90,15 +93,15 @@ class WaypointList extends Component {
     );
   }
 
-  renderListItem = (latitude, longitude, index, totalLength) => {
+  renderListItem = (latitude, longitude, index) => {
     const { waypointListType, classes } = this.props;
 
-    const shouldShowDeleteButton = waypointListType === 'currentPoints' && index === (totalLength - 1);
+    const shouldShowDeleteButton = waypointListType === 'currentPoints';
 
     return (
       <ListItem key={`${latitude}-${longitude}`} className={classes.listItem}>
         <ListItemText>{`${index + 1}. `}<strong>Latitude: </strong>{`${latitude}, `}<strong>Longitude: </strong>{longitude}</ListItemText>
-        {shouldShowDeleteButton && this.renderAdditionalContent()}
+        {shouldShowDeleteButton && this.renderAdditionalContent(latitude, longitude)}
       </ListItem>
     );
   }
