@@ -27,15 +27,8 @@ const config = {
         },
         {
           type: 'react-component',
-          component: 'CoordinateList',
-          title: 'Current Coordinate List',
-          props: { recordPath: 'rover/currentPoints' },
-        },
-        {
-          type: 'react-component',
-          component: 'CoordinateList',
-          title: 'Previous Coordinate List',
-          props: { recordPath: 'rover/previousPoints' },
+          component: 'WaypointList',
+          title: 'Waypoint List',
         },
       ],
     },

@@ -6,6 +6,8 @@ import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 import ResizeAwareMap from '../../components/ResizeAwareMap/';
 import Coordinator from '../../components/Coordinator/';
 import CoordinateList from '../../components/CoordinateList/';
+import WaypointList from '../../components/WaypointList/';
+
 
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
@@ -50,6 +52,7 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('RealtimeChart', RealtimeChart);
   glNode.registerComponent('Coordinator', Coordinator);
   glNode.registerComponent('CoordinateList', CoordinateList);
+  glNode.registerComponent('WaypointList', WaypointList);
 }
 
 export function initializeGL(glNode) {
