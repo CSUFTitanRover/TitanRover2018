@@ -25,19 +25,24 @@ import logging
 import sys
 import subprocess
 import time
-import requests
-import json
 from threading import Thread
 #from deepstream import get, post
 from Adafruit_BNO055 import BNO055
 
-global imuVal, confMode
-imuVal = {}
+global imuData, confMode
+imuData = {}
 
 #subprocess.call(["python3.5", "calImu.py"])
 #time.sleep(3)
 
-magneticDeclination = 11.88
+'''
+try:
+    obj = {}
+    post(obj, 'imu')
+except:
+    print("Not connected to deepstream")
+'''
+
 
 # Create and configure the BNO sensor connection.  Make sure only ONE of the
 # below 'bno = ...' lines is uncommented:
@@ -53,72 +58,51 @@ if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
     logging.basicConfig(level=logging.DEBUG)
 
 time.sleep(1)
-# Initialize the BNO055 and stop if something went wrong.
-while not bno.begin():
-    print('Waiting for sensor...')
-    time.sleep(1)
+
 
 def magToTrue(h):
+    magneticDeclination = 11.88
     return (h + magneticDeclination) % 360
 
-fileIn = open('calibrationData.txt','r')
-data = fileIn.read().splitlines()
-for i in range(len(data)):
-    data[i] = int(data[i])
-bno.set_calibration(data)
-fileIn.close()
+def main():
+    # Initialize the BNO055 and stop if something went wrong.
+    while not bno.begin():
+        print('Waiting for sensor...')
+        time.sleep(1)
 
-# Print system status and self test result.
-status, self_test, error = bno.get_system_status()
-print('System status: {0}'.format(status))
-print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
-# Print out an error if system status is in error mode.
-if status == 0x01:
-    print('System error: {0}'.format(error))
-    print('See datasheet section 4.3.59 for the meaning.')
 
-# Print BNO055 software revision and other diagnostic data.
-sw, bl, accel, mag, gyro = bno.get_revision()
-print('Software version:   {0}'.format(sw))
-print('Bootloader version: {0}'.format(bl))
-print('Accelerometer ID:   0x{0:02X}'.format(accel))
-print('Magnetometer ID:    0x{0:02X}'.format(mag))
-print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
+    fileIn = open('calibrationData.txt','r')
+    data = fileIn.read().splitlines()
+    for i in range(len(data)):
+        data[i] = int(data[i])
+    bno.set_calibration(data)
+    fileIn.close()
 
-print('Reading BNO055 data, press Ctrl-C to quit...')
+    # Print system status and self test result.
+    status, self_test, error = bno.get_system_status()
+    print('System status: {0}'.format(status))
+    print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
+    # Print out an error if system status is in error mode.
+    if status == 0x01:
+        print('System error: {0}'.format(error))
+        print('See datasheet section 4.3.59 for the meaning.')
 
-def postToDeepstream():
-    global imuVal
-    #This function will post the object send to the deepstream server
-    #print("Starting postToDeepstream")
-    while True:
-        if type(imuVal) is not dict:
-            raise "Your first argument needs to be a dict setting data to deepstream"
-        
-        if imuVal:
-            payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", "data": imuVal}]}
-            request = requests.post('http://192.168.1.120:4080', json=payload)
-            #print("Success Payload Post")
-        else:
-            continue
-        
-        if request is not None:
-            if type(request) is bytes:
-                request = request.decode('utf-8')    
-            response = request.json()
-            #print("Successfully Posted")
-            print(response["result"])
-        else:
-            print("NO_DEEPSTREAM")
+    # Print BNO055 software revision and other diagnostic data.
+    sw, bl, accel, mag, gyro = bno.get_revision()
+    print('Software version:   {0}'.format(sw))
+    print('Bootloader version: {0}'.format(bl))
+    print('Accelerometer ID:   0x{0:02X}'.format(accel))
+    print('Magnetometer ID:    0x{0:02X}'.format(mag))
+    print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 
-def calcImuValue():
-    global imuVal, confMode
-    Thread(target=postToDeepstream).start()
-    #print("Started Posting To deepstream")
+    print('Reading BNO055 data, press Ctrl-C to quit...')
+    imuLoop()
 
+
+def imuLoop():
+    global imuData, confMode
     try:
         while True:
-            #print("Into While loop")
             '''
             if confMode == False and (sys != 3 or mag != 3):
                 print("Reloading calibration file...")
@@ -135,14 +119,13 @@ def calcImuValue():
                 bno.set_mode(0X0C)
                 confMode = False
 
-            #print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
-            #   heading, roll, pitch, sys, gyro, accel, mag))
-            
-            imuVal = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
-            print(imuVal)
+            print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
+                heading, roll, pitch, sys, gyro, accel, mag))
+
+            imuData = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
             '''
             try:
-                response = post(imuVal, 'imu')
+                response = post({ "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }, 'imu')
             except:
                 print("Cannot Post to Deepstream")            
             response = None
@@ -166,17 +149,16 @@ def calcImuValue():
             #x,y,z = bno.read_gravity()
             # Sleep for a second until the next reading.
             time.sleep(0.02)
-            #return imuVal['heading']
     except:
         print("Error")
 
 
-def getImuValue():
-    global imuVal
-    print("Sending Data to function call")
-    time.sleep(2)
-    temp = imuVal['heading']
-    return temp
+def imuPost():
+    global imuData
+    print(type(imuData))
+    temp = imuData['heading']
+    print(temp)
+    #return temp
 
 
-Thread(target=calcImuValue).start()
+main()
