@@ -145,20 +145,23 @@ def getImuValue():
 def postToDeepstream():
     global imuVal
     #This function will post the object send to the deepstream server
-    
-    if type(imuVal) is not dict:
-        raise "Your first argument needs to be a dict setting data to deepstream"
-    
-    payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", "data": imuVal}]}
-    request = requests.post('http://192.168.1.253:3080', json=payload)
-    
-    if request is not None:
-        if type(request) is bytes:
-            request = request.decode('utf-8')    
-        response = request.json()
-        print(response["result"])
-    else:
-        print("NO_DEEPSTREAM")
+    while True:
+        if type(imuVal) is not dict:
+            raise "Your first argument needs to be a dict setting data to deepstream"
+        
+        if imuVal:
+            payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", "data": imuVal}]}
+            request = requests.post('http://192.168.1.253:3080', json=payload)
+        else:
+            continue
+        
+        if request is not None:
+            if type(request) is bytes:
+                request = request.decode('utf-8')    
+            response = request.json()
+            print(response["result"])
+        else:
+            print("NO_DEEPSTREAM")
 
 
 
