@@ -34,8 +34,8 @@ from Adafruit_BNO055 import BNO055
 global imuVal, confMode
 imuVal = {}
 
-subprocess.call(["python3.5", "calImu.py"])
-time.sleep(3)
+#subprocess.call(["python3.5", "calImu.py"])
+#time.sleep(3)
 
 magneticDeclination = 11.88
 
@@ -90,14 +90,15 @@ print('Reading BNO055 data, press Ctrl-C to quit...')
 def postToDeepstream():
     global imuVal
     #This function will post the object send to the deepstream server
-    print("Starting postToDeepstream")
+    #print("Starting postToDeepstream")
     while True:
         if type(imuVal) is not dict:
             raise "Your first argument needs to be a dict setting data to deepstream"
         
         if imuVal:
             payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", "data": imuVal}]}
-            request = requests.post('http://192.168.1.253:3080', json=payload)
+            request = requests.post('http://192.168.1.120:4080', json=payload)
+            #print("Success Payload Post")
         else:
             continue
         
@@ -105,7 +106,7 @@ def postToDeepstream():
             if type(request) is bytes:
                 request = request.decode('utf-8')    
             response = request.json()
-            print("Successfully Posted")
+            #print("Successfully Posted")
             print(response["result"])
         else:
             print("NO_DEEPSTREAM")
@@ -113,11 +114,11 @@ def postToDeepstream():
 def calcImuValue():
     global imuval, confMode
     Thread(target=postToDeepstream).start()
-    print("Started Posting To deepstream")
+    #print("Started Posting To deepstream")
 
     try:
         while True:
-            print("Into While loop")
+            #print("Into While loop")
             '''
             if confMode == False and (sys != 3 or mag != 3):
                 print("Reloading calibration file...")
