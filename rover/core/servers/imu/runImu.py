@@ -32,8 +32,8 @@ global imuData
 imuData = {}
 
 
-subprocess.call(["python3.5", "calImu.py"])
-time.sleep(3)
+#subprocess.call(["python3.5", "calImu.py"])
+#time.sleep(3)
 
 '''
 try:
@@ -142,3 +142,13 @@ except:
     print("Error")
 
 
+<<<<<<< HEAD
+def imuPost():
+    global imuData
+    temp = imuData['heading']
+    print(temp)
+    time.sleep(2)
+    #return temp
+
+=======
+>>>>>>> 29123acf6ee757149985fc2081fca00dbfbf6b26
