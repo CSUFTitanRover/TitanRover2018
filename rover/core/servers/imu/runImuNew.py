@@ -34,6 +34,64 @@ from Adafruit_BNO055 import BNO055
 global imuData
 imuData = {}
 
+def acceptConnections():
+    while True:
+        client, client_address = SERVER.accept()
+        print("%s:%s has connected." % client_address)
+        Thread(target=broadcastImu, args=(client, )).start()
+
+def broadcastImu(client):
+        global imuData
+        while True:
+            try:
+                temp = imuData['heading']
+                client.send(temp)
+                print("Send to Client Successful")
+                time.sleep(0.5)
+            except:
+                print("Error sending to client")
+                time.sleep(5)
+
+def postToDeepstream():
+    global imuData
+    while True:
+        payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", 
+                    "data": imuData} ] }
+
+        try:
+            print("Dumping to deepstream...")
+            #request = requests.post('http://192.168.1.8:3080', json=payload)
+            #print request.text
+        except:
+            print("Deepstream doesn't seem to be online")
+
+
+
+clients = {}
+
+HOST = ''
+BUFSIZ = 4096
+ADDR = (HOST, 8080)
+
+SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+while True:
+    try:
+        SERVER.bind(ADDR)
+        break
+    except:
+        subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
+
+if __name__ == "__main__":
+    SERVER.listen(5)
+    print("Waiting for connection...")
+    Thread(target=postToDeepstream).start()
+    ACCEPT_THREAD = Thread(target=acceptConnections)
+    ACCEPT_THREAD.start()
+    ACCEPT_THREAD.join()
+    
+SERVER.close()
+
+#The main Imu programs
 
 subprocess.call(["python3.5", "calImu.py"])
 time.sleep(3)
@@ -144,58 +202,3 @@ try:
 except:
     print("Error")
 
-def acceptConnections():
-    while True:
-        client, client_address = SERVER.accept()
-        print("%s:%s has connected." % client_address)
-        Thread(target=broadcastImu, args=(client, )).start()
-
-def broadcastImu(client):
-        global imuData
-        while True:
-            try:
-                temp = imuData['heading']
-                client.send(temp)
-                print("Send to Client Successful")
-                time.sleep(0.5)
-            except:
-                print("Error sending to client")
-                time.sleep(5)
-
-def postToDeepstream():
-    global imuData
-    payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", 
-                "data": imuData} ] }
-
-    try:
-        print("Dumping to deepstream...")
-        #request = requests.post('http://192.168.1.8:3080', json=payload)
-        #print request.text
-    except:
-        print("Deepstream doesn't seem to be online")
-
-
-
-clients = {}
-
-HOST = ''
-BUFSIZ = 4096
-ADDR = (HOST, 8080)
-
-SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-while True:
-    try:
-        SERVER.bind(ADDR)
-        break
-    except:
-        subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
-
-if __name__ == "__main__":
-    SERVER.listen(5)
-    print("Waiting for connection...")
-    Thread(target=postToDeepstream).start()
-    ACCEPT_THREAD = Thread(target=acceptConnections)
-    ACCEPT_THREAD.start()
-    ACCEPT_THREAD.join()
-    
-SERVER.close()
