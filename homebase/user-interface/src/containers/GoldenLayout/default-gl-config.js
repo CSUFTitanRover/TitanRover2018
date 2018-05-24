@@ -29,7 +29,6 @@ const config = {
           type: 'react-component',
           component: 'CurrentWaypointsList',
           title: 'Current Waypoints List (updated)',
-          props: { recordPath: 'rover/currentPoints', waypointListType: 'currentPoints' },
         },
       ],
     },

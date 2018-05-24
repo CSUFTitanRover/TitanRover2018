@@ -58,7 +58,6 @@ class ActionMenu extends Component {
 
     return (
       <Drawer
-        variant="persistent"
         anchor="right"
         open={actionMenuActive}
         classes={{

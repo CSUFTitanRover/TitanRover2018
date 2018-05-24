@@ -6,19 +6,14 @@ class CurrentWaypointsList extends Component {
   state = { data: [] }
 
   handleNewPayload = (data) => {
-    this.setState({ data: data.cp.reverse() });
+    this.setState({ data: data.pp.reverse() });
   }
 
   renderWaypointList = (data) => {
     if (data.length === 0) {
       return null;
     }
-    return (
-      <React.Fragment>
-        <h2>Curret Waypoints</h2>
-        <WaypointList data={data} waypointListType="currentPoints" />
-      </React.Fragment>
-    );
+    return <WaypointList data={data} waypointListType="previousPoints" />;
   }
 
   render() {
@@ -26,7 +21,7 @@ class CurrentWaypointsList extends Component {
 
     return (
       <DeepstreamRecordProvider
-        recordPath="rover/currentPoints"
+        recordPath="rover/previousPoints"
         onNewPayload={this.handleNewPayload}
       >
         {() => this.renderWaypointList(data)}
