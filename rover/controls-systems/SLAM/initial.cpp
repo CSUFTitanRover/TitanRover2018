@@ -1,7 +1,8 @@
 // SLAM-Basic-Maze.cpp : Defines the entry point for the console application.
 //
 //export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/usr/include/python2.7/"
-//g++ initial.cpp -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11 -lboost_python -lpython2.7 -lboost_system -lboost_thread -lpthread
+//g++ initial.cpp Dstar.cpp Dstar.h -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11 -lboost_python -lpython2.7 -lboost_system -lboost_thread -lpthread
+//export DISPLAY=localhost:0.0
 //
 #ifdef __APPLE_CC__
 #include <GLUT/glut.h>
@@ -20,6 +21,8 @@
 #include <sstream>
 #include <chrono>
 #include <boost/python.hpp>
+#include <list>
+#include "Dstar.h"
 
 using namespace std;
 using namespace boost::python;
@@ -27,11 +30,14 @@ using namespace boost::python;
 int flag_tennis = 0;
 int flag_obs    = 0;
 bool auto_path  = false;
+Dstar *dstar = new Dstar();
 
 #define earthRadiusKm 6371.0
 std::vector<double> _lat_incoming; //Incoming lat GPS coordinates
 std::vector<double> _lon_incoming; //Incoming lon GPS coordinates
 size_t incoming_index = 0;
+
+std::vector<double> _distance_vector;
 
 vector<double> _lat_outgoing;//Outgoing GPS coordinates
 vector<double> _lon_outgoing;//Outgoing GPS coordinates
@@ -44,13 +50,14 @@ double lon_points[4] = {-117.883568, -117.88607751, -117.8835028, -117.883660};
 double _angle_; // Global Calculations
 double _distance_; // Global Calculations
 
+//list<state> mypath_;
+
 /* @param temp_lat
  * 		the latitudinal points coming in from deepstream
  */
 void set_lat(double temp_lat)
 {
-	//_lat_.push_back(lat_points[i]);  	
-	//incoming_index++;
+	_lat_incoming.push_back(temp_lat);  	
 }
 
 /* @param temp_lon
@@ -58,7 +65,7 @@ void set_lat(double temp_lat)
  */
 void set_lon(double temp_lon)
 {
-	//_lon_.push_back(lon_points[i]);	
+	_lon_incoming.push_back(temp_lon);
 }
 
 // This function converts decimal degrees to radians
@@ -115,14 +122,11 @@ double angleFromCoordinate(double lat1, double long1, double lat2,
 
 void calculation_func()
 {
-	//Vector size check.
-	if(incoming_index > 1)
+	
+	if(_lat_incoming.size() > 1)
 	{
-		if(_lat_incoming.size() > 1 && _lon_incoming.size() > 1)
-		{
-			_angle_    = angleFromCoordinate(deg2rad(_lat_incoming[incoming_index-2]),deg2rad(_lon_incoming[incoming_index-2]),deg2rad(_lat_incoming[incoming_index-1]),deg2rad(_lon_incoming[incoming_index-1]));
-			_distance_ = distanceEarth(_lat_incoming[incoming_index-2],_lon_incoming[incoming_index-2],_lat_incoming[incoming_index-1],_lon_incoming[incoming_index-1]);
-		}
+		_angle_    = angleFromCoordinate(deg2rad(_lat_incoming[incoming_index-2]),deg2rad(_lon_incoming[incoming_index-2]),deg2rad(_lat_incoming[incoming_index-1]),deg2rad(_lon_incoming[incoming_index-1]));
+		_distance_ = rad2deg(distanceEarth(_lat_incoming[incoming_index-2],_lon_incoming[incoming_index-2],_lat_incoming[incoming_index-1],_lon_incoming[incoming_index-1]));
 	}
 }
 
@@ -438,6 +442,18 @@ void renderTopDownScene()
 			glPopMatrix();
 				
 	
+			// TEST
+			for(int i = 0; i <_lat_incoming.size();i++)
+			{
+				glPushMatrix();
+					glColor3f(0.0, 0.0, 1.0); //<R,G,B>
+					glTranslatef(_lat_incoming[i]*0.1, _openGLCV_.y, _lon_incoming[i]*0.01);
+					glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
+					drawCubeObject();
+				glPopMatrix();
+			}
+
+	
 	//Only register points in 15 intervals	
 	for (int i = 0; i < _openGLRT_.past_x.size(); i++)
 	{
@@ -522,7 +538,7 @@ void renderSceneAll()
 		glutPostRedisplay();
 	}
 	renderScene();
-	
+	/*
 	render_index++;
 	if(render_index > 10)
 	{
@@ -557,11 +573,6 @@ void renderSceneAll()
 			ignored = exec("data = d.split(\" \")", main_namespace);
 			ignored = exec("dataPoints = int(\"0x\" + str(data[25]), 16)", main_namespace);
 			ignored = exec("print(dataPoints)", main_namespace);
-
-			//ignored = exec("print(\"\n\nHEX VALUE -----\") print(distance)", main_namespace);
-			//ignored = exec("map(lambda x: distance.append(x),(i for i in range(26, 26 + dataPoints, 1)))",main_namespace);
-			//ignored = exec("z = [for x in range(len(distance)) distance[x] = (int(\"0x\" + str(distance[x]), 16), degree) degree -= 0.5]", main_namespace);
-			//ignored = exec("print z", main_namespace);
 			
 		}
 		catch(error_already_set)
@@ -572,14 +583,25 @@ void renderSceneAll()
 		render_index = 0;
 	}
 	
+	*/
+	
 	//Create GPS connection
 	
-	
 	//Calculate Distance
+	for(int i =0; i < 4;i++) //Example forloop
+	{
+		set_lat(lat_points[i]);
+		set_lon(lon_points[i]);
+	}
+	
 	calculation_func();
 	
 	//Calculate Pathing
 	//D*Star
+	dstar->init(_openGLCV_.x,_openGLCV_.z, 3.0, -10.0);
+	dstar->updateCell(_lat_incoming[i]*0.1,_lon_incoming[i]*0.01, -1);
+	dstar->replan();
+
 	
 	//Send Back to the server
 	bool send_back = false;
