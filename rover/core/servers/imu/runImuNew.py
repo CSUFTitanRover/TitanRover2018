@@ -90,6 +90,7 @@ print('Reading BNO055 data, press Ctrl-C to quit...')
 def postToDeepstream():
     global imuVal
     #This function will post the object send to the deepstream server
+    print("Starting postToDeepstream")
     while True:
         if type(imuVal) is not dict:
             raise "Your first argument needs to be a dict setting data to deepstream"
@@ -104,11 +105,12 @@ def postToDeepstream():
             if type(request) is bytes:
                 request = request.decode('utf-8')    
             response = request.json()
+            print("Successfully Posted")
             print(response["result"])
         else:
             print("NO_DEEPSTREAM")
 
-def getImuValue():
+def calcImuValue():
     global imuval, confMode
     Thread(target=postToDeepstream).start()
     print("Started Posting To deepstream")
@@ -162,10 +164,14 @@ def getImuValue():
             #x,y,z = bno.read_gravity()
             # Sleep for a second until the next reading.
             time.sleep(0.02)
-            return imuVal['heading']
+            #return imuVal['heading']
     except:
         print("Error")
 
 
+def getImuValue():
+    global imuval
+    return imuVal['heading']
 
-Thread(target=getImuValue).start()
+
+Thread(target=calcImuValue).start()
