@@ -34,61 +34,62 @@ from Adafruit_BNO055 import BNO055
 global imuVal
 imuVal = {}
 
-subprocess.call(["python3.5", "calImu.py"])
-time.sleep(3)
-
-magneticDeclination = 11.88
-
-# Create and configure the BNO sensor connection.  Make sure only ONE of the
-# below 'bno = ...' lines is uncommented:
-# Raspberry Pi configuration with serial UART and RST connected to GPIO 18:
-#bno = BNO055.BNO055(serial_port='/dev/ttyAMA0', rst=18)
-# BeagleBone Black configuration with default I2C connection (SCL=P9_19, SDA=P9_20),
-# and RST connected to pin P9_12:
-bno = BNO055.BNO055(busnum=0)
-confMode = True
-
-# Enable verbose debug logging if -v is passed as a parameter.
-if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
-    logging.basicConfig(level=logging.DEBUG)
-
-time.sleep(1)
-# Initialize the BNO055 and stop if something went wrong.
-while not bno.begin():
-    print('Waiting for sensor...')
-    time.sleep(1)
-
-def magToTrue(h):
-    return (h + magneticDeclination) % 360
-
-fileIn = open('calibrationData.txt','r')
-data = fileIn.read().splitlines()
-for i in range(len(data)):
-    data[i] = int(data[i])
-bno.set_calibration(data)
-fileIn.close()
-
-# Print system status and self test result.
-status, self_test, error = bno.get_system_status()
-print('System status: {0}'.format(status))
-print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
-# Print out an error if system status is in error mode.
-if status == 0x01:
-    print('System error: {0}'.format(error))
-    print('See datasheet section 4.3.59 for the meaning.')
-
-# Print BNO055 software revision and other diagnostic data.
-sw, bl, accel, mag, gyro = bno.get_revision()
-print('Software version:   {0}'.format(sw))
-print('Bootloader version: {0}'.format(bl))
-print('Accelerometer ID:   0x{0:02X}'.format(accel))
-print('Magnetometer ID:    0x{0:02X}'.format(mag))
-print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
-
-print('Reading BNO055 data, press Ctrl-C to quit...')
-
 def getImuValue():
     global imuval
+    #subprocess.call(["python3.5", "calImu.py"])
+    #time.sleep(3)
+
+    magneticDeclination = 11.88
+
+    # Create and configure the BNO sensor connection.  Make sure only ONE of the
+    # below 'bno = ...' lines is uncommented:
+    # Raspberry Pi configuration with serial UART and RST connected to GPIO 18:
+    #bno = BNO055.BNO055(serial_port='/dev/ttyAMA0', rst=18)
+    # BeagleBone Black configuration with default I2C connection (SCL=P9_19, SDA=P9_20),
+    # and RST connected to pin P9_12:
+    bno = BNO055.BNO055(busnum=0)
+    confMode = True
+
+    # Enable verbose debug logging if -v is passed as a parameter.
+    if len(sys.argv) == 2 and sys.argv[1].lower() == '-v':
+        logging.basicConfig(level=logging.DEBUG)
+
+    time.sleep(1)
+    # Initialize the BNO055 and stop if something went wrong.
+    while not bno.begin():
+        print('Waiting for sensor...')
+        time.sleep(1)
+
+    def magToTrue(h):
+        return (h + magneticDeclination) % 360
+
+    fileIn = open('calibrationData.txt','r')
+    data = fileIn.read().splitlines()
+    for i in range(len(data)):
+        data[i] = int(data[i])
+    bno.set_calibration(data)
+    fileIn.close()
+
+    # Print system status and self test result.
+    status, self_test, error = bno.get_system_status()
+    print('System status: {0}'.format(status))
+    print('Self test result (0x0F is normal): 0x{0:02X}'.format(self_test))
+    # Print out an error if system status is in error mode.
+    if status == 0x01:
+        print('System error: {0}'.format(error))
+        print('See datasheet section 4.3.59 for the meaning.')
+
+    # Print BNO055 software revision and other diagnostic data.
+    sw, bl, accel, mag, gyro = bno.get_revision()
+    print('Software version:   {0}'.format(sw))
+    print('Bootloader version: {0}'.format(bl))
+    print('Accelerometer ID:   0x{0:02X}'.format(accel))
+    print('Magnetometer ID:    0x{0:02X}'.format(mag))
+    print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
+
+    print('Reading BNO055 data, press Ctrl-C to quit...')
+
+
     Thread(target=postToDeepstream).start()
 
     try:
