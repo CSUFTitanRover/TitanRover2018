@@ -8,22 +8,28 @@ const {
   POP_COORDINATE
 } = require('./constants');
 
-const tcpEndpoint = {
+const motorSpeedEndpoint = {
+  host: 'localhost',
+  port: 9999
+};
+
+const coordinatesEndpoint = {
   host: 'localhost',
   port: 9999
 };
 
 async function main() {
-  const tcpClient = new PromiseSocket();
+  const tcpMotorSpeedClient = new PromiseSocket();
+  const tcpCoordinateClient = new PromiseSocket();
   const dsClient = await getClient();
-  await tcpClient.connect(tcpEndpoint);
+  await tcpCoordinateClient.connect(coordinatesEndpoint);
 
   // hook up rpc providers for deepstream
   dsClient.rpc.provide('addCoordinate', async (data, response) => {
     try {
       const formattedData = createDataString(ADD_COORDINATE, data);
       console.log(`addCoordinate - formattedData: ${formattedData}`);
-      const totalBytesSent = await tcpClient.write(formattedData)
+      const totalBytesSent = await tcpCoordinateClient.write(formattedData)
       response.send(`Successfully added your coordinate for: ${formattedData}`);
     }
     catch (err) {
@@ -35,7 +41,7 @@ async function main() {
     try {
       const formattedData = createDataString(POP_COORDINATE, data);
       console.log(`popCoordinate - formattedData: ${formattedData}`);
-      const totalBytesSent = await tcpClient.write(formattedData)
+      const totalBytesSent = await tcpCoordinateClient.write(formattedData)
       response.send(`Successfully popped off the top coordinate for: ${formattedData}`);
     }
     catch (err) {
@@ -47,7 +53,7 @@ async function main() {
     try {
       const formattedData = createDataString(DELETE_COORDINATE, data);
       console.log(`deleteCoordinate - formattedData: ${formattedData}`);
-      const totalBytesSent = await tcpClient.write(formattedData)
+      const totalBytesSent = await tcpCoordinateClient.write(formattedData)
       response.send(`Successfully deleted your coordinate for: ${formattedData}`);
     }
     catch (err) {
@@ -59,7 +65,7 @@ async function main() {
     try {
       const formattedData = createDataString(DELETE_ALL_COORDINATES, data);
       console.log(`deleteAllCoordinates - formattedData: ${formattedData}`);
-      const totalBytesSent = await tcpClient.write(formattedData)
+      const totalBytesSent = await tcpCoordinateClient.write(formattedData)
       response.send(`Successfully deleted all the coordinates.`);
     }
     catch (err) {
@@ -73,7 +79,7 @@ async function main() {
       const formattedData = createDataString(address, value);
       console.log(`changeMotorSpeed - formattedData: ${formattedData}`);
 
-      const totalBytesSent = await tcpClient.write(formattedData)
+      const totalBytesSent = await tcpCoordinateClient.write(formattedData)
       const jointName = getJointNameFromAddress(address);
       const speedName = getSpeedNameFromValue(value);
       response.send(`Successfully changed the motor of ${jointName} to ${speedName}.`);
