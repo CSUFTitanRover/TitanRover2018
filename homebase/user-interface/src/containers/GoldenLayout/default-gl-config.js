@@ -28,7 +28,7 @@ const config = {
         {
           type: 'react-component',
           component: 'CurrentWaypointsList',
-          title: 'Current Waypoints List (updated)',
+          title: 'Current Waypoints List',
         },
       ],
     },

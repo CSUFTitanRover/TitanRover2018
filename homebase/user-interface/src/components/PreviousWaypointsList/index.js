@@ -28,23 +28,17 @@ class PreviousWaypointsList extends Component {
     classes: PropTypes.object.isRequired,
   };
 
-
   state = {
-    data: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]],
+    data: [],
   }
 
   handleNewPayload = (data) => {
-    if (data && data.length > 0) {
-      this.setState({ data: data.pp.reverse() });
-    }
+    this.setState({ data: data.pp.reverse() });
   }
 
   renderWaypointList = (data) => {
     const { classes } = this.props;
 
-    if (data.length === 0) {
-      return null;
-    }
     return (
       <div className={classes.container}>
         <Typography variant="title" className={classes.title}>Previous Waypoints</Typography>
@@ -58,7 +52,7 @@ class PreviousWaypointsList extends Component {
 
     return (
       <DeepstreamRecordProvider
-        recordPath="rover/currentPoints"
+        recordPath="rover/previousPoints"
         onNewPayload={this.handleNewPayload}
       >
         {() => this.renderWaypointList(data)}

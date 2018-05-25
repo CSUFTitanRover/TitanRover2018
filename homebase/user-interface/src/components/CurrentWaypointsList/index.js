@@ -49,7 +49,7 @@ class CurrentWaypointsList extends Component {
   };
 
   state = {
-    data: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]],
+    data: [],
     addWaypointsDialogOpen: false,
     deleteAllDialogOpen: false,
     deletingAllWaypoints: false,
@@ -60,7 +60,7 @@ class CurrentWaypointsList extends Component {
   }
 
   handleNewPayload = (data) => {
-    if (data && data.length > 0) {
+    if (data.length !== 0) {
       this.setState({ data: data.cp.reverse() });
     }
   }
@@ -98,9 +98,6 @@ class CurrentWaypointsList extends Component {
   renderWaypointList = (data) => {
     const { classes } = this.props;
 
-    if (data.length === 0) {
-      return null;
-    }
     return (
       <div className={classes.container}>
         <Typography variant="title" className={classes.title}>Current Waypoints</Typography>
@@ -133,7 +130,7 @@ class CurrentWaypointsList extends Component {
         <Grid container className={classes.deleteAllDialogGridContainer}>
           <Grid item xs={12} sm={6} className={classes.deleteAllDialogGridItem}>
             <Button
-              color="secondary"
+              color="default"
               variant="raised"
               onClick={this.closeDeleteAllDialog}
             >
@@ -151,7 +148,7 @@ class CurrentWaypointsList extends Component {
   }
 
   render() {
-    const { data, addWaypointsDialogOpen } = this.state;
+    const { addWaypointsDialogOpen, data } = this.state;
 
     return (
       <React.Fragment>

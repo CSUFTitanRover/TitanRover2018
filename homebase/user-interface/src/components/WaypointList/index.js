@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import green from '@material-ui/core/colors/green';
+import shortid from 'shortid';
 import cn from 'classnames';
 import { toast } from 'react-toastify';
 import { withStyles } from '@material-ui/core/styles';
@@ -29,7 +30,7 @@ const styles = theme => ({
 
 class WaypointList extends Component {
   static propTypes = {
-    data: PropTypes.arrayOf(PropTypes.array),
+    data: PropTypes.array,
     classes: PropTypes.object.isRequired,
     waypointListType: PropTypes.oneOf(['currentPoints', 'previousPoints']),
   };
@@ -97,7 +98,9 @@ class WaypointList extends Component {
     const isCurrentPointsAndFirstItem = waypointListType === 'currentPoints' && index === 0;
 
     return (
-      <ListItem key={`${latitude}-${longitude}`} className={cn(classes.listItem, { [classes.activeWaypoint]: isCurrentPointsAndFirstItem })}>
+      <ListItem
+        key={shortid.generate()}
+        className={cn(classes.listItem, { [classes.activeWaypoint]: isCurrentPointsAndFirstItem })}>
         <ListItemText>{`${index + 1}. `}<strong>Latitude: </strong>{`${latitude}, `}<strong>Longitude: </strong>{longitude}</ListItemText>
         {shouldShowDeleteButton && this.renderAdditionalContent(latitude, longitude)}
       </ListItem>
@@ -106,12 +109,12 @@ class WaypointList extends Component {
 
   render() {
     const { data } = this.props;
-    const totalLength = data.length;
+    const shouldRender = data.length > 0;
 
     return (
       <List>
-        {data.map(([latitude, longitude], index) => (
-          this.renderListItem(latitude, longitude, index, totalLength)
+        {shouldRender && data.map(([latitude, longitude], index) => (
+          this.renderListItem(latitude, longitude, index)
         ))}
       </List>
     );

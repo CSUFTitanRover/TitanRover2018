@@ -14,6 +14,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import SettingsIcon from '@material-ui/icons/Settings';
 import GpsFixedIcon from '@material-ui/icons/GpsFixed';
 import NavigationIcon from '@material-ui/icons/Navigation';
+import ListIcon from '@material-ui/icons/List';
 import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {
@@ -140,13 +141,13 @@ class ComponentMenuList extends Component {
           <ComponentMenuItem
             title="Current Waypoints List"
             componentname="CurrentWaypointsList"
-            icon={<NavigationIcon />}
+            icon={<ListIcon />}
             className={classes.nested}
           />
           <ComponentMenuItem
             title="Previous Waypoints List"
             componentname="PreviousWaypointsList"
-            icon={<NavigationIcon />}
+            icon={<ListIcon />}
             className={classes.nested}
           />
         </Collapse>
