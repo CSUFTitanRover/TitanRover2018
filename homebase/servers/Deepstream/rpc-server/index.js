@@ -14,38 +14,38 @@ async function main() {
     tcpClient.connect(endpoint.port, endpoint.address, () => {
         dsClient.rpc.provide('addCoordinate', (data, response) => {
             const computedData = `1,${data}`;
-            
+
             // no nice way to handle tcp write errors
             tcpClient.write(computedData, () => {
-                    response.send(`Successfully added your coordinate for ${computedData}`);
+                response.send(`Successfully added your coordinate for ${computedData}`);
             })
         })
 
         dsClient.rpc.provide('popCoordinate', (data, response) => {
             const computedData = `2`;
-            
+
             // no nice way to handle tcp write errors
             tcpClient.write(computedData, () => {
-                    response.send(`Successfully deleted your coordinate`);
+                response.send(`Successfully deleted your coordinate`);
             })
         })
 
 
         dsClient.rpc.provide('deleteCoordinate', (data, response) => {
             const computedData = `2,${data}`;
-            
+
             // no nice way to handle tcp write errors
             tcpClient.write(computedData, () => {
-                    response.send(`Successfully deleted your coordinate`);
+                response.send(`Successfully deleted your coordinate`);
             })
         })
 
         dsClient.rpc.provide('deleteAllCoordinates', (data, response) => {
             const computedData = `0`;
-            
+
             // no nice way to handle tcp write errors
             tcpClient.write(computedData, () => {
-                    response.send(`Successfully deleted all the coordinates`);
+                response.send(`Successfully deleted all the coordinates`);
             })
         })
     });
