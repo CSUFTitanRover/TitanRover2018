@@ -50,7 +50,7 @@ class CurrentWaypointsList extends Component {
 
   state = {
     data: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]],
-    addWaypointsDialogOpen: true,
+    addWaypointsDialogOpen: false,
     deleteAllDialogOpen: false,
     deletingAllWaypoints: false,
   }
@@ -162,7 +162,10 @@ class CurrentWaypointsList extends Component {
           {() => this.renderWaypointList(data)}
         </DeepstreamRecordProvider>
         {this.renderDeleteAllDialog()}
-        <AddWaypointsDialog isOpen={addWaypointsDialogOpen} onClose={this.closeAddWaypointsDialog} />
+        <AddWaypointsDialog
+          isOpen={addWaypointsDialogOpen}
+          onClose={this.closeAddWaypointsDialog}
+        />
       </React.Fragment>
     );
   }
