@@ -20,7 +20,7 @@ currentGpsLoc = (None, None) # GPS tuple (lat, lon)
 counter = 10
 requestStop = False
 toggleSuspend = False
-
+payload_size = 20 #size of payload in bytes (it's 10  x 2 byte shorts)
 # LED Strip colors
 ledOff = 6 # off
 ghzLed = 1 # green
@@ -53,6 +53,35 @@ localConnData = ('', 5001)
 localConnectData = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 localConnectData.settimeout(0.5)
 '''
+def packGPS():
+    currGPS = struct.pack("2f", currentGpsLoc[0], currentGpsLoc[1])
+    return currGPS
+
+def putRF(rf_uart, data): #arguments to make function more self-contained and function-like
+    rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
+    rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+
+    rf_uart.write(b's') #start byte
+    rf_uart.write(data) #payload
+    rf_uart.write(b'f') #end byte
+    rf_uart.flush() #waits until all data is written
+
+def getRF(rf_uart, size_of_payload): #added argument to make it more function-like
+    rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
+    rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+    while True:
+        n = rf_uart.read(1) #read bytes one at a time
+        if n == b's': #throw away bytes until start byte is encountered
+            data = rf_uart.read(size_of_payload) #read fixed number of bytes
+            n = rf_uart.read(1) #the following byte should be the stop byte
+            if n == b'f':
+                print('success')
+                print(data)
+            else: #if that last byte wasn't the stop byte then something is out of sync
+                print("failure")
+                return -1
+    return data
+
 
 def trackConnection():
     global counter, connected
@@ -143,9 +172,12 @@ while True:
             #print("failed to receive ghz")
             try:
                 print("To add Georden MHz receive")
-                mhzData = ser.read_all() # receive MHz from Georden
+                #mhzData = ser.read_all() # receive MHz from Georden
+                mhzData = getRF(ser, payload_size)
                 sendToArduino(mhzLed, cmd)
                 #Send back current GPS
+                putRF(ser, packGPS())
+
                 counter = 10
             except:
                 print("GHz, MHz failed")

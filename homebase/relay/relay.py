@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.5
 import socket
 import serial
+import struct
+from deepstream import post
 from time import time, sleep
 localAddress = "0.0.0.0" # bind to local address
 port = 9005 #listening port
@@ -8,6 +10,33 @@ oDevice = "/dev/ttyUSB0" #hc12 device used for output to rover
 baudRate = 9600
 TIMEOUT = 1 #timeout in seconds 
 buf = bytearray(1024)
+
+
+def putRF(rf_uart, data): #arguments to make function more self-contained and function-like
+    rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
+    rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+
+    rf_uart.write(b's') #start byte
+    rf_uart.write(data) #payload
+    rf_uart.write(b'f') #end byte
+    rf_uart.flush() #waits until all data is written
+
+def getRF(rf_uart, size_of_payload): #added argument to make it more function-like
+    rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
+    rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+    while True:
+        n = rf_uart.read(1) #read bytes one at a time
+        if n == b's': #throw away bytes until start byte is encountered
+            data = rf_uart.read(size_of_payload) #read fixed number of bytes
+            n = rf_uart.read(1) #the following byte should be the stop byte
+            if n == b'f':
+                print('success')
+                print(data)
+            else: #if that last byte wasn't the stop byte then something is out of sync
+                print("failure")
+                return -1
+    return data
+
 
 def initRF(oDevice, baudRate):
     while True:#try to initialize device until it works
@@ -85,7 +114,10 @@ while True:
         continue
     try:
         print("writing")
-        oSerial.write(buf)
+        putRF(oSerial, buf)
+        currentGPS = struct.unpack("2f", getRF(oSerial, 8))
+        post({"currentGPS": currentGPS}, )
+
     except:
         print("Failed to write.")
         oSerial = initRF(oDevice, baudRate)
