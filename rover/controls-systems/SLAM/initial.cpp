@@ -1,7 +1,7 @@
 // SLAM-Basic-Maze.cpp : Defines the entry point for the console application.
 //
 //export CPLUS_INCLUDE_PATH="$CPLUS_INCLUDE_PATH:/usr/include/python2.7/"
-//g++ initial.cpp Dstar.cpp Dstar.h -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11 -lboost_python -lpython2.7 -lboost_system -lboost_thread -lpthread
+//g++ initial.cpp -o testgl -lGL -lglut -lglfw -lGLEW -lGLU -std=c++11 -lboost_python -lpython2.7 -lboost_system -lboost_thread -lpthread
 //export DISPLAY=localhost:0.0
 //
 #ifdef __APPLE_CC__
@@ -21,8 +21,6 @@
 #include <sstream>
 #include <chrono>
 #include <boost/python.hpp>
-#include <list>
-#include "Dstar.h"
 
 using namespace std;
 using namespace boost::python;
@@ -30,7 +28,6 @@ using namespace boost::python;
 int flag_tennis = 0;
 int flag_obs    = 0;
 bool auto_path  = false;
-Dstar *dstar = new Dstar();
 
 #define earthRadiusKm 6371.0
 std::vector<double> _lat_incoming; //Incoming lat GPS coordinates
@@ -38,6 +35,9 @@ std::vector<double> _lon_incoming; //Incoming lon GPS coordinates
 size_t incoming_index = 0;
 
 std::vector<double> _distance_vector;
+
+std::vector<double> _distance_x;
+std::vector<double> _distance_z;
 
 vector<double> _lat_outgoing;//Outgoing GPS coordinates
 vector<double> _lon_outgoing;//Outgoing GPS coordinates
@@ -49,8 +49,6 @@ double lon_points[4] = {-117.883568, -117.88607751, -117.8835028, -117.883660};
 
 double _angle_; // Global Calculations
 double _distance_; // Global Calculations
-
-//list<state> mypath_;
 
 /* @param temp_lat
  * 		the latitudinal points coming in from deepstream
@@ -118,16 +116,6 @@ double angleFromCoordinate(double lat1, double long1, double lat2,
     brng = 360 - brng; // count degrees counter-clockwise - remove to make clockwise
 
     return brng;
-}
-
-void calculation_func()
-{
-	
-	if(_lat_incoming.size() > 1)
-	{
-		_angle_    = angleFromCoordinate(deg2rad(_lat_incoming[incoming_index-2]),deg2rad(_lon_incoming[incoming_index-2]),deg2rad(_lat_incoming[incoming_index-1]),deg2rad(_lon_incoming[incoming_index-1]));
-		_distance_ = rad2deg(distanceEarth(_lat_incoming[incoming_index-2],_lon_incoming[incoming_index-2],_lat_incoming[incoming_index-1],_lon_incoming[incoming_index-1]));
-	}
 }
 
 struct _openGL_CAMERA_VALUES_
@@ -443,17 +431,16 @@ void renderTopDownScene()
 				
 	
 			// TEST
-			for(int i = 0; i <_lat_incoming.size();i++)
+			for(int i = 0; i <_distance_vector.size();i++)
 			{
 				glPushMatrix();
 					glColor3f(0.0, 0.0, 1.0); //<R,G,B>
-					glTranslatef(_lat_incoming[i]*0.1, _openGLCV_.y, _lon_incoming[i]*0.01);
+					glTranslatef(_distance_x[i] + _distance_vector[i], _openGLCV_.y, _distance_z[i] + _distance_vector[i]);
 					glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
 					drawCubeObject();
 				glPopMatrix();
 			}
-
-	
+			
 	//Only register points in 15 intervals	
 	for (int i = 0; i < _openGLRT_.past_x.size(); i++)
 	{
@@ -518,6 +505,7 @@ void renderTopDownScene()
 }
 
 int render_index = 0;
+int gps_index    = 0;
 // Global render func
 void renderSceneAll() 
 {
@@ -538,7 +526,8 @@ void renderSceneAll()
 		glutPostRedisplay();
 	}
 	renderScene();
-	/*
+	
+	//Create Lidar Connection and grab information from lidar.
 	render_index++;
 	if(render_index > 10)
 	{
@@ -549,19 +538,13 @@ void renderSceneAll()
 			object ignored = exec("import socket", main_namespace);
 			ignored = exec("import sys", main_namespace);
 			ignored = exec("from binascii import hexlify, unhexlify, a2b_hex, b2a_hex, b2a_qp, a2b_qp", main_namespace);
-			
 			ignored = exec("g = bytearray(b\' \x02\x73\x52\x4e\x20\x4c\x4d\x44\x73\x63\x61\x6e\x64\x61\x74\x61\x03\')", main_namespace);
-			
 			ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
 			ignored = exec("print \"Socket successfully created\"",main_namespace);
 			
 			ignored = exec("port = 2111",main_namespace);
-			//ignored = exec("try:", main_namespace);
 			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace);
-			//ignored = exec("print \"there was an error resolving the host\"", main_namespace);
-			//ignored = exec("sys.exit()", main_namespace);
 			ignored = exec("s.connect((host_ip, port))", main_namespace);
-			//ignored = exec("print \"the socket has successfully connected to google \\", main_namespace);
 			ignored = exec("print 'Received', host_ip", main_namespace);
 			ignored = exec("degree = 90", main_namespace);
 			ignored = exec("distance = []", main_namespace);
@@ -569,6 +552,13 @@ void renderSceneAll()
 			ignored = exec("s.send(g)", main_namespace);
 			ignored = exec("d = s.recv(4096)", main_namespace);
 			ignored = exec("print d", main_namespace);
+			
+			string return_value = py::extract<std::string>("d");
+			
+			//Test
+			//std::string msg("Hello, Python");
+			//boost::python::object py_msg = msg;
+			//https://sixty-north.com/blog/how-to-write-boost-python-type-converters.html
 			
 			ignored = exec("data = d.split(\" \")", main_namespace);
 			ignored = exec("dataPoints = int(\"0x\" + str(data[25]), 16)", main_namespace);
@@ -580,12 +570,42 @@ void renderSceneAll()
 			PyErr_Print();
 		}
 		
-		render_index = 0;
+		render_index = 0; //Reset lidar render index.
 	}
 	
-	*/
 	
 	//Create GPS connection
+	gps_index++;
+	if(gps_index > 5)
+	{
+		try
+		{
+			object main_module ((handle<>(borrowed(PyImport_AddModule("__main__")))));
+			object main_namespace = main_module.attr("__dict__");
+			object ignored = exec("import socket", main_namespace);
+			ignored = exec("import sys", main_namespace);
+			ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
+			ignored = exec("print \"Socket successfully created\"",main_namespace);
+			ignored = exec("port = 2111",main_namespace);
+			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace);
+			ignored = exec("s.connect((host_ip, port))", main_namespace);
+			
+			//Test
+			//std::string msg("Hello, Python");
+			//boost::python::object py_msg = msg;
+			//https://sixty-north.com/blog/how-to-write-boost-python-type-converters.html
+			
+		}
+		catch(error_already_set)
+		{
+			PyErr_Print();
+		}
+		
+		gps_index = 0; //Reset lidar render index.
+	}
+	
+	//Display Current GPS
+	
 	
 	//Calculate Distance
 	for(int i =0; i < 4;i++) //Example forloop
@@ -594,16 +614,17 @@ void renderSceneAll()
 		set_lon(lon_points[i]);
 	}
 	
-	calculation_func();
-	
-	//Calculate Pathing
-	//D*Star
-	dstar->init(_openGLCV_.x,_openGLCV_.z, 3.0, -10.0);
-	dstar->updateCell(_lat_incoming[i]*0.1,_lon_incoming[i]*0.01, -1);
-	dstar->replan();
+	for(int i = 1; i < 4; i++)
+	{
+		cout << setprecision(10) << distanceEarth(_lat_incoming[i],_lat_incoming[i-1],_lon_incoming[i],_lon_incoming[i-1]) * 0.0001 << endl;
+		_distance_vector.push_back(distanceEarth(_lat_incoming[i],_lat_incoming[i-1],_lon_incoming[i],_lon_incoming[i-1]) * 0.0001);
+		_distance_x.push_back(_openGLCV_.x);
+		_distance_z.push_back(_openGLCV_.z);
+	}
 
-	
-	//Send Back to the server
+	//Calculate Pathing
+
+	//Send Back to the server - Only if there is an obstacle in the path.
 	bool send_back = false;
 	if(send_back)
 	{
@@ -707,67 +728,11 @@ void releaseKey(int key, int x, int y)
 // --------------------------------------------------------------------------------
 #pragma region Mouse_Section
 
-void physicalCameraMove(int x, int y)
-{
-	// this will only be true when the left button is down
-	if (_openGLKS_.xOrigin >= 0)
-	{
-		// update deltaAngle
-		_openGLKS_.deltaAngle = (x - _openGLKS_.xOrigin) * 0.001f;
-
-		// update camera's direction
-		_openGLCV_.lx = sin(_openGLCV_.angle + _openGLKS_.deltaAngle);
-		_openGLCV_.lz = -cos(_openGLCV_.angle + _openGLKS_.deltaAngle);
-
-		glutSetWindow(_openGLMV_.mainWindow);
-		glutPostRedisplay();
-	}
-}
-
-// Will emulate physical camera switch to enable the physical movement of the
-// embedded camera.
-void mouseButton(int button, int state, int x, int y) 
-{
-	// only start motion if the left button is pressed
-	if (button == GLUT_LEFT_BUTTON) 
-	{
-		// when the button is released
-		if (state == GLUT_UP) 
-		{
-			_openGLCV_.angle += _openGLKS_.deltaAngle;
-			_openGLKS_.deltaAngle = 0.0f;
-			_openGLKS_.xOrigin = -1;
-		}
-		else 
-		{
-			_openGLKS_.xOrigin = x;
-		}
-	}
-}
-
 #pragma endregion Mouse_Section
 
 // --------------------------------------------------------------------------------
 //             MAIN and INIT
 // --------------------------------------------------------------------------------
-
-void init() 
-{
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	
-	// register callbacks
-	glutKeyboardFunc(processNormalKeys);
-	glutSpecialFunc(pressKey);
-	glutIgnoreKeyRepeat(1);
-	glutSpecialUpFunc(releaseKey);
-
-	//Physical Camera Movement functions;
-	glutMouseFunc(mouseButton);
-	glutMotionFunc(physicalCameraMove);
-}
-
 int main(int argc, char **argv) 
 {
 	// Init of GLUT and main window creation.
@@ -782,8 +747,6 @@ int main(int argc, char **argv)
 	glutDisplayFunc(renderSceneAll);
 	glutReshapeFunc(changeSize);
 
-	//init();
-
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
@@ -793,10 +756,6 @@ int main(int argc, char **argv)
 	glutSpecialFunc(pressKey);
 	glutIgnoreKeyRepeat(1);
 	glutSpecialUpFunc(releaseKey);
-
-	//Physical Camera Movement functions;
-	glutMouseFunc(mouseButton);
-	glutMotionFunc(physicalCameraMove);
 	
 	
 	//-----------------------------------------------------------------------------
@@ -804,8 +763,6 @@ int main(int argc, char **argv)
 	std::cout << "Registering callbacks for Top Down started..." << std::endl;
 	_openGLMV_.TopDownWindow = glutCreateSubWindow(_openGLMV_.mainWindow, 10, 10, 400, 400);
 	glutDisplayFunc(renderTopDownScene);
-
-	//init();
 	
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
@@ -816,19 +773,12 @@ int main(int argc, char **argv)
 	glutSpecialFunc(pressKey);
 	glutIgnoreKeyRepeat(1);
 	glutSpecialUpFunc(releaseKey);
-
-	//Physical Camera Movement functions;
-	glutMouseFunc(mouseButton);
-	glutMotionFunc(physicalCameraMove);
 	
 	try
 	{
 		cout << "Python Module Starting..." << endl;
 		cout << "-------------------------" << endl;
-		
 		Py_Initialize();
-
-		
 		cout << "Python Module Initialized..." << endl;
 	}
 	catch(error_already_set)
