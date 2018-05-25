@@ -30,7 +30,8 @@ serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
 
 # MHz initialization
 mhzPiRelaySocket = None
-piConnData = ('192.168.1.5', 9005)
+#pi ip is non static right now permanent ip will be .5
+piConnData = ('192.168.1.179', 9005)
 try:
     mhzPiRelaySocket = socket(AF_INET, SOCK_STREAM)  #check - why is the mhz on tcp wont this lag the connection when it is having connection issues
     try:
@@ -361,7 +362,7 @@ def main(*argv):
                 '''
                 try:
                     print("STUB - need to add mhz send code")
-                    #mhzPiRelaySocket.send(outbound)
+                    mhzPiRelaySocket.send(outbound)
                     # Receive GPS and post to deepstream
                 except:
                     print("MHz failed...")

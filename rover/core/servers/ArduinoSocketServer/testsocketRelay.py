@@ -143,9 +143,9 @@ while True:
             #print("failed to receive ghz")
             try:
                 print("To add Georden MHz receive")
-                #mhzData = # receive MHz from Georden
+                mhzData = ser.read_all() # receive MHz from Georden
                 sendToArduino(mhzLed, cmd)
-                # Send back current GPS
+                #Send back current GPS
                 counter = 10
             except:
                 print("GHz, MHz failed")
