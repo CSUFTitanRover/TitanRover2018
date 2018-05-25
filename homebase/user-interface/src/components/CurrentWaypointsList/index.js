@@ -145,7 +145,7 @@ class CurrentWaypointsList extends Component {
             </Button>
           </Grid>
         </Grid>
-      </Dialog >
+      </Dialog>
     );
   }
 

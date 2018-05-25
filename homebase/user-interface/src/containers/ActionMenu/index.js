@@ -9,8 +9,16 @@ import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { withStyles } from '@material-ui/core/styles';
 import { closeActionMenu } from '../../actions/menu';
 import Poker from '../../components/Poker/';
+import MotorSpeedSwitch from '../../components/MotorSpeedSwitch';
+import {
+  JOINT_1_ADDRESS,
+  JOINT_4_ADDRESS,
+  JOINT_51_ADDRESS,
+  JOINT_52_ADDRESS,
+} from '../../utils/motor_constants';
 
 const mapStateToProps = state => ({ actionMenuActive: state.actionMenuActive });
 
@@ -25,14 +33,19 @@ const mapDispatchToProps = dispatch => ({
   },
 });
 
-const styles = {
+const styles = theme => ({
   drawerHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'flex-start',
     padding: '0 10px',
   },
-};
+  motorSubheading: {
+    marginTop: theme.spacing.unit * 2,
+    marginLeft: theme.spacing.unit * 3,
+    color: theme.palette.primary.main,
+  },
+});
 
 /**
  * The LeftMenu allows quick access to load saved layouts and also select react components
@@ -46,6 +59,7 @@ class ActionMenu extends Component {
     actionMenuActive: PropTypes.bool.isRequired,
     /** A string of class names to apply to the LeftMenu for styling concerns. */
     drawerPaperClassNames: PropTypes.string,
+    classes: PropTypes.object.isRequired,
   };
 
   static defaultProps = {
@@ -54,7 +68,12 @@ class ActionMenu extends Component {
   };
 
   render() {
-    const { actionMenuActive, handleOnClick, drawerPaperClassNames } = this.props;
+    const {
+      actionMenuActive,
+      handleOnClick,
+      drawerPaperClassNames,
+      classes,
+    } = this.props;
 
     return (
       <Drawer
@@ -64,7 +83,7 @@ class ActionMenu extends Component {
           paper: drawerPaperClassNames,
         }}
       >
-        <div style={styles.drawerHeader}>
+        <div className={classes.drawerHeader}>
           <Tooltip title="Close Actions" placement="bottom">
             <IconButton aria-label="Close Actions" onClick={handleOnClick} >
               <ChevronRightIcon />
@@ -77,10 +96,26 @@ class ActionMenu extends Component {
           <ListItem>
             <Poker />
           </ListItem>
+          <Divider light />
+          <Typography variant="subheading" className={classes.motorSubheading}>Manage Motor Speeds</Typography>
+          <ListItem>
+            <MotorSpeedSwitch jointName="Joint 1" address={JOINT_1_ADDRESS} />
+          </ListItem>
+          <ListItem>
+            <MotorSpeedSwitch jointName="Joint 4" address={JOINT_4_ADDRESS} />
+          </ListItem>
+          <ListItem>
+            <MotorSpeedSwitch jointName="Joint 5.1" address={JOINT_51_ADDRESS} />
+          </ListItem>
+          <ListItem>
+            <MotorSpeedSwitch jointName="Joint 5.2" address={JOINT_52_ADDRESS} />
+          </ListItem>
         </List>
       </Drawer>
     );
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ActionMenu);
+const ActionMenuWithStyles = withStyles(styles)(ActionMenu);
+
+export default connect(mapStateToProps, mapDispatchToProps)(ActionMenuWithStyles);
