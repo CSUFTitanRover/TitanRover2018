@@ -364,6 +364,7 @@ def main(*argv):
                     print("STUB - need to add mhz send code")
                     mhzPiRelaySocket.send(outbound)
                     # Receive GPS and post to deepstream
+                    #this is done in testsocketRelay.py immediately upon receiving gps location
                 except:
                     print("MHz failed...")
                     mhzPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
