@@ -42,10 +42,12 @@ ADDR = (HOST, PORT)
 SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 while True:
     try:
+        print("Trying to bind")
         SERVER.bind(ADDR)
+        Print("binding complete")
         break
     except:
-        subprocess.call(' sudo lsof -t -i tcp:9090 | xargs kill -9', shell = True)
+        subprocess.call(' sudo lsof -t -i tcp:8090 | xargs kill -9', shell = True)
 
 def postToDeepstream():
     global imuData
@@ -57,10 +59,9 @@ def postToDeepstream():
             print("Dumping to deepstream...")
             #request = requests.post('http://192.168.1.8:3080', json=payload)
             #print request.text
+            time.sleep(5)
         except:
             print("Deepstream doesn't seem to be online")
-
-Thread(target=postToDeepstream).start()
 
 #subprocess.call(["python3.5", "calImu.py"])
 #time.sleep(3)
@@ -123,11 +124,14 @@ print('Gyroscope ID:       0x{0:02X}\n'.format(gyro))
 print('Reading BNO055 data, press Ctrl-C to quit...')
 
 while True:
+    print("connecting")
+    time.sleep(3)
     client, client_address = SERVER.accept()
     print("%s:%s has connected." % client_address)
 
 
 try:
+    Thread(target=postToDeepstream).start()
     while True:
         '''
         if confMode == False and (sys != 3 or mag != 3):
