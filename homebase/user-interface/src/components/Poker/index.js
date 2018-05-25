@@ -27,7 +27,7 @@ class Poker extends Component {
     const { pokeLoading } = this.state;
     return (
       <Button variant="raised" color="primary" onClick={this.handlePoke}>
-        {pokeLoading ? <CircularProgress color="default" size={18} /> : 'Poke'}
+        {pokeLoading ? <CircularProgress color="default" size={20} /> : 'Poke'}
       </Button>
     );
   }

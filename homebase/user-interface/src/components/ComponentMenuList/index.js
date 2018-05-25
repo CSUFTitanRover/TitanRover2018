@@ -138,25 +138,16 @@ class ComponentMenuList extends Component {
             className={classes.nested}
           />
           <ComponentMenuItem
-            title="Current Coordinate List"
-            componentname="CoordinateList"
-            icon={<NavigationIcon />}
-            className={classes.nested}
-            componentprops={{ recordPath: 'rover/currentPoints' }}
-          />
-          <ComponentMenuItem
-            title="Previous Coordinate List"
-            componentname="CoordinateList"
-            icon={<NavigationIcon />}
-            className={classes.nested}
-            componentprops={{ recordPath: 'rover/previousPoints' }}
-          />
-          <ComponentMenuItem
-            title="Current Waypoints List (updated)"
+            title="Current Waypoints List"
             componentname="CurrentWaypointsList"
             icon={<NavigationIcon />}
             className={classes.nested}
-            componentprops={{ recordPath: 'rover/currentPoints', waypointListType: 'currentPoints' }}
+          />
+          <ComponentMenuItem
+            title="Previous Waypoints List"
+            componentname="PreviousWaypointsList"
+            icon={<NavigationIcon />}
+            className={classes.nested}
           />
         </Collapse>
       </List>

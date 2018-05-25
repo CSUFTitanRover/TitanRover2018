@@ -6,19 +6,13 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import grey from '@material-ui/core/colors/grey';
+import green from '@material-ui/core/colors/green';
+import cn from 'classnames';
 import { toast } from 'react-toastify';
 import { withStyles } from '@material-ui/core/styles';
 import { getClient } from '../../utils/deepstream';
 
 const styles = theme => ({
-  container: {
-    paddingRight: theme.spacing.unit * 2,
-    paddingLeft: theme.spacing.unit * 2,
-    background: grey[200],
-    height: 'inherit',
-    overflow: 'scroll',
-  },
   listItem: {
     marginTop: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 2,
@@ -27,6 +21,9 @@ const styles = theme => ({
   },
   deleteIcon: {
     marginLeft: theme.spacing.unit,
+  },
+  activeWaypoint: {
+    background: green[200],
   },
 });
 
@@ -38,7 +35,7 @@ class WaypointList extends Component {
   };
 
   static defaultProps = {
-    data: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]],
+    // data: [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]],
     waypointListType: 'currentPoints',
   }
 
@@ -97,9 +94,10 @@ class WaypointList extends Component {
     const { waypointListType, classes } = this.props;
 
     const shouldShowDeleteButton = waypointListType === 'currentPoints';
+    const isCurrentPointsAndFirstItem = waypointListType === 'currentPoints' && index === 0;
 
     return (
-      <ListItem key={`${latitude}-${longitude}`} className={classes.listItem}>
+      <ListItem key={`${latitude}-${longitude}`} className={cn(classes.listItem, { [classes.activeWaypoint]: isCurrentPointsAndFirstItem })}>
         <ListItemText>{`${index + 1}. `}<strong>Latitude: </strong>{`${latitude}, `}<strong>Longitude: </strong>{longitude}</ListItemText>
         {shouldShowDeleteButton && this.renderAdditionalContent(latitude, longitude)}
       </ListItem>
@@ -107,17 +105,15 @@ class WaypointList extends Component {
   }
 
   render() {
-    const { data, classes } = this.props;
+    const { data } = this.props;
     const totalLength = data.length;
 
     return (
-      <div className={classes.container}>
-        <List>
-          {data.map(([latitude, longitude], index) => (
-            this.renderListItem(latitude, longitude, index, totalLength)
-          ))}
-        </List>
-      </div>
+      <List>
+        {data.map(([latitude, longitude], index) => (
+          this.renderListItem(latitude, longitude, index, totalLength)
+        ))}
+      </List>
     );
   }
 }
