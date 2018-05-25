@@ -22,6 +22,7 @@ def getRF(rf_uart, size_of_payload): #added argument to make it more function-li
                 print(data)
             else: #if that last byte wasn't the stop byte then something is out of sync
                 print("failure")
+                return -1
     return data
 
 while True:
