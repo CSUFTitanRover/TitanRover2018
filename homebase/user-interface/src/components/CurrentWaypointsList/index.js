@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import has from 'lodash.has';
+import isEmpty from 'lodash.isempty';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
@@ -60,7 +62,7 @@ class CurrentWaypointsList extends Component {
   }
 
   handleNewPayload = (data) => {
-    if (data.length !== 0) {
+    if (data && has(data, 'cp') && !isEmpty(data.cp)) {
       this.setState({ data: data.cp.reverse() });
     }
   }

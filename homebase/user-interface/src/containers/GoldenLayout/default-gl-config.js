@@ -22,13 +22,13 @@ const config = {
         // },
         {
           type: 'react-component',
-          component: 'Coordinator',
-          title: 'Coordinator',
+          component: 'CurrentWaypointsList',
+          title: 'Current Waypoints List',
         },
         {
           type: 'react-component',
-          component: 'CurrentWaypointsList',
-          title: 'Current Waypoints List',
+          component: 'PreviousWaypointsList',
+          title: 'Previous Waypoints List',
         },
       ],
     },

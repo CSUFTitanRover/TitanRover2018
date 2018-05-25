@@ -100,7 +100,8 @@ class WaypointList extends Component {
     return (
       <ListItem
         key={shortid.generate()}
-        className={cn(classes.listItem, { [classes.activeWaypoint]: isCurrentPointsAndFirstItem })}>
+        className={cn(classes.listItem, { [classes.activeWaypoint]: isCurrentPointsAndFirstItem })}
+      >
         <ListItemText>{`${index + 1}. `}<strong>Latitude: </strong>{`${latitude}, `}<strong>Longitude: </strong>{longitude}</ListItemText>
         {shouldShowDeleteButton && this.renderAdditionalContent(latitude, longitude)}
       </ListItem>

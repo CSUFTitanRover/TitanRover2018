@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import has from 'lodash.has';
+import isEmpty from 'lodash.isempty';
 import Typography from '@material-ui/core/Typography';
 import grey from '@material-ui/core/colors/grey';
 import { withStyles } from '@material-ui/core/styles';
@@ -33,7 +35,9 @@ class PreviousWaypointsList extends Component {
   }
 
   handleNewPayload = (data) => {
-    this.setState({ data: data.pp.reverse() });
+    if (data && has(data, 'pp') && !isEmpty(data.pp)) {
+      this.setState({ data: data.pp.reverse() });
+    }
   }
 
   renderWaypointList = (data) => {

@@ -4,8 +4,6 @@ import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 import ResizeAwareMap from '../../components/ResizeAwareMap/';
-import Coordinator from '../../components/Coordinator/';
-import CoordinateList from '../../components/CoordinateList/';
 import WaypointList from '../../components/WaypointList/';
 import CurrentWaypointsList from '../../components/CurrentWaypointsList/';
 import PreviousWaypointsList from '../../components/PreviousWaypointsList/';
@@ -51,8 +49,6 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
   glNode.registerComponent('RealtimeChart', RealtimeChart);
-  glNode.registerComponent('Coordinator', Coordinator);
-  glNode.registerComponent('CoordinateList', CoordinateList);
   glNode.registerComponent('WaypointList', WaypointList);
   glNode.registerComponent('CurrentWaypointsList', CurrentWaypointsList);
   glNode.registerComponent('PreviousWaypointsList', PreviousWaypointsList);

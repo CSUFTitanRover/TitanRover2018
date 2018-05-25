@@ -26,10 +26,12 @@ const styles = theme => ({
     padding: theme.spacing.unit * 2,
   },
   stepper: {
-    background: grey[50],
+    background: grey[100],
   },
-  contentWrapper: {
-    background: grey[200],
+  title: {
+    padding: theme.spacing.unit * 2,
+    background: theme.palette.primary.main,
+    color: grey[50],
   },
   buttons: {
     padding: theme.spacing.unit * 2,
@@ -120,15 +122,21 @@ class Coordinator extends Component {
     if (!finalLatitude || !finalLongitude) {
       toast.error('Error: Cannot add an empty coordinate!');
     } else {
-      const data = `${finalLatitude},${finalLongitude}`;
-      this.client.rpc.make('addCoordinate', data, (error, result) => {
-        if (error) {
-          toast.error(error);
-        }
+      const data = [finalLatitude, finalLongitude];
 
-        toast.success(result);
-        this.handleReset();
-      });
+      this.client.event.emit('temp/waypoints:add', data);
+      this.handleReset();
+
+      // use this in the commit button on the dialog
+      // const data = `${finalLatitude},${finalLongitude}`;
+      // this.client.rpc.make('addCoordinate', data, (error, result) => {
+      //   if (error) {
+      //     toast.error(error);
+      //   }
+
+      //   toast.success(result);
+      //   this.handleReset();
+      // });
     }
   }
 
@@ -215,15 +223,15 @@ class Coordinator extends Component {
             Add Coordinate
           </Button>
         ) : (
-          <Button
-            variant="raised"
-            color="primary"
-            className={classes.actionButton}
-            onClick={this.handleNext}
-          >
+            <Button
+              variant="raised"
+              color="primary"
+              className={classes.actionButton}
+              onClick={this.handleNext}
+            >
               Next
-          </Button>
-        )}
+            </Button>
+          )}
       </div>
     </div>
   )
@@ -237,7 +245,8 @@ class Coordinator extends Component {
     const { classes } = this.props;
 
     return (
-      <React.Fragment>
+      <div className={classes.root}>
+        <Typography variant="title" className={classes.title}>Add a Waypoint</Typography>
         <Stepper activeStep={activeStep} alternativeLabel className={classes.stepper}>
           {this.steps.map(label => (
             <Step key={label}>
@@ -249,7 +258,7 @@ class Coordinator extends Component {
         <div>
           {this.renderContent({ activeStep, classes })}
         </div>
-      </React.Fragment >
+      </div >
     );
   }
 }
