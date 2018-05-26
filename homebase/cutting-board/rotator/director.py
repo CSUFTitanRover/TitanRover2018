@@ -8,15 +8,15 @@ from struct import *
 from threading import Thread
 from decimal import Decimal
 from deepstream import *
-#import pyserial
 import datetime
 import subprocess
 import re
 import requests
-
+import serial
 
 #Arduino Serial Out
-#ardOut = 
+ardName = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_85439313330351D0E102-if00'
+ardOut =  serial.Serial(ardName, 9600, timeout=None)
 # gnss connection info
 __antenna_gps_address = "192.168.1.232"
 __antenna_gps_port = 7075
@@ -156,11 +156,6 @@ def getShouldTurnClockwise():
     __clockwise = True if b > 0 else False
     return __clockwise
 
-#ard = Serial.serial(ARDUINO_PORT, BAUD_RATE)
-#ard.open()
-#rover_gps = __rover_gps_socket.recv(64)
-#get antenna gps point from gnss
-#antenna_gps = __antenna_gps_socket.recv(64) #grabs gps being sent from gnss module over network socket
 __rover_gps = getRoverGPS()
 print("rover gps")
 print(__rover_gps)
@@ -190,10 +185,22 @@ print(__deltaDirection)
 __clockwise = getShouldTurnClockwise()
 print("got clock direction")
 print(__clockwise)
+#call all the functions because I can
 
 
+#get initial heading direction and prepare the value verbosely to send to arduino
+__antenna_heading = getHeading() #get antenna heading for imu and send it to the arduino to initialize it
+initial_heading = int(round(__antenna_heading * 100)) #float to int
+initial_heading = initial_heading * 1000
+initial_heading_bytes = struct.pack("i", initial_heading)
+ser.write(initial_heading_bytes) #the fidgit spinner code 'unpacks' and divides by 1000
 
-#setHeading()
-#setHeadingDifference()
-#setDeltaDirection()
-#setShouldTurnClockwise()
+while True:
+    sleep(20)
+    __rover_gps = getRoverGPS()
+    __antenna_gps = getAntennaGPS()
+    __targetHeading = getTargetHeading() #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted but what if something crazy happens and the antenna moves?
+
+    __targetHeading = __targetHeading * 1000 #sending int which will be divided by 1000
+    newHeading = struct.pack("i", __targetHeading)
+    ardOut.write(newHeading) #sending new heading for the arduino to go to using its pot as reference.

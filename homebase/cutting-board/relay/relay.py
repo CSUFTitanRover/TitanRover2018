@@ -58,9 +58,12 @@ oSerial = initRF(oDevice, baudRate)     #initialize rf and socket the first time
 print("calling socket function")
 iSock, rSock = initSocket(localAddress, port)
 
+oSerial.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
+oSerial.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+oSerial.open() #applies dtr and rts pins
+
+
 while True:
-    oSerial.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
-    oSerial.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
     try:
         print("receiving")
         buf = rSock.recv(1024)
@@ -88,5 +91,6 @@ while True:
         oSerial.write(buf)
     except:
         print("Failed to write.")
+        oSerial.close()
         oSerial = initRF(oDevice, baudRate)
 
