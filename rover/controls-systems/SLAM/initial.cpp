@@ -501,6 +501,8 @@ void renderTopDownScene()
 	glutSwapBuffers();
 }
 
+//Initial Render Event cycle.
+
 int render_index = 0;
 int gps_index    = 0;
 // Global render func
@@ -524,8 +526,11 @@ void renderSceneAll()
 	}
 	renderScene();
 	
-	//-------------------------------Control Segment
-	
+	//-------------------------------Control Segment--------------------------------
+	//PRE-RENDERING REQUIREMENTS ARE HANDLED HERE..
+	//All the handles are here for determining the next gps point.
+	//If error or need modification this is the section to do it in.
+	//------------------------------------------------------------------------------
 	//Create Lidar Connection and grab information from lidar.
 	render_index++;
 	namespace python = boost::python;
@@ -563,6 +568,11 @@ void renderSceneAll()
 			ignored = exec("dataPoints = int(\"0x\" + str(data[25]), 16)", main_namespace);
 			ignored = exec("print(dataPoints)", main_namespace);
 			ignored = exec("s.close()", main_namespace);
+			
+			//File Creation to import the lidar data to grab.
+			ignored = exec("lidar_file = open(\"lidar_data.txt\",\"w\")", main_namespace);
+			ignored = exec("lidar_file.write(dataPoints)", main_namespace);
+			ignored = exec("lidar_file.close()", main_namespace);
 		}
 		catch(error_already_set)
 		{
@@ -587,9 +597,19 @@ void renderSceneAll()
 			ignored = exec("import sys", main_namespace);
 			ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
 			ignored = exec("print \"Socket successfully created\"",main_namespace);
-			ignored = exec("port = 2111",main_namespace);
-			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace);
-			ignored = exec("s.connect((host_ip, port))", main_namespace);
+			
+			//GPS connection to the server to grab GPS information.
+			ignored = exec("port = 2111",main_namespace); //Port for the GPS server.
+			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace); //The ip for the GPS server.
+			ignored = exec("s.connect((host_ip, port))", main_namespace);//Connection to the GPS server.
+			ignored = exec("s.send(\"ready\")", main_namespace);
+			
+			ignored = exec("gps_information = s.recv(8192)", main_namespace);
+			ignored = exec("print gps_information", main_namespace);
+			
+			ignored = exec("gps_file = open(\"gps_data.txt\",\"w\")", main_namespace);
+			ignored = exec("gps_file.write(gps_information)", main_namespace);
+			ignored = exec("gps_file.close()", main_namespace);
 					
 		}
 		catch(error_already_set)
@@ -628,6 +648,12 @@ void renderSceneAll()
 			ignored = exec("lon2 = lon1 + math.atan2(math.sin(heading)*math.sin(dist/radius)*math.cos(lat1), math.cos(dist/radius)-math.sin(lat1)*math.sin(lat2))", main_namespace);
 			ignored = exec("lat2 = round(math.degrees(lat2), 9)", main_namespace);
 			ignored = exec("lon2 = round(math.degrees(lon2), 9)", main_namespace);
+			
+			//File Creation to import the lat and lon data to grab.
+			ignored = exec("distance_file = open(\"distance_data.txt\",\"w\")", main_namespace);
+			ignored = exec("distance_file.write(lat2)", main_namespace);
+			ignored = exec("distance_file.write(lon2)", main_namespace);
+			ignored = exec("distance_file.close()", main_namespace);
 		}
 		catch(error_already_set)
 		{
@@ -635,22 +661,47 @@ void renderSceneAll()
 		}
 	}
 	
-	for(int i =0; i < 4;i++) //Example forloop
-	{
-		set_lat(lat_points[i]);
-		set_lon(lon_points[i]);
-	}
+	//Gather the new gps point information
+	string line;
+	vector<string> gps_line;
 	
-	for(int i = 1; i < 4; i++)
+	ifstream myfile ("distance_data.txt");
+	if (myfile.is_open())
+	{
+		while ( getline (myfile,line) )
+		{
+			cout << line << '\n';
+			gps_line.push_back(line);
+		}
+		myfile.close();
+	}
+	else
+	{
+		cout << "Unable to open distance_data.txt file";
+	}		 
+	
+	//Parsing might be required for the GPS data.
+	//Unsure of how the new GPS data would look.
+	
+	//Setting the lat and lon points.
+	set_lat(std::stod(gps_line[0]);
+	set_lon(std::stod(gps_line[1]);
+	
+	gps_line.clear();//Clear the gps_line buffer.
+
+	if(_lat_incoming.size() > 1)
 	{
 		cout << setprecision(10) << distanceEarth(_lat_incoming[i],_lat_incoming[i-1],_lon_incoming[i],_lon_incoming[i-1]) * 0.0001 << endl;
 		_distance_vector.push_back(distanceEarth(_lat_incoming[i],_lat_incoming[i-1],_lon_incoming[i],_lon_incoming[i-1]) * 0.0001);
-		_distance_x.push_back(_openGLCV_.x);
-		_distance_z.push_back(_openGLCV_.z);
 	}
+
+	//Current GPS to Push back at...
+	_distance_x.push_back(_openGLCV_.x);
+	_distance_z.push_back(_openGLCV_.z);
 
 	//Calculate Pathing
 	//10x8ft for rover safe clearance... 
+	//NOT AVAILABLE ATM... No D* ;<
 	
 	//Send Back to the server - Only if there is an obstacle in the path.
 	bool send_back = false;
@@ -670,14 +721,15 @@ void renderSceneAll()
 			ignored = exec("s_back.connect((host_ip, port))", main_namespace);
 			ignored = exec("print 'Received', host_ip", main_namespace);
 			
-			//Send the GPS data back to the server;
-			//ignored = exec("s.send("")", main_namespace);
 		}
 		catch(error_already_set)
 		{
 			PyErr_Print();
 		}
 	}
+	
+	//------------------------------------------------------------------------
+	//CONTROL SEGMENT END-----------------------------------------------------
 	
 	//Sub-Render Scenes with multi-view camera angles.
 	renderTopDownScene();
