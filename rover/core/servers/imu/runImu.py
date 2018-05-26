@@ -123,13 +123,13 @@ try:
         print("Dumping to deepstream...")
         try:
             request = requests.post('http://192.168.1.2:4080', json=payload)
-            print request.text
+            print(request.text)
         except:
             print("Rover Deepstream doesn't seem to be online")
         
         try:
             request = requests.post('http://192.168.1.8:3080', json=payload)
-            print request.text
+            print(request.text)
         except:
             print("Base Deepstream doesn't seem to be online")
         
