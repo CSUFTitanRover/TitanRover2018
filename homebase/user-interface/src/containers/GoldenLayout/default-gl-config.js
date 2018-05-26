@@ -15,20 +15,15 @@ const config = {
         //   title: 'Decagon Realtime Chart',
         //   props: { chartName: 'Decagon-5TE', eventName: 'science/decagon' },
         // },
-        // {
-        //   type: 'react-component',
-        //   component: 'ResizeAwareMap',
-        //   title: 'Map',
-        // },
+        {
+          type: 'react-component',
+          component: 'ResizeAwareMap',
+          title: 'Map',
+        },
         {
           type: 'react-component',
           component: 'CurrentWaypointsList',
           title: 'Current Waypoints List',
-        },
-        {
-          type: 'react-component',
-          component: 'PreviousWaypointsList',
-          title: 'Previous Waypoints List',
         },
       ],
     },

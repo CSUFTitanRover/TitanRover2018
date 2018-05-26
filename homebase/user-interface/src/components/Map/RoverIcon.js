@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Marker } from 'react-map-gl';
 import RoverDirectionIcon from '../../resources/rover-direction-icon.svg';
@@ -11,22 +11,22 @@ const svgHeight = 50;
 const offsetLeft = (svgWidth / 2) * -1;
 const offsetTop = (svgHeight / 2) * -1;
 
-class RoverIcon extends PureComponent {
+class RoverIcon extends Component {
   static propTypes = {
-    lat: PropTypes.number,
-    lon: PropTypes.number,
+    latitude: PropTypes.number,
+    longitude: PropTypes.number,
     heading: PropTypes.number,
     bearing: PropTypes.number.isRequired,
   }
 
   static defaultProps = {
-    lat: 0,
-    lon: 0,
+    latitude: 0,
+    longitude: 0,
     heading: 0,
   }
 
   render() {
-    const { lat, lon, heading, bearing } = this.props;
+    const { latitude, longitude, heading, bearing } = this.props;
 
     const roverIconStyles = {
       outline: '2px solid red',
@@ -36,8 +36,8 @@ class RoverIcon extends PureComponent {
 
     return (
       <Marker
-        latitude={lat}
-        longitude={lon}
+        latitude={latitude}
+        longitude={longitude}
         offsetLeft={offsetLeft}
         offsetTop={offsetTop}
       >

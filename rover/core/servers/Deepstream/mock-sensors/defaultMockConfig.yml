@@ -10,64 +10,66 @@ deepstream:
 # the sensors which will be mocked and
 # how the fake data will look
 sensors:
-    Decagon-5TE:
-        path: science/decagon # the path where the data is emitted to deepstream e.g science/decagon
-        timeDelay: 1500 # [optional] [default = 1000] the amount of wait time in ms before emitting
-        debug: false # [optional] [default = false] outputs generated data to the console
-        verbose: false # [optional] [default = false] if debug is true, this prints out the raw data generated
-        deepstreamServer: rover # [optional] [default = rover] Directs the current sensor to output it's data to a specific deepstream sensor ("homebase" or "rover")
-        sensorType: default # [optional] [default = "default"] Decides what type of sensor is mocked up ("default" or "cycle")
-        soil_moisture: 
-            min: 0.85 # the min number the generated value will be 
-            max: 1.1 # the max number the generated value will be 
-            floatingPoint: true # controls if it's generated as a floating number
-        soil_temperature:
-            min: 13
-            max: 14
-            floatingPoint: true
-    Altimeter:
-        path: science/altimeter
-        temperature:
-            min: 17
-            max: 18
-            floatingPoint: true
-        pressure:
-            min: 28
-            max: 32.25
-            floatingPoint: true
-    DHT-11:
-        path: science/dht
-        humidity:
-            min: 34
-            max: 35
-            floatingPoint: true
-    Atmospheric:
-        path: science/atmospheric
-        timeDelay: 2500
-        windspeed: 
-            min: 3
-            max: 6
-            floatingPoint: false
-        uvIndex:
-            min: 2.8
-            max: 2.9
-            floatingPoint: true
-    Reach:
-        path: rover/reach
-        timeDelay: 40
+    # Decagon-5TE:
+    #     path: science/decagon # the path where the data is emitted to deepstream e.g science/decagon
+    #     timeDelay: 1500 # [optional] [default = 1000] the amount of wait time in ms before emitting
+    #     debug: false # [optional] [default = false] outputs generated data to the console
+    #     verbose: false # [optional] [default = false] if debug is true, this prints out the raw data generated
+    #     deepstreamServer: rover # [optional] [default = rover] Directs the current sensor to output it's data to a specific deepstream sensor ("homebase" or "rover")
+    #     sensorType: default # [optional] [default = "default"] Decides what type of sensor is mocked up ("default" or "cycle")
+    #     soil_moisture: 
+    #         min: 0.85 # the min number the generated value will be 
+    #         max: 1.1 # the max number the generated value will be 
+    #         floatingPoint: true # controls if it's generated as a floating number
+    #     soil_temperature:
+    #         min: 13
+    #         max: 14
+    #         floatingPoint: true
+    # Altimeter:
+    #     path: science/altimeter
+    #     temperature:
+    #         min: 17
+    #         max: 18
+    #         floatingPoint: true
+    #     pressure:
+    #         min: 28
+    #         max: 32.25
+    #         floatingPoint: true
+    # DHT-11:
+    #     path: science/dht
+    #     humidity:
+    #         min: 34
+    #         max: 35
+    #         floatingPoint: true
+    # Atmospheric:
+    #     path: science/atmospheric
+    #     timeDelay: 2500
+    #     windspeed: 
+    #         min: 3
+    #         max: 6
+    #         floatingPoint: false
+    #     uvIndex:
+    #         min: 2.8
+    #         max: 2.9
+    #         floatingPoint: true
+    CurrentGPS:
+        path: rover/currentGPS
+        deepstreamServer: homebase
+        timeDelay: 700
         sensorType: cycle
-        lat:
+        latitude:
             min: 33.872405
             max: 33.885822
             step: 0.0001
             # floatingPoint: true # this is not required for Cycle Sensors since you can control this via the step property
-        lon: 
+        longitude: 
             min: -117.774862
             max: -117.858943
             step:   0.0001
     Imu: 
         path: rover/imu
-        timeDelay: 5
+        deepstreamServer: homebase
+        timeDelay: 10
         sensorType: cycle
         heading:
             min: 320

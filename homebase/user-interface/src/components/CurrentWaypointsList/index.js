@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import has from 'lodash.has';
-import isEmpty from 'lodash.isempty';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import InfoIcon from '@material-ui/icons/Info';
 import grey from '@material-ui/core/colors/grey';
@@ -62,7 +61,7 @@ class CurrentWaypointsList extends Component {
   }
 
   handleNewPayload = (data) => {
-    if (data && has(data, 'cp') && !isEmpty(data.cp)) {
+    if (data && has(data, 'cp')) {
       this.setState({ data: data.cp.reverse() });
     }
   }
@@ -129,22 +128,14 @@ class CurrentWaypointsList extends Component {
         aria-labelledby="delete-all-dialog"
       >
         <DialogTitle id="delete-all-dialog">Are you sure you want to delete all waypoints?</DialogTitle>
-        <Grid container className={classes.deleteAllDialogGridContainer}>
-          <Grid item xs={12} sm={6} className={classes.deleteAllDialogGridItem}>
-            <Button
-              color="default"
-              variant="raised"
-              onClick={this.closeDeleteAllDialog}
-            >
-              No
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} className={classes.deleteAllDialogGridItem}>
-            <Button color="primary" variant="raised" onClick={this.handleDeleteAll}>
-              {deletingAllWaypoints ? <CircularProgress color="default" size={20} /> : 'Yes'}
-            </Button>
-          </Grid>
-        </Grid>
+        <DialogActions>
+          <Button onClick={this.closeDeleteAllDialog}>
+            Cancel
+          </Button>
+          <Button color="primary" variant="raised" onClick={this.handleDeleteAll}>
+            {deletingAllWaypoints ? <CircularProgress color="default" size={20} /> : 'Yes'}
+          </Button>
+        </DialogActions>
       </Dialog>
     );
   }

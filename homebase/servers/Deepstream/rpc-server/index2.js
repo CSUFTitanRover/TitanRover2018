@@ -15,7 +15,7 @@ const motorSpeedEndpoint = {
 
 const coordinatesEndpoint = {
   host: 'localhost',
-  port: 9999
+  port: 9090
 };
 
 async function main() {
