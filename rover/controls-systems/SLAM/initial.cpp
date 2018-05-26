@@ -234,7 +234,6 @@ void drawRadCircle()
 
 void drawCircle()
 {
-
 	glColor3f(0.0, 1.0, 0.0); // <R,G,B>
 
 	//Circle
@@ -292,7 +291,6 @@ void drawPoint()
 
 
 //---------------------------------------------------------------------------------
-
 void renderBitmapString(GLfloat x, GLfloat y, GLfloat z, void *font, char *string) 
 {
 	char *c;
@@ -462,7 +460,6 @@ void renderTopDownScene()
 		glPopMatrix();
 	}
 
-	
 	//Draws the tracer red-line from the first point of view.
 	//Needs a better rework of the y direction calculation between matrices.
 	// Draw the interpolated points second.
@@ -527,43 +524,45 @@ void renderSceneAll()
 	}
 	renderScene();
 	
+	//-------------------------------Control Segment
+	
 	//Create Lidar Connection and grab information from lidar.
 	render_index++;
+	namespace python = boost::python;
 	if(render_index > 10)
 	{
 		try
 		{
 			object main_module ((handle<>(borrowed(PyImport_AddModule("__main__")))));
 			object main_namespace = main_module.attr("__dict__");
+			
+			//Import Segments
 			object ignored = exec("import socket", main_namespace);
 			ignored = exec("import sys", main_namespace);
-			ignored = exec("from binascii import hexlify, unhexlify, a2b_hex, b2a_hex, b2a_qp, a2b_qp", main_namespace);
-			ignored = exec("g = bytearray(b\' \x02\x73\x52\x4e\x20\x4c\x4d\x44\x73\x63\x61\x6e\x64\x61\x74\x61\x03\')", main_namespace);
+			ignored = exec("import pickle", main_namespace);
+			ignored = exec("from time import sleep", main_namespace);
+			
+			//Variable Declerations
+			ignored = exec("host = \"localhost\"", main_namespace);
+			ignored = exec("port = 7080", main_namespace);
+			ignored = exec("BUFFER_SIZE = 8192", main_namespace);
+			
 			ignored = exec("s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)", main_namespace);
 			ignored = exec("print \"Socket successfully created\"",main_namespace);
 			
-			ignored = exec("port = 2111",main_namespace);
-			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace);
-			ignored = exec("s.connect((host_ip, port))", main_namespace);
-			ignored = exec("print 'Received', host_ip", main_namespace);
+			ignored = exec("s.connect((host, port))", main_namespace);
+			ignored = exec("print 'Received', host", main_namespace);
 			ignored = exec("degree = 90", main_namespace);
 			ignored = exec("distance = []", main_namespace);
 			
-			ignored = exec("s.send(g)", main_namespace);
-			ignored = exec("d = s.recv(4096)", main_namespace);
+			ignored = exec("s.send(\"ready\")", main_namespace);
+			ignored = exec("d = s.recv(8192)", main_namespace);
 			ignored = exec("print d", main_namespace);
-			
-			string return_value = py::extract<std::string>("d");
-			
-			//Test
-			//std::string msg("Hello, Python");
-			//boost::python::object py_msg = msg;
-			//https://sixty-north.com/blog/how-to-write-boost-python-type-converters.html
 			
 			ignored = exec("data = d.split(\" \")", main_namespace);
 			ignored = exec("dataPoints = int(\"0x\" + str(data[25]), 16)", main_namespace);
 			ignored = exec("print(dataPoints)", main_namespace);
-			
+			ignored = exec("s.close()", main_namespace);
 		}
 		catch(error_already_set)
 		{
@@ -573,8 +572,10 @@ void renderSceneAll()
 		render_index = 0; //Reset lidar render index.
 	}
 	
-	
-	//Create GPS connection
+	//Value correlation...
+	bool is_collision = false;
+		
+	//Create GPS connection to get current GPS location...
 	gps_index++;
 	if(gps_index > 5)
 	{
@@ -589,12 +590,7 @@ void renderSceneAll()
 			ignored = exec("port = 2111",main_namespace);
 			ignored = exec("host_ip = socket.gethostbyname('192.168.1.25')", main_namespace);
 			ignored = exec("s.connect((host_ip, port))", main_namespace);
-			
-			//Test
-			//std::string msg("Hello, Python");
-			//boost::python::object py_msg = msg;
-			//https://sixty-north.com/blog/how-to-write-boost-python-type-converters.html
-			
+					
 		}
 		catch(error_already_set)
 		{
@@ -603,11 +599,42 @@ void renderSceneAll()
 		
 		gps_index = 0; //Reset lidar render index.
 	}
-	
 	//Display Current GPS
 	
-	
 	//Calculate Distance
+	bool calculate_dist = false;
+	if(calculate_dist)
+	{
+		try
+		{
+			object main_module ((handle<>(borrowed(PyImport_AddModule("__main__")))));
+			object main_namespace = main_module.attr("__dict__");
+			
+			//Import Segments
+			object ignored = exec("from deepstream import get", main_namespace);
+			ignored = exec("import math", main_namespace);
+			
+			//Variable Declerations
+			ignored = exec("currentHeading = get(\"imu\")[\"heading\"]", main_namespace);
+			ignored = exec("print(\"No Heading Error\")", main_namespace);
+			
+			ignored = exec("heading = math.radians(heading)", main_namespace);
+			ignored = exec("radius = 6371", main_namespace); // km
+			ignored = exec("dist = distance / 100000.0",main_namespace);
+			ignored = exec("lat1, lon1 = origin", main_namespace);
+			ignored = exec("lat1 = math.radians(lat1)", main_namespace);
+			ignored = exec("lon1 = math.radians(lon1)", main_namespace);
+			ignored = exec("lat2 = math.asin( math.sin(lat1)*math.cos(dist/radius) + math.cos(lat1)*math.sin(dist/radius)*math.cos(heading))", main_namespace);
+			ignored = exec("lon2 = lon1 + math.atan2(math.sin(heading)*math.sin(dist/radius)*math.cos(lat1), math.cos(dist/radius)-math.sin(lat1)*math.sin(lat2))", main_namespace);
+			ignored = exec("lat2 = round(math.degrees(lat2), 9)", main_namespace);
+			ignored = exec("lon2 = round(math.degrees(lon2), 9)", main_namespace);
+		}
+		catch(error_already_set)
+		{
+			PyErr_Print();
+		}
+	}
+	
 	for(int i =0; i < 4;i++) //Example forloop
 	{
 		set_lat(lat_points[i]);
@@ -623,7 +650,8 @@ void renderSceneAll()
 	}
 
 	//Calculate Pathing
-
+	//10x8ft for rover safe clearance... 
+	
 	//Send Back to the server - Only if there is an obstacle in the path.
 	bool send_back = false;
 	if(send_back)
@@ -651,12 +679,10 @@ void renderSceneAll()
 		}
 	}
 	
-
 	//Sub-Render Scenes with multi-view camera angles.
 	renderTopDownScene();
 }
 #pragma endregion Scene_Render
-
 
 
 // --------------------------------------------------------------------------------
