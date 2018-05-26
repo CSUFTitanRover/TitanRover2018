@@ -7,7 +7,7 @@ import subprocess
 import requests
 from threading import Thread 
 global ser, nvidiaIp, gpsPoint
-nvidiaIp = "192.168.1.8"
+#nvidiaIp = "192.168.1.8"
 gpsPoint = ()
 
 
@@ -124,7 +124,7 @@ clients = {}
 
 HOST = ''
 BUFSIZ = 4096
-ADDR = (HOST, 8090)
+ADDR = (HOST, 8080)
 
 SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 while True:
@@ -132,7 +132,7 @@ while True:
         SERVER.bind(ADDR)
         break
     except:
-        subprocess.call(' sudo lsof -t -i tcp:8090 | xargs kill -9', shell = True)
+        subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
 
 if __name__ == "__main__":
     SERVER.listen(5)
