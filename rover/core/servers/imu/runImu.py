@@ -25,6 +25,7 @@ import logging
 import sys
 import subprocess
 import time
+import requests
 #from deepstream import get, post
 from Adafruit_BNO055 import BNO055
 
@@ -112,13 +113,26 @@ try:
 
         print('Heading={0:0.2F} Roll={1:0.2F} Pitch={2:0.2F}\tSys_cal={3} Gyro_cal={4} Accel_cal={5} Mag_cal={6}'.format(
             heading, roll, pitch, sys, gyro, accel, mag))
-        '''
+        
+        imuData = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
+
+        payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", 
+                "data": imuData} ] }
+        
+
+        print("Dumping to deepstream...")
         try:
-            response = post({ "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }, 'imu')
+            request = requests.post('http://192.168.1.2:4080', json=payload)
+            print request.text
         except:
-            print("Cannot Post to Deepstream")            
-        response = None
-        '''
+            print("Rover Deepstream doesn't seem to be online")
+        
+        try:
+            request = requests.post('http://192.168.1.8:3080', json=payload)
+            print request.text
+        except:
+            print("Base Deepstream doesn't seem to be online")
+        
         # Other values you can optionally read:
         # Orientation as a quaternion:
         #x,y,z,w = bno.read_quaterion()
@@ -140,18 +154,3 @@ try:
         time.sleep(0.02)
 except:
     print("Error")
-
-
-
-def postToDeepstream():
-    global imuData
-    while True:
-        payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/imu", 
-                    "data": imuData} ] }
-
-        try:
-            print("Dumping to deepstream...")
-            #request = requests.post('http://192.168.1.8:3080', json=payload)
-            #print request.text
-        except:
-            print("Deepstream doesn't seem to be online")
