@@ -127,12 +127,6 @@ try:
         except:
             print("Rover Deepstream doesn't seem to be online")
         
-        try:
-            request = requests.post('http://192.168.1.8:3080', json=payload)
-            print(request.text)
-        except:
-            print("Base Deepstream doesn't seem to be online")
-        
         # Other values you can optionally read:
         # Orientation as a quaternion:
         #x,y,z,w = bno.read_quaterion()

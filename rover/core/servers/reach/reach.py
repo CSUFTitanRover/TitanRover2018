@@ -100,12 +100,6 @@ def reach():
                     print(request.text)
                 except:
                     print("Rover Deepstream doesn't seem to be online")
-                
-                try:
-                    request = requests.post('http://192.168.1.8:3080', json=payload)
-                    print(request.text)
-                except:
-                    print("Base Deepstream doesn't seem to be online")
                     
                 sys.stdout.write(m.group(1) + ' ' + m.group(2) + ' ' + m.group(2) + ' '
                 + m.group(3) + ' ' + m.group(4) + m.group(5) + ' ' + m.group(6) + ' ' 
