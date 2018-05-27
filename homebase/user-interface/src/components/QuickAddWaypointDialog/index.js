@@ -41,13 +41,13 @@ class QuickAddWaypointDialog extends Component {
     this.setState({ isAddingWaypoint: true });
 
     this.client.rpc.make('addCoordinate', computedDataString, (rpcError, result) => {
+      this.setState({ isAddingWaypoint: false });
       if (rpcError) {
         toast.error(rpcError);
       } else {
         toast.success(result);
         this.handleClose();
       }
-      this.setState({ isAddingWaypoint: false });
     });
   }
 

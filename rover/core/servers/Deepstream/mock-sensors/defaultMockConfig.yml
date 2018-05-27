@@ -55,7 +55,7 @@ sensors:
     CurrentGPS:
         path: rover/currentGPS
         deepstreamServer: homebase
-        timeDelay: 700
+        timeDelay: 200
         sensorType: cycle
         latitude:
             min: 33.872405
@@ -69,7 +69,7 @@ sensors:
     Imu: 
         path: rover/imu
         deepstreamServer: homebase
-        timeDelay: 10
+        timeDelay: 200
         sensorType: cycle
         heading:
             min: 320

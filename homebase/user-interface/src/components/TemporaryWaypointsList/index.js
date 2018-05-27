@@ -42,7 +42,7 @@ const styles = theme => ({
   scrollContainer: {
     overflowX: 'hidden',
     overflowY: 'auto',
-    maxHeight: '60vh', // will need to be customized for 1080p
+    maxHeight: '70vh', // will need to be customized for 1080p
   },
   deleteIcon: {
     marginLeft: theme.spacing.unit,

@@ -62,8 +62,7 @@ const styles = theme => ({
     justifyContent: 'flex-end',
   },
   commitButton: {
-    marginTop: theme.spacing.unit * 2,
-    marginRight: theme.spacing.unit * 2,
+    margin: theme.spacing.unit * 2,
     transition: theme.transitions.create(['height', 'width'], {
       easing: theme.transitions.easing.easeInOut,
       duration: theme.transitions.duration.standard,
