@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import serial
 from time import sleep
 import re
@@ -39,6 +41,7 @@ def reach():
         '''
         while True:
             try:
+                #print("trying to connect")
                 proc = subprocess.Popen(['ssh', 'root@192.168.2.15'], stdout = subprocess.PIPE,)
                 out = proc.communicate()[0]
                 if out:
