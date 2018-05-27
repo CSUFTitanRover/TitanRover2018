@@ -1,212 +1,8 @@
 // SLAM-Basic-Maze.cpp : Defines the entry point for the console application.
 //
-
 #include "stdafx.h"
-#include "GL\glew.h"
-#include "GL\freeglut.h"
-#include <string>
-#include <iomanip>
-#include <iostream>
-#include <conio.h>
-#include <vector>
-#include <atomic>
-#include <mutex>
-#include <math.h>
-#define WINVER 0x0500
-#include <windows.h>
-
-#pragma region Global_Data_Objects
-
-std::mutex mtx;
-int flag_tennis = 0;
-int flag_obs    = 0;
-
-struct _openGL_CAMERA_VALUES_
-{
-	// angle of rotation for the camera direction
-	GLfloat angle = 0.0f;
-	// actual vector representing the camera's direction
-	GLfloat lx = 0.0f, lz = -1.0f, ly = 0.0f;
-	// XZ position of the camera
-	GLfloat x = 0.0f, z = 5.0f, y = 1.75f;
-}_openGLCV_;
-
-
-struct _openGL_KEY_STATES_
-{
-	// the key states. These variables will be zero
-	//when no key is being presses
-	GLfloat deltaAngle = 0.0f;
-	GLfloat deltaMove  = 0;
-	GLint xOrigin      = -1;
-}_openGLKS_;
-
-
-struct _openGL_MAINWINDOW_VALUES_
-{
-	// width and height of the window
-	GLint height;
-	GLint width;
-	// variables to hold window identifiers
-	GLint mainWindow;
-	GLint TopDownWindow;
-	GLint TopPanelWindow;
-	//border between subwindows
-	GLint border = 6;
-}_openGLMV_;
-
-
-struct _openGL_ROVER_TRACKING_
-{
-	std::vector<double> past_x;
-	std::vector<double> past_z;
-
-	std::vector<double> past_track_x;
-	std::vector<double> past_track_z;
-
-}_openGLRT_;
-
-struct _openGL_ROVER_LINE_TRACKING_
-{
-	std::vector<double> line_x;
-	std::vector<double> line_z;
-}_openGLRLT_;
-
-
-std::vector<GLfloat> past_x;
-std::vector<GLfloat> past_y;
-std::vector<GLfloat> past_z;
-
-
-#pragma endregion Global_Data_Objects
-
-
-#pragma region Static_Render
-
-void setProjection(GLint w1, GLint h1)
-{
-	mtx.lock();
-	std::atomic<GLfloat> ratio;
-	ratio.store(0, std::memory_order_release);
-	// Prevent a divide by zero, when window is too short
-	// (you cant make a window of zero width).
-	ratio.store((1.0f * w1 / h1),std::memory_order_relaxed);
-	// Reset the coordinate system before modifying
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	// Set the viewport to be the entire window
-	glViewport(0, 0, w1, h1);
-
-	// Set the clipping volume
-	gluPerspective(45, ratio.load(), 0.1, 1000);
-	glMatrixMode(GL_MODELVIEW);
-	mtx.unlock();
-}
-
-void changeSize(GLint w1, GLint h1) 
-{
-	if (h1 == 0){ h1 = 1; }
-		
-	// we're keeping these values cause we'll need them latter
-	_openGLMV_.width  = w1;
-	_openGLMV_.height = h1;
-
-	// set topdownWindow as the active window
-	glutSetWindow(_openGLMV_.TopDownWindow);
-	// resize and reposition the sub window
-	glutPositionWindow(_openGLMV_.border, (_openGLMV_.height + _openGLMV_.border) / 40);
-	glutReshapeWindow(_openGLMV_.width-20, _openGLMV_.height-20);
-	setProjection(_openGLMV_.width / 2 - _openGLMV_.border * 3 / 2, _openGLMV_.height / 2 - _openGLMV_.border * 3 / 2);
-}
-
-#pragma endregion Static_Render
-
+#include "StaticRendering.h"
 //---------------------------------------------------------------------------------
-
-// --------------------------------------------------------------------------------
-//       STATIC RENDERING OBJECTS
-// --------------------------------------------------------------------------------
-//Static Drawcube object for rendering.
-#pragma region Static_Objects
-
-//Parallelize
-void drawRadCircle()
-{
-	GLfloat pi_short = 3.14159f;
-	GLfloat rad_short = 1000.0;
-
-	glBegin(GL_POINTS);
-	for (int i = 0; i < (int)rad_short; ++i)
-	{
-		glVertex3f(cos(pi_short*i / rad_short), 0.0, sin(pi_short*i / rad_short));
-	}
-	glEnd();
-}
-
-void drawCircle()
-{
-	mtx.lock();
-	glColor3f(0.0, 1.0, 0.0); // <R,G,B>
-
-	//Circle
-	glTranslatef(0.0f, 0.75f, 0.0f);
-	glutSolidSphere(0.10f, 10, 10);
-	mtx.unlock();
-}
-
-void drawLidarLine()
-{
-	//Generic cube size
-	mtx.lock();
-	std::atomic<GLdouble> cube_size;
-	cube_size.store(0.50, std::memory_order_relaxed);
-	mtx.unlock();
-
-	// Red side - TOP
-	mtx.lock();
-	glBegin(GL_POLYGON);
-	glVertex3f(cube_size.load(), cube_size.load(), cube_size.load());
-	glVertex3f(cube_size, cube_size, -cube_size);
-	glVertex3f(-cube_size, cube_size, -cube_size);
-	glVertex3f(-cube_size, cube_size, cube_size);
-	glEnd();
-	mtx.unlock();
-}
-
-void drawTennisBall()
-{
-	mtx.lock();
-	//Circle
-	glTranslatef(1.6f, 0.0f, 2.6f);
-	glutSolidSphere(0.10f, 5, 5);
-	mtx.unlock();
-}
-
-//Static Drawcube object for rendering.
-void drawRock() 
-{
-	//Generic cube size
-	mtx.lock();
-	std::atomic<GLdouble> cube_size;
-	cube_size.store(0.20,std::memory_order_relaxed);
-	mtx.unlock();
-
-	// Red side - TOP
-	mtx.lock();
-	glBegin(GL_POLYGON);
-	glVertex3f(cube_size.load(), cube_size.load(), cube_size.load());
-	glVertex3f(cube_size, cube_size, -cube_size);
-	glVertex3f(-cube_size, cube_size, -cube_size);
-	glVertex3f(-cube_size, cube_size, cube_size);
-	glEnd();
-	mtx.unlock();
-}
-
-#pragma endregion Static_Objects
-
-//END OF STATIC OBJECTS
-//----------------------------------------------------------------------------------
 
 void renderBitmapString(GLfloat x, GLfloat y, GLfloat z,
 	void *font,
@@ -253,30 +49,31 @@ void setOrthographicProjection()
 // Common Render Items for all subwindows
 void renderSubWindowScene() 
 {
-	mtx.lock();
-	std::atomic<GLdouble> plain_size;
-	std::atomic<GLdouble> ground_level;
-	std::atomic<GLdouble> object_pos;
+	omp_lock_t mtxLock;
+	omp_init_lock(&mtxLock);
 
-	plain_size.store(200.0f, std::memory_order_relaxed);
-	ground_level.store(0.0f, std::memory_order_relaxed);
-	object_pos.store(10.0f, std::memory_order_relaxed);
-	mtx.unlock();
+	omp_set_lock(&mtxLock);
+	GLdouble plain_size;
+	GLdouble ground_level;
+	GLdouble object_pos;
+
+	plain_size   = 200.0f;
+	ground_level = 0.0f;
+	object_pos   = 10.0f;
+	omp_unset_lock(&mtxLock);
 
 	// Draw ground
-	mtx.lock();
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	omp_set_lock(&mtxLock);
 
 	GLuint tex;
 	glGenTextures(1, &tex);
 
 	glColor3f(0.184, 0.310, 0.310); //<R,G,B>
 	glBegin(GL_QUADS);
-	glVertex3f(-plain_size, ground_level, -plain_size);
-	glVertex3f(-plain_size, ground_level, plain_size);
-	glVertex3f(plain_size, ground_level, plain_size);
-	glVertex3f(plain_size, ground_level, -plain_size);
+		glVertex3f(-plain_size, ground_level, -plain_size);
+		glVertex3f(-plain_size, ground_level, plain_size);
+		glVertex3f(plain_size, ground_level, plain_size);
+		glVertex3f(plain_size, ground_level, -plain_size);
 	glEnd();
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -290,7 +87,7 @@ void renderSubWindowScene()
 	glutSolidSphere(10.0f, 20, 5);
 
 	glEnd();
-	mtx.unlock();
+	omp_unset_lock(&mtxLock);
 }
 
 #pragma region Position_Computation
@@ -314,8 +111,22 @@ void computePos(GLfloat deltaMove)
 		#pragma omp barrier
 	}
 
-	_openGLRT_.past_x.push_back(_openGLCV_.x);
-	_openGLRT_.past_z.push_back(_openGLCV_.z);
+	#pragma omp parallel num_threads(2)
+	{
+		#pragma omp sections
+		{
+			#pragma omp section
+			{
+				_openGLRT_.past_x.push_back(_openGLCV_.x);
+			}
+			#pragma omp section
+			{
+				_openGLRT_.past_z.push_back(_openGLCV_.z);
+			}
+		}
+		#pragma omp barrier
+	}
+
 	std::cout << "x pos = " << _openGLCV_.x << std::endl;
 	std::cout << "z pos = " << _openGLCV_.z << std::endl;
 }
@@ -337,6 +148,7 @@ void computeDir(GLfloat deltaAngle)
 				_openGLCV_.lz = -cos(_openGLCV_.angle);
 			}
 		}
+		#pragma omp barrier //
 	}
 
 	std::cout << "angle = " << _openGLCV_.angle << std::endl;
@@ -351,7 +163,7 @@ void computeDir(GLfloat deltaAngle)
 void renderScene() 
 {
 	glutSetWindow(_openGLMV_.mainWindow);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glutSwapBuffers();
 }
 
@@ -377,117 +189,120 @@ void renderTopDownScene()
 			{
 				// Main object, main camera.
 				glPushMatrix();
-				glColor3f(0.0, 0.0, 1.0); //<R,G,B>
-				glTranslatef(_openGLCV_.x, _openGLCV_.y, _openGLCV_.z);
-				glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
-				glutSolidCone(0.2, 0.5f, 2, 2);
-				drawRadCircle();
+					glColor3f(0.0, 0.0, 1.0); //<R,G,B>
+					glTranslatef(_openGLCV_.x, _openGLCV_.y, _openGLCV_.z);
+					glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
+					glutSolidCone(0.2, 0.5f, 2, 2);
+					drawRadCircle();
 				glPopMatrix();
-			}
-			#pragma omp section
-			{
-				if (flag_tennis == 0)
-				{
-					//TO-DO
-				}
-				
-				if (flag_tennis == -1)
-				{
-					// Renders a static tennis ball
-					glPushMatrix();
-					glTranslatef(-0.6, 0.0f, -6.6);
-					glColor3f(1.0, 1.0, 0.0); //<R,G,B>
-					drawTennisBall();
-					std::string temp_x = " Tennis Ball";
-					char *cstr_x = &temp_x[0u];
-					renderBitmapString(1.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
-					glPopMatrix();
-				}
-
-			}
-			#pragma omp section
-			{
-				if (flag_obs == 0)
-				{
-					//TO-DO
-				}
-
-				if (flag_obs == -1)
-				{
-					//Renders a static rock obstacle
-					glPushMatrix();
-					glColor3f(1.0, 0.0, 0.0); //<R,G,B>
-					glTranslatef(0.0, 0.0f, -0.0);
-					drawRock();
-					std::string temp_x = " Obstacle Detected";
-					char *cstr_x = &temp_x[0u];
-					renderBitmapString(-0.6, 0.0f, -1.6, GLUT_BITMAP_HELVETICA_12, cstr_x);
-					glPopMatrix();
-				}
-
-
 			}
 		}
 		#pragma omp barrier
 	}
 
-	#pragma omp parallel for ordered schedule(dynamic)
+	//Only register points in 15 intervals
+	//display using glbegin()glend()
+	//glflush or glpopmatrix();
+	
+	#pragma omp parallel for ordered schedule(static) private(i)
 	for (int i = 0; i < _openGLRT_.past_x.size(); i++)
 	{
 		#pragma omp ordered
 		{
 			if (i % 15 == 0)
 			{
-				#pragma omp atomic
-				_openGLRLT_.line_x.push_back(_openGLRT_.past_x[i]);
-				#pragma omp atomic
-				_openGLRLT_.line_z.push_back(_openGLRT_.past_z[i]);
-
-				glPushMatrix();
-				glTranslatef(_openGLRT_.past_x[i], 0.0f, _openGLRT_.past_z[i]);
-				glColor3f(1.0, 0.0, 0.0); //<R,G,B>
-				std::string temp_x = " x: " + std::to_string(_openGLRT_.past_x[i]) + " y: " + std::to_string(_openGLRT_.past_z[i]);
-				char *cstr_x = &temp_x[0u];
-				renderBitmapString(0, 0.0f, 0, GLUT_BITMAP_HELVETICA_12, cstr_x);
-				drawCircle();
-				glPopMatrix();
+				#pragma omp parallel
+				{
+					#pragma omp sections
+					{
+						#pragma omp section
+						{
+							_openGLRLT_.line_x.push_back(_openGLRT_.past_x[i]);
+						}
+						#pragma omp section
+						{
+							_openGLRLT_.line_z.push_back(_openGLRT_.past_z[i]);
+						}
+					}
+					#pragma omp barrier
+				}
 				
-				_openGLRT_.past_track_x.push_back(_openGLRT_.past_x[i]);
-				_openGLRT_.past_track_z.push_back(_openGLRT_.past_z[i]);
+				#pragma omp parallel
+				{
+					#pragma omp sections
+					{
+						#pragma omp section
+						{
+							_openGLRT_.past_track_x.push_back(_openGLRT_.past_x[i]);
+						}
+						#pragma omp section
+						{
+							_openGLRT_.past_track_z.push_back(_openGLRT_.past_z[i]);
+						}
+					}
+					#pragma omp barrier
+				}
 			}
 		}//Pragma End
 
+		 //create a square overlay to establish gps data etc...
+		 //glClear(GL_DEPTH_BUFFER_BIT);
+		 //glPushMatrix();
+		 //	glTranslatef(0,0,0);
+		 //	glColor3f(1.0, 0.0, 0.0);
+
+		 //	std::string temp_x = " x: " + std::to_string(_openGLRT_.past_x[i]) + " y: " + std::to_string(_openGLRT_.past_z[i]);
+		 //	char *cstr_x = &temp_x[0u];
+		 //	renderBitmapString(0, 0.0f, 0, GLUT_BITMAP_HELVETICA_12, cstr_x);
+		 //glPopMatrix();
+
+
 		glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0); //<R,G,B>
-		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		glTranslatef(_openGLRT_.past_x[i], 0.0f, _openGLRT_.past_z[i]);
-		//glRotatef(180 - (_openGLCV_.angle + _openGLKS_.deltaAngle)*180.0 / 3.14, 0.0, 1.0, 0.0);
-		//drawRadCircle();
-		//drawLidarLine();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glColor3f(1.0, 1.0, 1.0); //<R,G,B>
+			glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+			glTranslatef(_openGLRT_.past_x[i], 0.0f, _openGLRT_.past_z[i]);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glPopMatrix();
 	}
 
 	//Draws the tracer red-line from the first point of view.
 	//Needs a better rework of the y direction calculation between matrices.
-	#pragma omp parallel for private(i)
-	for (int i = 1; i < _openGLRLT_.line_x.size(); i++)
-	{
-		glPushMatrix();
-		glLineWidth(1.0);
-		glColor3f(1.0, 0.0, 0.0); //<R,G,B>
-		glBegin(GL_LINES);
+	// Draw the interpolated points second.
+	glColor3f(0.0f, 0.0f, 0.0f); // Draw points in black
+	glPointSize(5);
+	glBegin(GL_POINTS);
+		#pragma omp parallel for ordered schedule(static)
+		for (int i = 1; i < _openGLRLT_.line_x.size(); i++)
+		{
+			glVertex3f(_openGLRLT_.line_x[i], 0.0f, _openGLRLT_.line_z[i]);
+		}
+	glEnd();
 
-		#pragma omp atomic
-		glVertex3f(_openGLRLT_.line_x[i-1], 0.0f, _openGLRLT_.line_z[i-1]);
-		glColor3f(0.0, 0.0, 1.0); //<R,G,B>
-		
-		#pragma omp atomic
-		glVertex3f(_openGLRLT_.line_x[i], 0.0f, _openGLRLT_.line_z[i]);
-		
-		glEnd();
-		glPopMatrix();
-	}
+	glPointSize(1);
+	glLineWidth(1.0);
+	
+	glColor3f(0.0, 0.0, 0.8); //<R,G,B>
+	glBegin(GL_LINE_STRIP);
+		#pragma omp parallel for ordered schedule(static)
+		for (int i = 1; i < _openGLRLT_.line_x.size(); i++)
+		{
+			glVertex3f(_openGLRLT_.line_x[i], 0.0f, _openGLRLT_.line_z[i]);
+		}
+	glEnd();
+	glFlush();
+	
+	glColor3f(1.0, 0.0, 0.8); //<R,G,B>
+	glBegin(GL_TRIANGLE_FAN);
+		#pragma omp parallel for ordered schedule(static)
+		for (int i = 1; i < _openGLRLT_.line_x.size(); i++)
+		{
+			glVertex3f(_openGLRLT_.line_x[i], 0.0f, _openGLRLT_.line_z[i]);
+			_openGLRLT_.line_x.pop_back();
+			_openGLRLT_.line_z.pop_back();
+		}
+	glEnd();
+	
+	glFlush();
 
 	//Render Area
 	renderSubWindowScene();
@@ -519,6 +334,7 @@ void renderSceneAll()
 	renderTopDownScene();
 }
 #pragma endregion Scene_Render
+
 
 
 // --------------------------------------------------------------------------------
@@ -679,7 +495,6 @@ int main(int argc, char **argv)
 	glutDisplayFunc(renderTopDownScene);
 
 	init();
-
 
 	std::cout << "All callbacks have been initialized..." << std::endl;
 	std::cout << "--------------------------------------" << std::endl;

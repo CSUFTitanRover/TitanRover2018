@@ -67,7 +67,7 @@ sensors:
             step:   0.0001
     Imu: 
         path: rover/imu
-        timeDelay: 40
+        timeDelay: 5
         sensorType: cycle
         heading:
             min: 320

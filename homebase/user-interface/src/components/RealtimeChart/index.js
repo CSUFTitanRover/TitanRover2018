@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Grid from 'material-ui/Grid';
-import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
-import Select from 'material-ui/Select';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import { MenuItem } from 'material-ui/Menu';
-import { withStyles } from 'material-ui/styles';
-import grey from 'material-ui/colors/grey';
-import blueGrey from 'material-ui/colors/blueGrey';
+import Grid from '@material-ui/core/Grid';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import Select from '@material-ui/core/Select';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import MenuItem from '@material-ui/core/MenuItem';
+import { withStyles } from '@material-ui/core/styles';
+import grey from '@material-ui/core/colors/grey';
+import blueGrey from '@material-ui/core/colors/blueGrey';
 import FlowChart from '../FlowChart/';
-import { DeepstreamSensorProvider } from '../../utils/deepstream';
+import DeepstreamPubSubProvider from '../../utils/DeepstreamPubSubProvider';
 
 /**
  * @see Available types can be found here: http://c3js.org/reference.html#data-type
@@ -44,15 +44,30 @@ class RealtimeChart extends Component {
     chartName: PropTypes.string,
     /** Material-UI styles object that is passed in via withStyles() */
     classes: PropTypes.object.isRequired,
-    /** The subscription path the chart will listen to. */
-    subscriptionPath: PropTypes.string.isRequired,
+    /** The eventName(s) the chart will listen to. */
+    eventName: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.arrayOf(PropTypes.string)],
+    ).isRequired,
   }
 
   static defaultProps = {
     chartName: null,
   }
 
+  // make a copy of props for the flow chart
+  flowChartProps = { ...this.props };
   state = { chartType: 'line' }
+
+  constructor(props) {
+    super(props);
+
+    // exclude the chart type and current data point
+    // since those are going to be managed by this component directly
+    delete this.flowChartProps.chartType;
+    delete this.flowChartProps.currentDataPoint;
+  }
+
 
   handleChartTypeChange = ({ target }) => {
     const type = target.value;
@@ -70,19 +85,17 @@ class RealtimeChart extends Component {
     }
   }
 
-  render() {
-    const { classes, subscriptionPath } = this.props;
-    const { chartType } = this.state;
+  handleNewPayload = (payload) => {
+    this.setState({ currentDataPoint: payload });
+  }
 
-    // make a copy of props for the flow chart but exclude the chart type and current data point
-    // since those are going to be managed by this component directly
-    const flowChartProps = { ...this.props };
-    delete flowChartProps.chartType;
-    delete flowChartProps.currentDataPoint;
+  render() {
+    const { classes, eventName } = this.props;
+    const { chartType, currentDataPoint } = this.state;
 
     return (
-      <DeepstreamSensorProvider subscriptionPath={subscriptionPath}>
-        {(currentDataPoint, subscribed, subscribeToUpdates, unsubscribeToUpdates) => (
+      <DeepstreamPubSubProvider eventName={eventName} onNewPayload={this.handleNewPayload}>
+        {({ subscribed, subscribeToUpdates, unsubscribeToUpdates }) => (
           <Grid
             container
             spacing={16}
@@ -90,7 +103,7 @@ class RealtimeChart extends Component {
             direction="column"
           >
             <Grid item xs={12}>
-              <AppBar position="static" color="default" elevation={1} className={classes.appbar}>
+              <AppBar position="static" color="default" elevation={1} square className={classes.appbar}>
                 <Toolbar disableGutters>
                   <Typography variant="title" className={classes.toolbarItemSpacing}>Chart Options</Typography>
 
@@ -123,14 +136,14 @@ class RealtimeChart extends Component {
 
             <Grid item xs={12}>
               <FlowChart
-                {...flowChartProps}
+                {...this.flowChartProps}
                 chartType={chartType}
                 currentDataPoint={currentDataPoint}
               />
             </Grid>
           </Grid >
         )}
-      </DeepstreamSensorProvider>
+      </DeepstreamPubSubProvider>
     );
   }
 }
