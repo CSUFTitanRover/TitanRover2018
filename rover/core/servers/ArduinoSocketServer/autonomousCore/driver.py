@@ -13,23 +13,26 @@ import sys
 import math
 import numpy as np
 from socket import *
-from struct import *
+import struct
 from threading import Thread
-from deepstream import post, get
 from decimal import Decimal
+from runImu import getImuValue
+from leds import writeToBus
 
 MINFORWARDSPEED = 20
 MAXFORWARDSPEED = 50
 TARGETTHRESHOLD = 20  # In cm
 CORRECTIONTHRESHOLD = 3.5  # In degrees
-HEADINGTHRESHOLD = 3 # In degrees
+HEADINGTHRESHOLD = 15 # In degrees
+autoLed = 4
 
 class Driver:
 
     def __init__(self):
 
         # Arduino address and connection information
-        self.__address = ("localhost", 5001)
+        #self.__address = ("localhost", 5001)
+        self.__address = ('192.168.1.10', 5000)
         self.__client_socket = socket(AF_INET, SOCK_DGRAM)
         self.__client_socket.settimeout(0.5)
 
@@ -47,19 +50,45 @@ class Driver:
         self.__speedY = [25, 45]
 
         self.__gps = (None, None)
+        self.__gpsThread = (None, None)
         self.__nextWaypoint = (None, None)
-        self.__heading = 0
-        self.__targetHeading = 0
-        self.__headingDifference = 0
+        self.__heading = 0.0
+        self.__headingThread = 0.0
+        self.__targetHeading = 0.0
+        self.__headingDifference = 0.0
         self.__clockwise = None
-        self.__deltaDirection = 0
-        self.__distance = 0
+        self.__deltaDirection = 0.0
+        self.__distance = 0.0
         self.__motor1 = 0
         self.__motor2 = 0
         self.__paused = False
         self.__stop = False
+        Thread(target = self.gpsSocket).start()
+        Thread(target = self.imuThread).start()
+        Thread(target = self.setStop).start()
+        Thread(target = self.togglePause).start()
         time.sleep(3)
 
+    def gpsSocket(self):
+        while True:
+            host = "192.168.1.2" 
+            port = 8080
+            BUFFER_SIZE = 4096 
+
+            Client = socket(AF_INET, SOCK_STREAM) 
+            Client.connect((host, port))
+
+            while True:
+                try:  
+                    data = Client.recv(BUFFER_SIZE)
+                    pointList = data.split(',') # DOES THIS RETURN THE PARENTHESIS ALSO?
+                    self.__gpsThread = (float(pointList[0]), float(pointList[1]))
+                except:
+                    Client.close()
+                    break
+
+    def imuThread(self):
+        self.__headingThread = getImuValue()
 
     def calculateGps(self, origin, heading, distance):
         '''
@@ -72,10 +101,12 @@ class Driver:
         '''
 
         if type(heading) != float or type(heading) != int or type(distance) != int or type(distance) != float:
-            raise TypeError("Only Int or Float allowed")
+            print("Only Int or Float allowed") #raise TypeError("Only Int or Float allowed")
+            #return
 
         if type(origin) != tuple:
-            raise TypeError("Only Tuples allowed")
+            print("Only Tuples allowed") # raise TypeError("Only Tuples allowed")
+            #return
 
         heading = math.radians(heading)
         radius = 6371 # km
@@ -93,7 +124,6 @@ class Driver:
 
         return (lat2, lon2)
 
-
     def spiralPoints(self, origin, radius):
         '''
         Description:
@@ -106,10 +136,12 @@ class Driver:
 
         if type(radius) != float or type(radius) != int:
             #raise TypeError("Only Int or Float allowed")
+            #return
             print("spiralPoints break - invalid radius", radius)
 
-        if type(origin) != tuple:
+        if type(origin) != tuple or type(origin[0]) != float or type(origin[0]) != int or type(origin[1]) != float or type(origin[1]) != int:
             #raise TypeError("Only Tuples allowed")
+            #return
             print("not float or int")
 
         center = origin
@@ -133,8 +165,6 @@ class Driver:
                 counter -= 1
             rad -= 200
         return spiral
-
-
 
     def roverViewer(self):
         '''
@@ -188,7 +218,7 @@ class Driver:
             Nothing
         '''
         if (type(self.__gps) != tuple) or (type(self.__nextWaypoint) != tuple):
-            raise TypeError("Only tuples allowed")
+            print("Only tuples allowed") #raise TypeError("Only tuples allowed")
 
         lat1 = math.radians(self.__gps[0])
         lat2 = math.radians(self.__nextWaypoint[0])
@@ -238,11 +268,11 @@ class Driver:
             Nothing
         '''
         try:
-          t = round(time.time(), 3)
-          o = pack('s 10h d s', 'c'.encode('utf-8'), self.__motor1, self.__motor2, 0, 0, 0, 0, 0, 0, 0, 4, t, '#'.encode('utf-8'))
-          self.__client_socket.sendto(o, self.__address)
+            outString = str(self.__motor1) + ',' + str(self.__motor2) + '0,0,0,0,0,0,0,4'
+            self.__client_socket.sendto(bytes(outString,'utf-8'), self.__address)
+            writeToBus(autoLed, autoLed)
         except:
-          print("Arduino send failed")
+            print("Arduino send failed")
 
     def setGps(self):
         '''
@@ -254,21 +284,21 @@ class Driver:
             Nothing
         '''
         try:
-            self.__gps = (get("gps")["lat"], get("gps")["lon"])
+            self.__gps = self.__gpsThread # '33.256985,127.256854' 
         except:
             print("GPS error")
 
     def setHeading(self):
         '''
         Description:
-            Retrieves current heading from deepstream, sets self.__heading
+            Sets self.__heading from self.__headingThread
         Args:
             None
         Returns:
             Nothing
         '''
         try:
-            self.__heading = get("imu")["heading"]
+            self.__heading = self.__headingThread
         except:
             print("Heading error")
 
@@ -299,69 +329,46 @@ class Driver:
         if not self.__clockwise:
             self.__motor2 = -self.__motor2
 
-    def checkStop(self):
+    def setStop(self):
         '''
         Description:
             Used to exit the current goTo function indefinitely.
         '''
-        try:
-            stopped = get("driver")["stop"]
-            if stopped:
-                self.__stop = True
-        except:
-            print("Stop error")
+        self.__stop = True
 
-    def checkPause(self):
+    def togglePause(self):
         '''
         Description:
-            Suspends Rover movement until further update in Deepstream.
+            Toggles between pause state.
         '''
-        try:
-            pause = get("driver")["paused"]
-            if pause:
-                self.__paused = True
-            else:
-                self.__paused = False
-        except:
-            print("Pause error")
-
+        self.__pause = not self.__pause
+    
     def notifyArrival(self):
         '''
         Description:
-            Updates deepstream record 'arrival' with self.__nextWaypoint and arrivalTime once
-            the destination has been reached. Flashes LED pattern for on board visual cue.
+            Flashes LED pattern for on board visual cue.
         Args:
             None
         Returns:
             Nothing
         '''
         self.__motor1 = self.__motor2 = 0
-
-        # Update deepstream
-        arrivalTime = str(time.strftime("%I:%M:%S" ,time.localtime()))
-        try:
-            post({"Waypoint": str(self.__nextWaypoint), "arrivalTime": arrivalTime}, "arrival")
-        except:
-            print("Notify error")
+        self.sendMotors()
 
         # Blink lights
         leds = [0, 1, 2]
         color = toggle = 0
-        for i in range(20):  # Blink red, green, and blue for 5 seconds
+        for i in range(12):  # Blink red, green, and blue for 3 seconds
             try:
-              t = round(time.time(), 3)
-              o = pack('s 10h d s', 'c'.encode('utf-8'), 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 4,
-                t, '#'.encode('utf-8'))
-              self.__client_socket.sendto(o, self.__address)
-              time.sleep(0.25)
-              toggle += 1
-              if toggle >= len(leds):
-                toggle = 0
-                color = leds[toggle]
+                writeToBus(color, color)
+                time.sleep(0.25)
+                toggle += 1
+                if toggle >= len(leds):
+                    toggle = 0
+                    color = leds[toggle]
             except:
-              print("Arduino send failed")
-        self.sendMotors()
+                pass
+                #print("led fail in notifyArrival")
 
     def setMinMaxFwdSpeeds(self, min, max):
         '''
@@ -395,6 +402,7 @@ class Driver:
         '''
         if type(newHeading) != float or type(newHeading) != int:
             raise TypeError("Only float/int allowed")
+            #return
 
         self.__targetHeading = newHeading
         self.setHeading()
@@ -424,22 +432,18 @@ class Driver:
             Nothing
         '''
         if type(point) != tuple:
-            raise TypeError("Only tuples allowed")
-            pass
-        if type(point[0]) != float or type(point[1]) != float:
-            raise TypeError("Only floats allowed as tuple values")
-            pass
+            print("Only tuple form allowed - exiting goTo") #raise TypeError("Only tuples allowed")
+            return
+        if type(point[0]) != float or type(point[0]) != int or type(point[1]) != float or type(point[1]) != int:
+            print("Only float/int allowed - exiting goTo") #raise TypeError("Only floats allowed as tuple values")
+            return
 
         self.__nextWaypoint = point
-        self.setGps()
-        self.setHeading()
+        self.setGps() 
+        self.setHeading() 
         self.setDistance()
-        #self.checkPause()
-        #self.checkStop()
-        while self.__distance > TARGETTHRESHOLD: # and not self.__stop:
-            #while self.__paused:
-            #checkPause()
-            #pass
+
+        while self.__distance > TARGETTHRESHOLD:
             self.setTargetHeading()
             self.setHeadingDifference()
             self.setDeltaDirection()
@@ -448,33 +452,31 @@ class Driver:
             if self.__deltaDirection < CORRECTIONTHRESHOLD:
                 self.__motor2 = 0
                 self.__headingDifference = None
-            #if self.__paused:
-            #self.__motor1 = self.__motor2 = 0
-            self.sendMotors()
-            #self.roverViewer()
+            if self.__stop:
+                self.__stop = False
+                self.__pause = False
+                return
+
+            if not self.__paused:
+                self.sendMotors()
+                #self.roverViewer()
 
 
-            # Debug print
-            print("------------------------------------------------")
-            print("destWaypoint: ", self.__nextWaypoint, "\ncurrentGPS: ", self.__gps, "\ndist(cm): ", self.__distance, "\ncurrentHeading: ", self.__heading, "\ntargetHeading: ", self.__targetHeading, "\ndeltaDirection: ", self.__deltaDirection, "\nmotor1: ", self.__motor1, "\nmotor2: ", self.__motor2, "\nclockwise: ", self.__clockwise, "\nheadingDiff: ", self.__headingDifference, "\ntime: ", int(time.time()), "\n")    
-            print("------------------------------------------------")
+                # Debug print
+                print("------------------------------------------------")
+                print("destWaypoint: ", self.__nextWaypoint, "\ncurrentGPS: ", self.__gps, "\ndist(cm): ", self.__distance, "\ncurrentHeading: ", self.__heading, "\ntargetHeading: ", self.__targetHeading, "\ndeltaDirection: ", self.__deltaDirection, "\nmotor1: ", self.__motor1, "\nmotor2: ", self.__motor2, "\nclockwise: ", self.__clockwise, "\nheadingDiff: ", self.__headingDifference, "\ntime: ", int(time.time()), "\n")    
+                print("------------------------------------------------")
 
 
             time.sleep(0.04)
             self.setGps()
             self.setHeading()
             self.setDistance()
-            #self.checkPause()
-            #self.checkStop()
-
 
         # Debug print
         print("--------------------END DATA--------------------")
         print("Destination Waypoint: ", self.__nextWaypoint, "\nCurrent GPS: ", self.__gps, "\nDistance(cm): ",self.__distance, "\nCurrent Heading: ", self.__heading)
         print("------------------------------------------------")
 
-        '''
-        if not self.__stop:
+        if not self.__paused:
             self.notifyArrival()
-        self.__stop = False
-        '''
