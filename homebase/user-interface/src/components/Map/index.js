@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import ReactMapGL, { NavigationControl } from 'react-map-gl';
+import ReactMapGL, { NavigationControl, Marker } from 'react-map-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import has from 'lodash.has';
-import { DeepstreamRecordProvider } from '../../utils/deepstream';
+import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
+import RoverIcon from './RoverIcon';
 
 /** An offline map that is hooked up into Deepstream to
  * listen for IMU, Reach, and Waypoints record updates.
@@ -30,37 +31,42 @@ class Map extends Component {
   }
 
   DEFAULT_VIEWPORT = {
-    latitude: 33.872405,
-    longitude: -117.7748628,
+    latitude: 34.8969705992351, // 33.872405,
+    longitude: -117.02052467151029, // -117.7748628,
     zoom: 13,
     bearing: 0,
     pitch: 0,
   };
 
-  state = { viewport: this.DEFAULT_VIEWPORT }
+  state = { viewport: this.DEFAULT_VIEWPORT, currentDataPoint: {} }
 
   _updateViewport = (viewport) => {
     this.setState({ viewport });
   }
 
+  handleMapClick = ({ lngLat }) => {
+    const [lng, lat] = lngLat;
+    console.log(`Clicked on: lat=${lat} lng=${lng}`);
+  }
+
   renderMap = (currentDataPoint) => {
     const { viewport } = this.state;
     const { width, height, mapStyle } = this.props;
-    let bearing = viewport.bearing;
-    let latitude = viewport.latitude;
-    let longitude = viewport.longitude;
+    // const bearing = viewport.bearing;
+    // const latitude = viewport.latitude;
+    // const longitude = viewport.longitude;
 
-    if (has(currentDataPoint, 'heading')) {
-      bearing = currentDataPoint.heading;
-    }
+    // if (has(currentDataPoint, 'heading')) {
+    //   bearing = currentDataPoint.heading;
+    // }
 
-    if (has(currentDataPoint, 'lat')) {
-      latitude = currentDataPoint.lat;
-    }
+    // if (has(currentDataPoint, 'lat')) {
+    //   latitude = currentDataPoint.lat;
+    // }
 
-    if (has(currentDataPoint, 'lon')) {
-      longitude = currentDataPoint.lon;
-    }
+    // if (has(currentDataPoint, 'lon')) {
+    //   longitude = currentDataPoint.lon;
+    // }
 
     return (
       <div>
@@ -71,23 +77,40 @@ class Map extends Component {
           onViewportChange={this._updateViewport}
           width={width}
           height={height}
-          latitude={latitude}
-          longitude={longitude}
-          bearing={bearing}
+          // latitude={latitude}
+          // longitude={longitude}
+          // bearing={bearing}
+          onClick={this.handleMapClick}
         >
-
           <div style={{ position: 'absolute', top: 0, right: 0, padding: 10 }}>
             <NavigationControl onViewportChange={this._updateViewport} />
           </div>
+
+          <RoverIcon
+            {...currentDataPoint}
+            bearing={viewport.bearing}
+            pitch={viewport.pitch}
+          />
         </ReactMapGL>
       </div>
     );
   }
 
+  handleNewPayload = (payload) => {
+    const { currentDataPoint } = this.state;
+
+    // let's copy the payload and overwrite any keys in currentDataPoint
+    // this is done to avoid updating the currentDataPoint without losing any keys
+    // that we need
+    this.setState({ currentDataPoint: { ...currentDataPoint, ...payload } });
+  }
+
   render() {
+    const { currentDataPoint } = this.state;
+
     return (
-      <DeepstreamRecordProvider recordPath={['rover/reach', 'rover/imu']} >
-        {(currentDataPoint, subscribed) => this.renderMap(currentDataPoint, subscribed)}
+      <DeepstreamRecordProvider recordPath={['rover/reach', 'rover/imu']} onNewPayload={this.handleNewPayload}>
+        {({ subscribed }) => this.renderMap(currentDataPoint, subscribed)}
       </DeepstreamRecordProvider >
     );
   }

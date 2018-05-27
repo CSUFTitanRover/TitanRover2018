@@ -1,9 +1,9 @@
 /* eslint-disable */
 import React, { Component } from 'react';
-import Button from 'material-ui/Button';
-import Grid from 'material-ui/Grid';
-import Paper from 'material-ui/Paper';
-import Typography from 'material-ui/Typography';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 import io from 'socket.io-client';
 
 const { Motion, spring, presets, linearGradient } = 'react-motion';

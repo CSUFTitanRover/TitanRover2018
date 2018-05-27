@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import Button from 'material-ui/Button';
-import Grid from 'material-ui/Grid';
-import Paper from 'material-ui/Paper';
-import Typography from 'material-ui/Typography';
-import green from 'material-ui/colors/green';
-import red from 'material-ui/colors/red';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import green from '@material-ui/core/colors/green';
+import red from '@material-ui/core/colors/red';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
 import { withDeepstreamState } from '../../utils/deepstream';
 

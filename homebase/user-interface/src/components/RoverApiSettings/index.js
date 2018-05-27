@@ -1,20 +1,25 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import List, { ListItem, ListItemIcon, ListItemText, ListSubheader } from 'material-ui/List';
-import Typography from 'material-ui/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListSubheader from '@material-ui/core/ListSubheader';
+import Typography from '@material-ui/core/Typography';
 import { toast } from 'react-toastify';
-import Divider from 'material-ui/Divider';
-import { InputLabel } from 'material-ui/Input';
-import { FormControl } from 'material-ui/Form';
-import { MenuItem } from 'material-ui/Menu';
-import Button from 'material-ui/Button';
-import Select from 'material-ui/Select';
-import ClearIcon from 'material-ui-icons/Clear';
-import PowerIcon from 'material-ui-icons/PowerSettingsNew';
-import RestoreIcon from 'material-ui-icons/SettingsBackupRestore';
-import SyncIcon from 'material-ui-icons/Sync';
-import appSettings from '../../app-settings.json';
+import Divider from '@material-ui/core/Divider';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import MenuItem from '@material-ui/core/MenuItem';
+import Button from '@material-ui/core/Button';
+import Select from '@material-ui/core/Select';
+import ClearIcon from '@material-ui/icons/Clear';
+import PowerIcon from '@material-ui/icons/PowerSettingsNew';
+import RestoreIcon from '@material-ui/icons/SettingsBackupRestore';
+import SyncIcon from '@material-ui/icons/Sync';
+import grey from '@material-ui/core/colors/grey';
+import appSettings from '../../appSettings.json';
 
 // taken from /rover/core/process-manager/processses.json
 // CRA does not allow imports from outside the /src folder
@@ -43,12 +48,12 @@ const screenNames = [
 ];
 
 const { roverAPI } = appSettings;
-const { base_ip, base_port } = roverAPI;
+const { baseIP, basePort } = roverAPI;
 
 const styles = theme => ({
   root: {
     width: '100%',
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: grey[100],
   },
   formControl: {
     margin: theme.spacing.unit,
@@ -73,7 +78,7 @@ class RoverApiSettings extends Component {
 
   fetchRoverAPI = async (apiName) => {
     try {
-      let response = await fetch(`//${base_ip}:${base_port}${apiName}`);
+      let response = await fetch(`//${baseIP}:${basePort}${apiName}`);
       response = response.json();
       if (response.status === 'SUCCESS') {
         toast.success(`${apiName} request succeeded!`);

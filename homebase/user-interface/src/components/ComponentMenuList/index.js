@@ -1,16 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
-import Collapse from 'material-ui/transitions/Collapse';
-import ShowChartIcon from 'material-ui-icons/ShowChart';
-import InboxIcon from 'material-ui-icons/Inbox';
-import VideocamIcon from 'material-ui-icons/Videocam';
-import ExpandLess from 'material-ui-icons/ExpandLess';
-import ExpandMore from 'material-ui-icons/ExpandMore';
-import SettingsIcon from 'material-ui-icons/Settings';
-import GpsFixedIcon from 'material-ui-icons/GpsFixed';
-import NavigationIcon from 'material-ui-icons/Navigation';
+import { withStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Collapse from '@material-ui/core/Collapse';
+import ShowChartIcon from '@material-ui/icons/ShowChart';
+import InboxIcon from '@material-ui/icons/Inbox';
+import VideocamIcon from '@material-ui/icons/Videocam';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import SettingsIcon from '@material-ui/icons/Settings';
+import GpsFixedIcon from '@material-ui/icons/GpsFixed';
+import NavigationIcon from '@material-ui/icons/Navigation';
 import ComponentMenuItem from './ComponentMenuItem';
 
 const propTypes = {
@@ -87,28 +90,28 @@ class ComponentMenuList extends Component {
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'Decagon-5TE', subscriptionPath: 'science/decagon' }}
+            componentprops={{ chartName: 'Decagon-5TE', eventName: 'science/decagon' }}
           />
           <ComponentMenuItem
             title="Altimeter Realtime Chart"
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'Altimeter', subscriptionPath: 'science/altimeter' }}
+            componentprops={{ chartName: 'Altimeter', eventName: 'science/altimeter' }}
           />
           <ComponentMenuItem
             title="DHT Realtime Chart"
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'DHT', subscriptionPath: 'science/dht' }}
+            componentprops={{ chartName: 'DHT', eventName: 'science/dht' }}
           />
           <ComponentMenuItem
             title="Atmospheric Realtime Chart"
             componentname="RealtimeChart"
             icon={<ShowChartIcon />}
             className={classes.nested}
-            componentprops={{ chartName: 'Atmospheric', subscriptionPath: 'science/atmospheric' }}
+            componentprops={{ chartName: 'Atmospheric', eventName: 'science/atmospheric' }}
           />
           <ComponentMenuItem
             title="Rover API Settings"
@@ -125,6 +128,18 @@ class ComponentMenuList extends Component {
           <ComponentMenuItem
             title="Map"
             componentname="ResizeAwareMap"
+            icon={<NavigationIcon />}
+            className={classes.nested}
+          />
+          <ComponentMenuItem
+            title="Gps Coordinator"
+            componentname="GpsCoordinator"
+            icon={<NavigationIcon />}
+            className={classes.nested}
+          />
+          <ComponentMenuItem
+            title="Coordinate List"
+            componentname="CoordinateList"
             icon={<NavigationIcon />}
             className={classes.nested}
           />
