@@ -55,7 +55,7 @@ class Map extends Component {
   static defaultProps = {
     width: 500,
     height: 500,
-    currentGPSUpdateCountTarget: 10,
+    currentGPSUpdateCountTarget: 5,
     /** Free vector tile service via https://www.tilehosting.com/ */
     mapStyle: 'https://free.tilehosting.com/styles/basic/style.json?key=rheiM2CFkgsezyxOhNrX',
   }
@@ -96,9 +96,9 @@ class Map extends Component {
     const leftButtonClick = event.leftButton;
     const quickAddTriggered = leftButtonClick && withCtrlKey;
 
-    // console.log(event);
-    console.log(`Clicked on: lat=${latitude} lng=${longitude}`);
-    console.log('CTRL pressed during left click:', quickAddTriggered);
+    // //console.log(event);
+    // console.log(`Clicked on: lat=${latitude} lng=${longitude}`);
+    // console.log('CTRL pressed during left click:', quickAddTriggered);
 
     if (quickAddTriggered) {
       this.setState({ quickAddDialogOpen: true, quickAddLatitude: latitude, quickAddLongitude: longitude });
@@ -259,8 +259,8 @@ class Map extends Component {
   handleNewPayload = (payload, recordPath) => {
     const { data } = this.state;
     const { currentGPSUpdateCountTarget } = this.props;
-    console.log(recordPath);
-    console.log(payload);
+    // console.log(recordPath);
+    // console.log(payload);
 
     // custom logic for currentGPS since it's
     // only an array that gets updated in place [lat, lon]

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isEmpty from 'lodash.isempty';
 import shortid from 'shortid';
 import cn from 'classnames';
 import remove from 'lodash.remove';
@@ -152,9 +153,18 @@ class TemporaryWaypointsList extends Component {
     );
   }
 
+  renderList = () => {
+    const { data } = this.state;
+
+    if (isEmpty(data)) {
+      return <Typography variant="body1" color="textSecondary" align="center">No Staged Waypoints Found</Typography>;
+    }
+
+    return data.map((item, index) => this.renderDraggableItem(item, index));
+  }
+
   render() {
     const { classes } = this.props;
-    const { data } = this.state;
 
     return (
       <div>
@@ -174,7 +184,7 @@ class TemporaryWaypointsList extends Component {
                         )}
                       >
                         <div className={classes.scrollContainer}>
-                          {data.map((item, index) => this.renderDraggableItem(item, index))}
+                          {this.renderList()}
                         </div>
                         {provided.placeholder}
                       </div>

@@ -82,6 +82,7 @@ class ActionMenu extends Component {
         classes={{
           paper: drawerPaperClassNames,
         }}
+        onClose={handleOnClick}
       >
         <div className={classes.drawerHeader}>
           <Tooltip title="Close Actions" placement="bottom">

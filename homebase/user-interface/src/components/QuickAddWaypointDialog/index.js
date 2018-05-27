@@ -10,7 +10,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { toast } from 'react-toastify';
 import { getClient } from '../../utils/deepstream';
 
-const styles = theme => ({
+const styles = () => ({
   content: {
     fontFamily: 'Roboto',
   },
@@ -19,10 +19,15 @@ const styles = theme => ({
 class QuickAddWaypointDialog extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
-    latitude: PropTypes.number.isRequired,
-    longitude: PropTypes.number.isRequired,
+    latitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    longitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     handleClose: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired,
+  }
+
+  static defaultProps = {
+    latitude: 'No latitude found.',
+    longitude: 'No longitude found.',
   }
 
   state = { isAddingWaypoint: false }
@@ -57,7 +62,7 @@ class QuickAddWaypointDialog extends Component {
 
     return (
       <Dialog open={isOpen} onClose={this.handleClose} aria-labelledby="quick-add-waypoint-dialog">
-        <DialogTitle id="quick-add-waypoint-dialog">Are you sure you want quick add this waypoint?</DialogTitle>
+        <DialogTitle id="quick-add-waypoint-dialog">Are you sure you want to quick add this waypoint?</DialogTitle>
         <DialogContent>
           <div className={classes.content}>
             <strong>Latitude:</strong>
@@ -68,7 +73,7 @@ class QuickAddWaypointDialog extends Component {
         </DialogContent>
         <DialogActions>
           <Button onClick={this.handleClose}>Cancel</Button>
-          <Button color="primary" variant="raised">
+          <Button color="primary" variant="raised" onClick={this.handleAddWaypoint}>
             {isAddingWaypoint ? <CircularProgress size={20} color="default" /> : 'Add Waypoint'}
           </Button>
         </DialogActions>

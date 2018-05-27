@@ -1,4 +1,5 @@
 import Camera from '../../components/Camera/';
+import StereoCamera from '../../components/StereoCamera/';
 import DefaultChart from '../../components/DefaultChart/';
 import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
@@ -52,6 +53,7 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('WaypointList', WaypointList);
   glNode.registerComponent('CurrentWaypointsList', CurrentWaypointsList);
   glNode.registerComponent('PreviousWaypointsList', PreviousWaypointsList);
+  glNode.registerComponent('StereoCamera', StereoCamera);
 }
 
 export function initializeGL(glNode) {

@@ -59,28 +59,28 @@ class ComponentMenuList extends Component {
 
         <Collapse in={this.state.open}>
           <ComponentMenuItem
-            title="Camera #1"
-            componentname="Camera"
+            title="Stereo Camera"
+            componentname="StereoCamera"
             icon={<VideocamIcon />}
             className={classes.nested}
             componentprops={{ cameraID: '1' }}
           />
           <ComponentMenuItem
-            title="Camera #2"
+            title="Driving Camera"
             componentname="Camera"
             icon={<VideocamIcon />}
             className={classes.nested}
             componentprops={{ cameraID: '2' }}
           />
           <ComponentMenuItem
-            title="Camera #3"
+            title="Top-Down Camera"
             componentname="Camera"
             icon={<VideocamIcon />}
             className={classes.nested}
             componentprops={{ cameraID: '3' }}
           />
           <ComponentMenuItem
-            title="Camera #4"
+            title="Science Camera"
             componentname="Camera"
             icon={<VideocamIcon />}
             className={classes.nested}
