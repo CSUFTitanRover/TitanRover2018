@@ -15,9 +15,9 @@ def putRF(rf_uart, data): #arguments to make function more self-contained and fu
     rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
     rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
 
-    rf_uart.write(b's') #start byte
-    rf_uart.write(data) #payload
-    rf_uart.write(b'f') #end byte
+    rf_uart.write(b's' + data + b'f') #start byte
+    #rf_uart.write(data) #payload
+    #rf_uart.write(b'f') #end byte
     rf_uart.flush() #waits until all data is written
 
 def getRF(rf_uart, size_of_payload): #added argument to make it more function-like
@@ -44,7 +44,7 @@ def initRF(oDevice, baudRate):
             print("Device assigned")
             oSerial.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
             oSerial.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
-            oSerial.open() #applies dtr and rts pins
+#            oSerial.open() #applies dtr and rts pins
             print("dtr and rts pins set low, serial opened()")
             return oSerial
         except:
@@ -96,6 +96,8 @@ while True:
     try:
         print("receiving")
         buf = rSock.recv(40)
+        print(buf[0])
+        print(buf[1])
         print (len(buf))#prints number of bytes received
         if (len(buf) > 1):#if it received something update the time of last received data
             last_receive_time = time()
@@ -111,16 +113,18 @@ while True:
                 raise TimeoutError('TIMEOUT')
     except:
         print('TIMED OUT\n reopening socket')
-        rSock.close()#closed for good measure but this socket is never used so it doesn't matter
+        rSock.close() #closed for good measure but this socket is never used so it doesn't matter
         iSock.close()
         iSock, rSock = initSocket(localAddress, port)
         continue
     try:
-        print("writing")
-        putRF(oSerial, buf)
+        if buf[0] != 0 or buf[1] != 0:
+            print("writing")
+            putRF(oSerial, buf)
         #oSerial.write(buf)
     except:
         print("Failed to write.")
+        oSerial.flush()
         oSerial.close()
         oSerial = initRF(oDevice, baudRate)
 
