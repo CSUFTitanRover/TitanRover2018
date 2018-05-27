@@ -17,7 +17,8 @@ ser.setRTS(True) #then these two lines will send low logic to both which puts th
 
 while True:
     ser.write('hello')
-    print("sending")
+    print("sent")
+    sleep(0.5)
     ser.write('world')
     sleep(0.5)
 #while True:

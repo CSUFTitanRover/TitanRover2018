@@ -5,28 +5,47 @@ import sys
 import socket
 import subprocess
 import requests
-global ser, nvidiaIp
-nvidiaIp = "192.168.1.2"
+from threading import Thread 
+global ser, nvidiaIp, gpsPoint
+#nvidiaIp = "192.168.1.8"
+gpsPoint = ()
 
 
-#sleep(10)
-#subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
-#subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
+def acceptConnections():
+    while True:
+        client, client_address = SERVER.accept()
+        print("%s:%s has connected." % client_address)
+        Thread(target=broadcastGps, args=(client, )).start()
+
+def broadcastGps(client):
+        global gpsPoint
+        while True:
+            try:
+                temp = ",".join(str(x) for x in gpsPoint)
+                #print("points = ", temp, "type ", type(temp))
+                client.send(temp)
+                print("Send to Client Successful")
+                sleep(0.5)
+            except:
+                print("Error sending to client")
+                sleep(5)
+
 
 def reach():
+    global gpsPoint
     subprocess.call('echo "1" > /proc/sys/net/ipv4/ip_forward', shell = True)
-    subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
+    #subprocess.call('iptables -t nat -A POSTROUTING -s 192.168.2.0/24 -j MASQUERADE', shell = True)
     try:
+        '''
         while True:
             try:
                 proc = subprocess.Popen(['ssh', 'root@192.168.2.15'], stdout = subprocess.PIPE,)
                 out = proc.communicate()[0]
-                #print(out)
-                if "File exists" in out:
+                if out:
                     break
             except:
-                #print("pass")
                 pass
+        '''
         while True:
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -58,6 +77,12 @@ def reach():
             m = re.match(pattern, data)
             if m:
                 payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
+                "data": {"lat": float(m.group(3)), "lon": float(m.group(4))}} ] }
+
+                gpsPoint = (float(m.group(3)), float(m.group(4)))
+
+                '''                
+                payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/gps", 
                 "data": {"lat": float(m.group(3)), "lon": float(m.group(4)),
                 "altitude": float(m.group(5)), "fix": (True if (int(m.group(6)) > 0) else False),
                 "nos": int(m.group(7)), "sdn":float(m.group(8)), 
@@ -65,12 +90,19 @@ def reach():
                 "sdne":float(m.group(11)), "sdeu":float(m.group(12)),
                 "sdun":float(m.group(13)), "age":float(m.group(14)), 
                 "ratio":float(m.group(15)) }} ]}
+                '''
+                print("Dumping to deepstream...")
                 try:
-                    print("Dumping to deepstream...")
-                    request = requests.post('http://' + nvidiaIp + ':4080', json=payload)
-                    print request.text
+                    request = requests.post('http://192.168.1.2:4080', json=payload)
+                    print(request.text)
                 except:
-                    print("Deepstream doesn't seem to be online")
+                    print("Rover Deepstream doesn't seem to be online")
+                
+                try:
+                    request = requests.post('http://192.168.1.8:3080', json=payload)
+                    print(request.text)
+                except:
+                    print("Base Deepstream doesn't seem to be online")
                     
                 sys.stdout.write(m.group(1) + ' ' + m.group(2) + ' ' + m.group(2) + ' '
                 + m.group(3) + ' ' + m.group(4) + m.group(5) + ' ' + m.group(6) + ' ' 
@@ -88,6 +120,31 @@ def reach():
         #s.close()
         pass
 
+def startReach():
+    while True:
+        reach()
+
+Thread(target=startReach).start()
+
+clients = {}
+
+HOST = ''
+BUFSIZ = 4096
+ADDR = (HOST, 8080)
+
+SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 while True:
-    reach()
+    try:
+        SERVER.bind(ADDR)
+        break
+    except:
+        subprocess.call(' sudo lsof -t -i tcp:8080 | xargs kill -9', shell = True)
+
+if __name__ == "__main__":
+    SERVER.listen(5)
+    print("Waiting for connection...")
+    ACCEPT_THREAD = Thread(target=acceptConnections)
+    ACCEPT_THREAD.start()
+    ACCEPT_THREAD.join()
+SERVER.close()
 

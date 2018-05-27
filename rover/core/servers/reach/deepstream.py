@@ -27,7 +27,7 @@ except:
     roverIp = "127.0.0.1"
 '''
 
-def get(recordName, ip="192.168.1.2"):
+def get(recordName, ip="192.168.1.8"):
     '''
         The get function will get the entire record "rover/" + recordName
         and returns the record as an object.
@@ -42,7 +42,7 @@ def get(recordName, ip="192.168.1.2"):
     if type(recordName) is not str:
         raise "Your argument needs to be a string when getting from deepstream"
     payload = {"body":[{"topic": "record", "action":"read", "recordName": "rover/" + recordName}]}
-    request = requests.post('http://' + roverIp + ':4080', json=payload)
+    request = requests.post('http://' + roverIp + ':3080', json=payload)
     if type(request.content) is bytes:
         response = json.loads(request.content.decode('utf-8'))
     elif type(request.content) is str:
@@ -56,7 +56,7 @@ def get(recordName, ip="192.168.1.2"):
         return "NO_DEEPSTREAM"
 
 
-def post(obj, recordName, ip="192.168.1.2"):
+def post(obj, recordName, ip="192.168.1.8"):
     '''
         This function will post the object sen to the deepstream server.
 

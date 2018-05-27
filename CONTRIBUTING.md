@@ -46,6 +46,7 @@ e.g. https://github.com/CSUFTitanRover/TitanRover2018/projects/1
 ## GitFlow
 
 GitFlow is a naming convention for a certain type of branching model.
+Here at _Titan Rover Industries<sup>tm</sup>_ we are using the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
 Here at Titan Rover Industries<sup>tm</sup> we are using the [Feature Branch Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/feature-branch-workflow).
 
 Our use cases for **feature branches** are mainly to be implementing one single aspect of a project. Once done implementing a feature, then you would submit a Pull Request to merge the branch back into your base project branch and have it reviewed by your team lead.

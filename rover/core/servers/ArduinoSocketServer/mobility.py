@@ -358,13 +358,22 @@ def main(*argv):
                       #ser.write(hamBytePack) # packed bytes
                   except:
                     try:
-                      hamPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
-                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)      #check - shouldn't this be UDP
+                      hamPiRelaySocket.close()
+                      hamPiRelaySocket = socket(AF_INET, SOCK_STREAM)
                       hamPiRelaySocket.connect(('192.168.1.5', 9005))
                     except:
-                      pass
-                    print("Coudn't send over Ham")
-                  '''
+                      pass                    
+                  try:
+                    pass
+                  except:
+                    print('SOCKET CLOSED FOR RECONNECT')
+                  try:
+                    print('RECONNECTING TO HAM SOCKET')
+                    hamPiRelaySocket.connect(('192.168.1.5', 9005))
+                  except:
+                    print("COULD NOT RECONNECT")
+                    pass
+                  print("Coudn't send over Ham")
                 else:
                     #check -how does this pause the rover???
                   print("Pausing mobility becuase of deepstream record: " + str(mobilityMode))
