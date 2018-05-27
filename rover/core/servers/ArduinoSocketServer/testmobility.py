@@ -1,17 +1,13 @@
-#!/bin/sh
-
-### BEGIN INIT INFO
-# Provides:             RoverMobilityServer
-# Required-Start:       $remote_fs $network $syslog
-# Required_Stop:        $remote_fs $syslog
-# Default-Start:        2 3 4 5
-# Default-Stop:         0 1 6
-# Short-Description:    Simple script to start a program at boot
-# Description:          Rover Mobility Server
-### END INIT INFO
+######################################################################################
+#   Filename: mobility.py
+#   Description: Mobility script to operate Rover wheels and arm joints. Controllers 
+#       mapped in individual text files to use with pygame. Uses sockets to communicate 
+#       between machines - The primary line of communication is a GHz frequency and 
+#       uses a MHz backup frequency.
+######################################################################################
 
 from socket import *
-from struct import *
+from struct import *    
 from datetime import datetime
 import re
 from subprocess import Popen, PIPE
@@ -22,8 +18,8 @@ import pygame
 import numpy as np
 import sys
 import os
-from deepstream import post, get
-from relayFunctions import ep
+#from deepstream import post, get
+#from relayFunctions import ep
 from leds import writeToBus
 
 uname = str(Popen([ 'uname', '-m' ], stdout=PIPE, stderr=PIPE).communicate()[0].decode('utf-8'))
@@ -34,23 +30,23 @@ serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
 
 # MHz initialization
 mhzPiRelaySocket = None
-piAddress = '192.168.1.5'
-piPort = 9005
+#pi ip is non static right now permanent ip will be .5
+piConnData = ('192.168.1.179', 9005)
 try:
     mhzPiRelaySocket = socket(AF_INET, SOCK_STREAM)  #check - why is the mhz on tcp wont this lag the connection when it is having connection issues
     try:
-        mhzPiRelaySocket.connect((piAddress, piPort))
+        mhzPiRelaySocket.connect(piConnData)
     except:
-        print("mhzPiRelaySocket.connect((192.168.1.5, 9005) at start failed...")
+        print("mhzPiRelaySocket.connect(piConnData) at start failed...")
         #ser = Serial(serDevice, 9600)
         #print(ser.is_open)
 except:
     print("socket(AF_INET, SOCK_STREAM) at start failed...")
 
 # Tx2 address and connection info - UPD connection
-address = ('192.168.1.2', 5001)
+tx2ConnData = ('192.168.1.2', 5001)
 client_socket = socket(AF_INET, SOCK_DGRAM)
-client_socket.settimeout(1)
+client_socket.settimeout(0.5)
 
 '''
 # Arduino address and connection info
@@ -95,7 +91,7 @@ global turnInPlace
 paused = False
 modeNum = 0
 actionTime = 3
-maxRotateSpeed = 50
+maxRotateSpeed = 70
 turnInPlace = None
 pausedLEDs = { 'R' : True, 'G' : False, 'B' : False }  # Red for paused
 
@@ -305,7 +301,7 @@ def turn(outVal):
     return outVal
 
 def main(*argv):
-    global paused, mobiliyMode, ser
+    global paused, ser
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -315,6 +311,7 @@ def main(*argv):
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
+            print("Plug in the joystick genius")
             stop()
         for i in range(joystick_count):
             joystick = pygame.joystick.Joystick(i)
@@ -331,11 +328,12 @@ def main(*argv):
                 outVals = list(map(getZero, actionList))
             else:
                 outVals = turn(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
-            outVals = list(map(str, outVals))
-            outString = ','.join(outVals)
+            #outVals = list(map(str, outVals))
+            #outString = ','.join(outVals)
+            outbound = pack('10h', outVals[0], outVals[1], outVals[2], outVals[3], outVals[4], outVals[5], outVals[6], outVals[7], outVals[8], outVals[9])
 
-            # trying GHz
             '''
+            Arduino direct send
             try:
                 re_data = client_socket.recvfrom(512)
                 #print(bytes.decode(re_data[0]))  # Debug
@@ -345,24 +343,34 @@ def main(*argv):
                     print(outString)
             '''
 
+            # trying GHz
             try:
-                client_socket.send(bytes(outString))
-                reply = client_socket.recv(512)
-                if reply != 'xff':
-                    raise
+                client_socket.sendto(outbound, tx2ConnData)
+                #sleep(0.25) # IN CASE NEEDED
+                data = client_socket.recvfrom(512)[0]
+                if data != 'xff':
+                    raise RuntimeError()
 
             # GHz failed, try mhz
             except:
-                '''
                 #print("GHz failed... trying MHz")
+                # Closing/reopening GHz socket          # DO WE WANT TO CLOSE AND REOPEN GHZ SOCKET?
+                '''
+                client_socket.close()
+                client_socket = socket(AF_INET, SOCK_DGRAM)
+                client_socket.settimeout(0.5)
+                '''
                 try:
-                    mhzPiRelaySocket.send(mhzBytePack)
-                    #ser.write(mhzBytePack) # packed bytes
+                    print("STUB - need to add mhz send code")
+                    mhzPiRelaySocket.send(outbound)
+                    # Receive GPS and post to deepstream
+                    #this is done in testsocketRelay.py immediately upon receiving gps location
                 except:
                     print("MHz failed...")
                     mhzPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
                     mhzPiRelaySocket = socket(AF_INET, SOCK_STREAM)      #check - shouldn't this be UDP
-                    mhzPiRelaySocket.connect((piAddress, piPort))
+                    mhzPiRelaySocket.connect(piConnData)
+
 
 
 if __name__ == '__main__':
@@ -372,5 +380,4 @@ if __name__ == '__main__':
             sleep(1)
     except:
         print("Keyboard Interrupt...")
-        #mhzPiRelaySocket.close()
-
+        mhzPiRelaySocket.close()

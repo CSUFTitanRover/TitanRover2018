@@ -9,14 +9,54 @@ baudRate = 9600
 TIMEOUT = 1 #timeout in seconds 
 buf = bytearray(1024)
 
+def initRF(oDevice, baudRate):
+    while True:#try to initialize device until it works
+        try:
+            oSerial = serial.Serial(oDevice, baudRate, timeout=None) #no timeout on uart rf module
+            print("Device assigned")
+            return oSerial
+        except:
+            print("Check connection to rf module")
+            sleep(1)
+            continue
+
+def initSocket(localAddress, port):
+    while True: #used like a label, if an initialization fails retry all
+        try:
+            print("initializing socket")
+            iSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        except:
+            print("couldn't initialize")
+            sleep(1)
+            continue
+        try:
+            print("binding")
+            iSock.bind((localAddress, port))
+        except:
+            print("Failed to bind!")
+            sleep(1)
+            continue
+        try:
+            iSock.listen(5)
+            print("listening")
+        except:
+            print("failed to listen?")
+            sleep(1)
+            continue
+        try:
+            rSock, iAddress = iSock.accept() #socket to return address, address of connection
+            print("accepted socket")
+        except:
+            print("Failed to accept connection!")  
+            sleep(1)
+            continue 
+        return iSock, rSock#if everything works then don't retry anything
+
 #receive from socket, send over uart to rf module
-while True:
-    try:
-        oSerial = initRF(oDevice, baudRate)     #initialize rf and socket the first time no matter what
-        iSock, rSock = initSocket(localAddress, port)
-        break #if nothing goes wrong then don't retry anything
-    except:
-        continue#this is redundant with the retries in the functions and also redundant with the retries in the functions
+print("calling RF function")
+oSerial = initRF(oDevice, baudRate)     #initialize rf and socket the first time no matter what
+print("calling socket function")
+iSock, rSock = initSocket(localAddress, port)
 
 oSerial.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
 oSerial.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
@@ -54,38 +94,3 @@ while True:
         oSerial.close()
         oSerial = initRF(oDevice, baudRate)
 
-def initRF(oDevice, baudRate):
-    while True:#try to initialize device until it works
-        try:
-            oSerial = serial.Serial(oDevice, baudRate, timeout=None) #no timeout on uart rf module
-            return oSerial
-        except:
-            print("Check connection to rf module")
-            sleep(1)
-            continue
-
-def initSocket(localAddress, port):
-    while True: #used like a label, if an initialization fails retry all
-        try:
-            iSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            iSock.bind((localAddress, port))
-            print("binding")
-        except:
-            print("Failed to bind!")
-            sleep(1)
-            continue
-        try:
-            iSock.listen(5)
-            print("listening")
-        except:
-            print("failed to listen?")
-            sleep(1)
-            continue
-        try:
-            rSock, iAddress = iSock.accept() #socket to return address, address of connection
-            print("accepted socket")
-        except:
-            print("Failed to accept connection!")  
-            sleep(1)
-            continue 
-        return iSock, rSock#if everything works then don't retry anything
