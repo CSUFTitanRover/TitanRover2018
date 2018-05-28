@@ -7,67 +7,64 @@
 ######################################################################################
 
 from socket import *
-from struct import *    
+from struct import *
 from datetime import datetime
-import re
-from subprocess import Popen, PIPE
 from threading import Thread
-from time import sleep, time
+from time import sleep
 from serial import Serial
 import pygame
+import subprocess
 import numpy as np
 import sys
 import os
-#from deepstream import post, get
-#from relayFunctions import ep
-from leds import writeToBus
-
-uname = str(Popen([ 'uname', '-m' ], stdout=PIPE, stderr=PIPE).communicate()[0].decode('utf-8'))
-
-isPi = True if (uname == 'armv7l\n' or uname == 'arm6l\n') else False
-isNvidia = True if uname == 'aarch64\n' else False
-serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
+#from leds import writeToBus # For local mobility
 
 # MHz initialization
+serDevice = '/dev/serial/by-id/usb-Silicon_Labs_titan_rover_433-if00-port0'
 mhzPiRelaySocket = None
-#pi ip is non static right now permanent ip will be .5
-piConnData = ('192.168.1.179', 9005)
+piConnData = ('192.168.1.5', 9005)
 try:
-    mhzPiRelaySocket = socket(AF_INET, SOCK_STREAM)  #check - why is the mhz on tcp wont this lag the connection when it is having connection issues
+    mhzPiRelaySocket = socket(AF_INET, SOCK_STREAM)
     try:
         mhzPiRelaySocket.connect(piConnData)
     except:
         print("mhzPiRelaySocket.connect(piConnData) at start failed...")
-        #ser = Serial(serDevice, 9600)
-        #print(ser.is_open)
+        subprocess.call('kill -9 $(lsof -t -i:9005)', shell=True)
 except:
     print("socket(AF_INET, SOCK_STREAM) at start failed...")
 
 # Tx2 address and connection info - UPD connection
-tx2ConnData = ('192.168.1.2', 5001)
+tx2ConnData = ('192.168.1.2', 5002)
 client_socket = socket(AF_INET, SOCK_DGRAM)
-client_socket.settimeout(0.5)
+client_socket.settimeout(0.15)
+try:
+    client_socket.bind(('', 5001))
+except:
+    #pass
+    subprocess.call('kill -9 $(lsof -t -i:5001)', shell=True)
 
 '''
-# Arduino address and connection info
+# Arduino address and connection info to send Ard cmds direct
 try:
     address = ('192.168.1.10', 5000)
     client_socket = socket(AF_INET, SOCK_DGRAM)
     client_socket.settimeout(0.5)
 except:
     print("arduino connection at start failed...")
-'''
+# Initialize connection to Arduino
+#client_socket.sendto(bytesarray('0,0,0,0,0,0,0,0,0,1'), address)
 
-if isPi:
-    import RPi.GPIO as GPIO
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setwarnings(False)
-    redLed = 18
-    greenLed = 23
-    blueLed = 24
-    GPIO.setup(redLed, GPIO.OUT)  # Red LED
-    GPIO.setup(greenLed, GPIO.OUT)  # Green LED
-    GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
+# Used for RPi LED only
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+redLed = 18
+greenLed = 23
+blueLed = 24
+GPIO.setup(redLed, GPIO.OUT)  # Red LED
+GPIO.setup(greenLed, GPIO.OUT)  # Green LED
+GPIO.setup(blueLed, GPIO.OUT)  # Blue LED
+'''
 
 # Initialize pygame and joysticks
 os.environ['SDL_VIDEODRIVER'] = 'dummy'  #pygame will error since we don't use a video source, prevents that issue
@@ -75,7 +72,7 @@ pygame.init()
 pygame.joystick.init()
 
 # System setup wait
-sleep(5)
+sleep(3)
 
 #Global declarations
 global paused
@@ -95,8 +92,12 @@ maxRotateSpeed = 70
 turnInPlace = None
 pausedLEDs = { 'R' : True, 'G' : False, 'B' : False }  # Red for paused
 
+#actionList = ['motor1', 'motor2', 'arm2', 'arm3', 'joint1', 'joint4', 'joint5a',
+#             'joint5b', 'reserved1', 'ledMode']  # List in order of socket output values
+
 actionList = ['motor1', 'motor2', 'arm2', 'arm3', 'joint1', 'joint4', 'joint5a',
-              'joint5b', 'reserved1', 'ledMode']  # List in order of socket output values
+              'joint5b', 'ledMode']  # List in order of socket output values
+
 
 global roverActions
 def setRoverActions():
@@ -110,7 +111,6 @@ def setRoverActions():
               'joint4':    {'special': 'none', 'rate': 'none', 'direction': 1, 'value': 0},
               'joint5a':   {'special': 'none', 'rate': 'none', 'direction': 1, 'value': 0},
               'joint5b':   {'special': 'none', 'rate': 'none', 'direction': 1, 'value': 0},
-              'reserved1': {'special': 'none', 'rate': 'none', 'direction': 1, 'value': 0},
               'ledMode':   {'special': 'none', 'rate': 'none', 'direction': 1, 'value': 0}}
     # Not rover actions, but stored in same location. These actions trigger events within this module
     roverActions['pause'] = {'held': False, 'direction': 1, 'value': 0, 'set': 0}  # Added to support 'pause' action
@@ -121,9 +121,6 @@ def setRoverActions():
     #roverActions['auto'] = {'held': False, 'direction': 1, 'value': 0, 'set': 0}  # Added to support 'autoManual' mode
 
 setRoverActions()  # Initiate roverActions to enter loop
-
-# Initialize connection to Arduino
-#client_socket.sendto(bytesarray('0,0,0,0,0,0,0,0,0,1'), address)
 
 def startUp(argv):
     global controlString, controls, modeNames, mode, roverActions
@@ -143,7 +140,7 @@ def startUp(argv):
     mode = modeNames[modeNum]  # mode 0 = both, mode 1 = mobility, mode 2 = arm
     roverActions['mode']['set'] = modeNum
     roverActions['ledMode']['value'] = controls[mode]['ledCode']
-    setLed()
+    #setLed()
 
 def stop():
     global paused
@@ -183,6 +180,7 @@ def computeSpeed(key):
     speed = int(specialMultipliers[val['special']] * calcThrot * val['direction'] * val['value'])
     return speed
 
+'''
 def setLed():
     if paused:
         myLeds = pausedLEDs
@@ -192,6 +190,7 @@ def setLed():
         GPIO.output(redLed,GPIO.HIGH) if myLeds['R'] else GPIO.output(redLed,GPIO.LOW)
         GPIO.output(greenLed,GPIO.HIGH) if myLeds['G'] else GPIO.output(greenLed,GPIO.LOW)
         GPIO.output(blueLed,GPIO.HIGH) if myLeds['B'] else GPIO.output(blueLed,GPIO.LOW)
+'''
 
 def checkPause():
     global paused, roverActions
@@ -270,7 +269,7 @@ def checkHats(currentJoystick):
                     if (control_input):
                         roverActions[control_input[0]]['value'] = val[y]
                         roverActions[control_input[0]]['direction'] = control_input[1]  # Set direction multiplier
-
+'''
 def checkDsButton():
     global dsButton, roverActions
     if (not roverActions['auto']['held'] and roverActions['auto']['value']):  # New button press
@@ -283,6 +282,7 @@ def checkDsButton():
         datetime.now() - roverActions['auto']['lastpress']).seconds >= actionTime):  # Button held for required time
         roverActions['auto']['lastpress'] = datetime.now()  # Keep updating time as button may continue to be held
         dsButton = True
+'''
 
 def checkRotate():
     global turnInPlace
@@ -301,7 +301,7 @@ def turn(outVal):
     return outVal
 
 def main(*argv):
-    global paused, ser
+    global paused, ser, mhzPiRelaySocket
     startUp(argv)  # Load appropriate controller(s) config file
     joystick_count = pygame.joystick.get_count()
     for i in range(joystick_count):
@@ -311,7 +311,7 @@ def main(*argv):
         pygame.event.pump()  # Keeps pygame in sync with system, performs internal upkeep
         joystick_count = pygame.joystick.get_count()
         if joystick_count == 0:
-            print("Plug in the joystick genius")
+            print("Plug in the joystick and restart genius")
             stop()
         for i in range(joystick_count):
             joystick = pygame.joystick.Joystick(i)
@@ -322,7 +322,7 @@ def main(*argv):
             checkRotate()
             checkPause()
             checkModes()
-            setLed()
+            #setLed()
 
             if paused:
                 outVals = list(map(getZero, actionList))
@@ -330,25 +330,14 @@ def main(*argv):
                 outVals = turn(list(map(computeSpeed, actionList))) # Output string determined by actionList[] order
             #outVals = list(map(str, outVals))
             #outString = ','.join(outVals)
-            outbound = pack('10h', outVals[0], outVals[1], outVals[2], outVals[3], outVals[4], outVals[5], outVals[6], outVals[7], outVals[8], outVals[9])
-
-            '''
-            Arduino direct send
-            try:
-                re_data = client_socket.recvfrom(512)
-                #print(bytes.decode(re_data[0]))  # Debug
-                if bytes.decode(re_data[0]) == "r":
-                    #print("Received packet")  # Debug
-                    client_socket.sendto(bytes(outString,'utf-8'), address)
-                    print(outString)
-            '''
-
+            print(outVals)
+            outbound = pack('9h', outVals[0], outVals[1], outVals[2], outVals[3], outVals[4], outVals[5], outVals[6], outVals[7], outVals[8])
+            outboundMhz = pack('2b', outVals[0], outVals[1])
             # trying GHz
             try:
                 client_socket.sendto(outbound, tx2ConnData)
-                #sleep(0.25) # IN CASE NEEDED
                 data = client_socket.recvfrom(512)[0]
-                if data != 'xff':
+                if data.decode('utf-8') != 'xff':
                     raise RuntimeError()
 
             # GHz failed, try mhz
@@ -361,10 +350,8 @@ def main(*argv):
                 client_socket.settimeout(0.5)
                 '''
                 try:
-                    print("STUB - need to add mhz send code")
-                    mhzPiRelaySocket.send(outbound)
+                    mhzPiRelaySocket.send(outboundMhz)
                     # Receive GPS and post to deepstream
-                    #this is done in testsocketRelay.py immediately upon receiving gps location
                 except:
                     print("MHz failed...")
                     mhzPiRelaySocket.close()              #check - doesn't this close need a delay before new socket
@@ -372,12 +359,13 @@ def main(*argv):
                     mhzPiRelaySocket.connect(piConnData)
 
 
-
 if __name__ == '__main__':
     main()
     try:
         while True:
-            sleep(1)
+            print("main loop")
+            sleep(0.01)
     except:
         print("Keyboard Interrupt...")
         mhzPiRelaySocket.close()
+        client_socket.close()

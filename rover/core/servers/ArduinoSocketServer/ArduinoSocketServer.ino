@@ -31,9 +31,11 @@ const uint8_t joint5b_dir_pin = 9;
 
 
 //Color Pins
-int redPin = 24;
-int bluePin = 26;
-int greenPin = 22;
+//int redPin = 24;
+//int bluePin = 26;
+//int greenPin = 22;
+
+int tx2Start = 53;
 
 //Sabertooth Communications
 #include <SoftwareSerial.h>
@@ -62,8 +64,8 @@ unsigned int localPort = 5000;
 unsigned int localPortBaseStation = 6000;   
 
 //Storage for Commands and Values 
-char charToIntArray[10];
-int moveMentArray[10];
+char charToIntArray[8];
+int moveMentArray[8];
 
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
@@ -78,6 +80,7 @@ unsigned long interval = 500;
 unsigned long previousMillis=0;
 
 // This function is used to blink the LED RED when lose of network occures
+/*
 void ledBlink(unsigned int blinkSpeed) {
   digitalWrite(bluePin, LOW);
   digitalWrite(greenPin, LOW); 
@@ -88,14 +91,16 @@ void ledBlink(unsigned int blinkSpeed) {
     delay(blinkSpeed);
   }
 }
+*/
 
 void setTheEthernetConnection() {
   Ethernet.begin(mac, ip, gateway, subnet);
   Udp.begin(localPort);
   Udp.begin(localPortBaseStation);  //Do we need this???  Should this customize communication==========================
-  ledBlink(50);
+  //ledBlink(50);
 }
 
+/*
 void setDirectionPin(uint8_t pinValue, uint8_t val){
   if (val == 0x00)
   {
@@ -161,6 +166,7 @@ void switchLEDs(int colorCode) {
         break;  
   }  
 }
+*/
 
 void setup() {
   // Software Serial Setup
@@ -207,10 +213,14 @@ void setup() {
 
 
   // setup the output pins for each color LED
-  pinMode(redPin, OUTPUT);  
-  pinMode(bluePin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  
+  //pinMode(redPin, OUTPUT);  
+  //pinMode(bluePin, OUTPUT);
+  //pinMode(greenPin, OUTPUT);
+
+  pinMode(tx2Start, OUTPUT);
+  digitalWrite(tx2Start, LOW);
+  delay(100);
+  digitalWrite(tx2Start, HIGH);
 }
 
 // This loop will be a command loop for each of the arduino processes
@@ -233,7 +243,7 @@ void loop() {
     ST.turn(0);
     ARM.motor(1,0);
     ARM.motor(2,0);
-    ledBlink(100);
+    //ledBlink(100);
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
     Udp.write('r');  //Change this to const array = ready
     Udp.endPacket();
@@ -270,7 +280,7 @@ void loop() {
       }
     }
     // Loop the array and match to case and apply the values
-    for(int x = 0; x < 10; x++){
+    for(int x = 0; x < 8; x++){
       switch (x){
         // drive speed
         case 0: 
@@ -355,6 +365,7 @@ void loop() {
           }
           break;
         }
+        /*
         case 9:
               {                
                 //Switch on the LEDs as per the array input number 9
@@ -368,7 +379,7 @@ void loop() {
                                 
                 break;
               }
-
+         */
         
         ////////////////////////////////////
 
@@ -381,14 +392,13 @@ void loop() {
         ////////////////////////////////////
       }  
     }
-
-    
-
-    //Sends the ready command asking for next transmittion
-    //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    //Udp.write('r');  //Change this to const array = ready
-    //Udp.endPacket();
   }         
+  
+    // Sends the ready command asking for next transmittion
+    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    Udp.write('r');  //Change this to const array = ready
+    Udp.endPacket();
+    
   //clears the buffer to ensure all new values
   memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
 }
