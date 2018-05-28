@@ -35,6 +35,8 @@ const uint8_t joint5b_dir_pin = 9;
 //int bluePin = 26;
 //int greenPin = 22;
 
+int tx2Start = 53;
+
 //Sabertooth Communications
 #include <SoftwareSerial.h>
 #include "Sabertooth.h"
@@ -62,8 +64,8 @@ unsigned int localPort = 5000;
 unsigned int localPortBaseStation = 6000;   
 
 //Storage for Commands and Values 
-char charToIntArray[10];
-int moveMentArray[10];
+char charToIntArray[8];
+int moveMentArray[8];
 
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
@@ -214,7 +216,11 @@ void setup() {
   //pinMode(redPin, OUTPUT);  
   //pinMode(bluePin, OUTPUT);
   //pinMode(greenPin, OUTPUT);
-  
+
+  pinMode(tx2Start, OUTPUT);
+  digitalWrite(tx2Start, LOW);
+  delay(100);
+  digitalWrite(tx2Start, HIGH);
 }
 
 // This loop will be a command loop for each of the arduino processes
@@ -386,14 +392,13 @@ void loop() {
         ////////////////////////////////////
       }  
     }
-
-    
-
+  }         
+  
     // Sends the ready command asking for next transmittion
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
     Udp.write('r');  //Change this to const array = ready
     Udp.endPacket();
-  }         
+    
   //clears the buffer to ensure all new values
   memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
 }

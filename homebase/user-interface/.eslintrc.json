@@ -41,6 +41,7 @@
     "react/forbid-prop-types": "off",
     // allow class variables to be defined at the top
     "react/sort-comp": "off",
-    "react/jsx-no-bind": "warn"
+    "react/jsx-no-bind": "warn",
+    "react/require-default-props": ["off"]
   }
 }
