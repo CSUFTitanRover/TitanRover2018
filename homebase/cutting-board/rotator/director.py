@@ -17,15 +17,13 @@ import serial
 #Arduino Serial Out
 ardName = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_85439313330351D0E102-if00'
 ardOut =  serial.Serial(ardName, 9600, timeout=None)
+
 # gnss connection info
 __antenna_gps_address = "192.168.1.232"
 __antenna_gps_port = 7075
 __antenna_gps_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 __antenna_gps_socket.settimeout(0.5)
 
-#__rover_gps_address = ("place holder",9999) #gonna grab this from deepstream
-#__rover_gps_socket = socket(AF_INET, SOCK_DGRAM)
-#__antenna_gps_socket.settimeout(0.5)
 __rover_gps = ('', '')
 
 __antenna_gps = (None, None)
@@ -103,7 +101,7 @@ def getTargetHeading(__antena_gps, __rover_gps):
     initial_heading = math.degrees(initial_heading)
     compass_heading = (initial_heading + 360) % 360
     return compass_heading
-def getHeading():
+def getAntennaHeading():
     '''
     Description:
         Retrieves current heading from IMU subprocess
@@ -115,6 +113,8 @@ def getHeading():
     print("checking heading")
     data = subprocess.check_output(["python3", "IMU_Acc_Mag_Gyro.py"])
     return float(data)
+
+ ############################################################## UNUSED
 def getHeadingDifference(__antenna_heading, __targetHeading):
     '''
     Description:
@@ -155,11 +155,12 @@ def getShouldTurnClockwise():
     b = myDict[min(myDict.keys())]
     __clockwise = True if b > 0 else False
     return __clockwise
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^UNUSED
 
+'''
 __rover_gps = getRoverGPS()
 print("rover gps")
 print(__rover_gps)
-
 
 __antenna_gps = getAntennaGPS()
 print("antenna gps")
@@ -186,21 +187,24 @@ __clockwise = getShouldTurnClockwise()
 print("got clock direction")
 print(__clockwise)
 #call all the functions because I can
+'''
 
 
-#get initial heading direction and prepare the value verbosely to send to arduino
-__antenna_heading = getHeading() #get antenna heading for imu and send it to the arduino to initialize it
-initial_heading = int(round(__antenna_heading * 100)) #float to int
-initial_heading = initial_heading * 1000
-initial_heading_bytes = struct.pack("i", initial_heading)
-ser.write(initial_heading_bytes) #the fidgit spinner code 'unpacks' and divides by 1000
+
+
+
+
+__antenna_heading = getAntennaHeading() #get antenna heading from imu
+#take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
+ser.write(struct.pack("i", int(round(__antenna_heading * 1000)))) #the fidgit spinner code 'unpacks' and divides by 1000
+#first value sent to arduino initializes the center of the potentiometer for direction reference
 
 while True:
     sleep(20)
     __rover_gps = getRoverGPS()
     __antenna_gps = getAntennaGPS()
-    __targetHeading = getTargetHeading() #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted but what if something crazy happens and the antenna moves?
+    __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
+    if __targetHeading > (__antenna_heading - 90) and __targetHeading < (__antenna_heading + 90):
+        ardOut.write(struct.pack("i", (__targetHeading * 1000))) #sending new heading for the arduino to go to using its pot as reference.
 
-    __targetHeading = __targetHeading * 1000 #sending int which will be divided by 1000
-    newHeading = struct.pack("i", __targetHeading)
-    ardOut.write(newHeading) #sending new heading for the arduino to go to using its pot as reference.
+ 
