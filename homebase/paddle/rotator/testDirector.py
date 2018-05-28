@@ -70,7 +70,7 @@ def getAntennaGPS():
     return __antenna_gps
 
 def getRoverGPS():
-    data = get('gps')
+    data = get('fake_gps')
     return (data["lat"], data["lon"])
 
 def getTargetHeading(__antena_gps, __rover_gps):
@@ -189,7 +189,6 @@ print(__clockwise)
 '''
 
 
-    #return (get('gps')['lat'], get('gps')['lon'])
 
 
 
@@ -199,10 +198,36 @@ __antenna_heading = getAntennaHeading() #get antenna heading from imu
 ser.write(struct.pack("i", int(round(__antenna_heading * 1000)))) #the fidgit spinner code 'unpacks' and divides by 1000
 #first value sent to arduino initializes the center of the potentiometer for direction reference
 
-while True:
+#while True:
+def pointAntenna():
     sleep(20)
     __rover_gps = getRoverGPS()
     __antenna_gps = getAntennaGPS()
     __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
     if __targetHeading > (__antenna_heading - 90) and __targetHeading < (__antenna_heading + 90):
         ardOut.write(struct.pack("i", (__targetHeading * 1000))) #sending new heading for the arduino to go to using its pot as reference.
+
+fake_gps_data = {"lat": 33.882884, "lon": -117.882756} #north
+post(fake_gps_data, "fake_gps")
+pointAntenna()
+
+fake_gps_data = {"lat": 33.881639, "lon": -117.882712} #south
+post(fake_gps_data, "fake_gps")
+pointAntenna()
+
+fake_gps_data = {"lat": 33.882583 , "lon":  -117.883718 } #northish west
+post(fake_gps_data, "fake_gps")
+pointAntenna()
+
+fake_gps_data = {"lat": 33.880331, "lon": -117.881669} #eastside structure
+post(fake_gps_data, "fake_gps")
+pointAntenna()
+
+fake_gps_data = {"lat": 33.883192, "lon": -117.882074} #gastronome
+post(fake_gps_data, "fake_gps")
+pointAntenna()
+
+fake_gps_data = {"lat": 33.881386, "lon": -117.884115} #education building
+post(fake_gps_data, "fake_gps")
+pointAntenna()
+
