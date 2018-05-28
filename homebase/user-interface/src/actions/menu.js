@@ -10,3 +10,15 @@ export function closeLeftMenu() {
   };
 }
 
+export function openActionMenu() {
+  return {
+    type: 'OPEN_ACTION_MENU',
+  };
+}
+
+export function closeActionMenu() {
+  return {
+    type: 'CLOSE_ACTION_MENU',
+  };
+}
+

@@ -57,6 +57,13 @@ class CameraStream extends PureComponent {
   static propTypes = {
     /** The unique camera ID */
     cameraID: PropTypes.string.isRequired,
+    initialWidth: PropTypes.number.isRequired,
+    initialHeight: PropTypes.number.isRequired,
+  }
+
+  static defaultProps = {
+    initialWidth: 400,
+    initialHeight: 300,
   }
 
   computedRecordPath = `homebase/cameras/${this.props.cameraID}`
@@ -64,8 +71,8 @@ class CameraStream extends PureComponent {
   state = {
     resizeAwareSize: null,
     resizableSize: {
-      width: 400, // 640,
-      height: 300, // 480,
+      width: this.props.initialWidth, // 640,
+      height: this.props.initialHeight, // 480,
     },
     resizing: false,
     fullsize: false,
@@ -126,6 +133,7 @@ class CameraStream extends PureComponent {
       }));
     }
   }
+
 
   handleLockRatio = () => {
     this.setState(prevState => ({ lockAspectRatio: !prevState.lockAspectRatio }));

@@ -1,4 +1,5 @@
 export default {
-  leftMenuActive: true,
+  leftMenuActive: false, // true,
+  actionMenuActive: false,
   playground: null,
 };
