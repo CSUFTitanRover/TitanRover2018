@@ -32,10 +32,6 @@ from Adafruit_BNO055 import BNO055
 global imuData
 imuData = {}
 
-
-#subprocess.call(["python3.5", "calImu.py"])
-#time.sleep(3)
-
 '''
 try:
     obj = {}
