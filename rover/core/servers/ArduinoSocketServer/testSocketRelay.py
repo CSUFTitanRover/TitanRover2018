@@ -24,7 +24,7 @@ counter = 10
 requestStop = False
 toggleSuspend = False
 
-payload_size = 20 #size of payload in bytes (it's 10  x 2 byte shorts)
+payload_size = 20 #size of payload in bytes 10i (10 x 2byte shorts) for full command, 2b (2 signed bytes) for mobility over mhz connection
 
 # LED Strip colors
 ledOff = 6 # off
@@ -63,9 +63,9 @@ def putRF(rf_uart, data): #arguments to make function more self-contained and fu
     rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
     rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
 
-    rf_uart.write(b's') #start byte
-    rf_uart.write(data) #payload
-    rf_uart.write(b'f') #end byte
+    rf_uart.write(b's' + data + b'f') #start byte
+    #rf_uart.write(data) #payload
+    #rf_uart.write(b'f') #end byte
     rf_uart.flush() #waits until all data is written
 
 def getRF(rf_uart, size_of_payload): #added argument to make it more function-like

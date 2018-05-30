@@ -12,17 +12,18 @@ payload_size = 20 #probably unnecessary
 
 
 def putRF(rf_uart, data): #arguments to make function more self-contained and function-like
+    #the dtr and rts set commands shouldn't be necessary because the pins should stay set after the rf device is initiated but redundancy
     rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
     rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
-
+    #rf_uart.open() #some documentation said this line will activate the status pins (including dtr and rts) but some implementations set them automatically which is what I think the ebyte modules do
     rf_uart.write(b's' + data + b'f') #start byte
-    #rf_uart.write(data) #payload
-    #rf_uart.write(b'f') #end byte
     rf_uart.flush() #waits until all data is written
 
 def getRF(rf_uart, size_of_payload): #added argument to make it more function-like
     rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
     rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+    #rf_uart.open() #some documentation said this line will activate the status pins (including dtr and rts) but some implementations set them automatically which is what I think the ebyte modules do
+
     while True:
         n = rf_uart.read(1) #read bytes one at a time
         if n == b's': #throw away bytes until start byte is encountered
@@ -44,7 +45,7 @@ def initRF(oDevice, baudRate):
             print("Device assigned")
             oSerial.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
             oSerial.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
-#            oSerial.open() #applies dtr and rts pins
+            #oSerial.open() #applies dtr and rts pins
             print("dtr and rts pins set low, serial opened()")
             return oSerial
         except:
