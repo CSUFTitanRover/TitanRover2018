@@ -16,7 +16,6 @@ from socket import *
 #import struct
 from threading import Thread
 from decimal import Decimal
-from runImu import getImuValue
 from deepstream import get
 from leds import writeToBus
 
