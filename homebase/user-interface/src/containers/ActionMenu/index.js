@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -45,6 +46,15 @@ const styles = theme => ({
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit * 3,
     color: theme.palette.primary.main,
+  },
+  jointRotationListItem: {
+    display: 'flex',
+    flexFlow: 'column',
+    alignItems: 'flex-start',
+  },
+  jointRotationInputContainer: {
+    display: 'flex',
+    alignItems: 'center',
   },
 });
 
@@ -114,17 +124,49 @@ class ActionMenu extends Component {
           </ListItem>
           <Divider light />
           <Typography variant="subheading" className={classes.motorSubheading}>Rotate Joints</Typography>
-          <ListItem>
-            <JointRotationInput jointName="Joint 1" address={JOINT_1_ADDRESS} />
+          <ListItem className={classes.jointRotationListItem}>
+            <div className={classes.jointRotationInputContainer}>
+              <JointRotationInput jointName="Joint 1" address={JOINT_1_ADDRESS} />
+            </div>
+            <div>
+              <Typography variant="caption" align="left" >
+                <div>Positive Value = CW</div>
+                <div>Negative Value = CCW</div>
+              </Typography>
+            </div>
           </ListItem>
-          <ListItem>
-            <JointRotationInput jointName="Joint 4" address={JOINT_4_ADDRESS} />
+          <ListItem className={classes.jointRotationListItem}>
+            <div className={classes.jointRotationInputContainer}>
+              <JointRotationInput jointName="Joint 4" address={JOINT_4_ADDRESS} />
+            </div>
+            <div>
+              <Typography variant="caption" align="left" >
+                <div>Positive Value = UP</div>
+                <div>Negative Value = DOWN</div>
+              </Typography>
+            </div>
           </ListItem>
-          <ListItem>
-            <JointRotationInput jointName="Joint 5.1" address={JOINT_51_ADDRESS} />
+          <ListItem className={classes.jointRotationListItem}>
+            <div className={classes.jointRotationInputContainer}>
+              <JointRotationInput jointName="Joint 5.1" address={JOINT_51_ADDRESS} />
+            </div>
+            <div>
+              <Typography variant="caption" align="left" >
+                <div>Positive Value = SCREW</div>
+                <div>Negative Value = UNSCREW</div>
+              </Typography>
+            </div>
           </ListItem>
-          <ListItem>
-            <JointRotationInput jointName="Joint 5.2" address={JOINT_52_ADDRESS} />
+          <ListItem className={classes.jointRotationListItem}>
+            <div className={classes.jointRotationInputContainer}>
+              <JointRotationInput jointName="Joint 5.2" address={JOINT_52_ADDRESS} />
+            </div>
+            <div>
+              <Typography variant="caption" align="left" >
+                <div>Positive Value = GRAB</div>
+                <div>Negative Value = RELEASE</div>
+              </Typography>
+            </div>
           </ListItem>
         </List>
       </Drawer>

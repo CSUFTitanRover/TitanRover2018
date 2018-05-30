@@ -52,6 +52,7 @@ class JointRotationInput extends Component {
           onChange={this.handleChange}
           type="number"
           margin="dense"
+          style={{ width: 135 }}
         />
         <Button
           color="primary"
