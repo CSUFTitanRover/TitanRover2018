@@ -1,4 +1,4 @@
-######################################################################################
+7#####################################################################################
 #    Filename: driver.py
 #    Description: Autonomous traversal module - TitanRover2018
 #         Given a single GPS coordinate, the Rover will drive to this point (within a
@@ -13,10 +13,11 @@ import sys
 import math
 import numpy as np
 from socket import *
-import struct
+#import struct
 from threading import Thread
 from decimal import Decimal
 from runImu import getImuValue
+from deepstream import get
 from leds import writeToBus
 
 MINFORWARDSPEED = 20
@@ -49,11 +50,9 @@ class Driver:
         self.__distanceX = [20, 45]
         self.__speedY = [25, 45]
 
-        self.__gps = (None, None)
-        self.__gpsThread = (None, None)
-        self.__nextWaypoint = (None, None)
+        self.__gps = (0.00, 0.00)
+        self.__nextWaypoint = (0.00, 0.00)
         self.__heading = 0.0
-        self.__headingThread = 0.0
         self.__targetHeading = 0.0
         self.__headingDifference = 0.0
         self.__clockwise = None
@@ -63,32 +62,12 @@ class Driver:
         self.__motor2 = 0
         self.__paused = False
         self.__stop = False
-        Thread(target = self.gpsSocket).start()
-        Thread(target = self.imuThread).start()
+        self.__quit = False
         Thread(target = self.setStop).start()
         Thread(target = self.togglePause).start()
+        Thread(target = self.quit).start()
         time.sleep(3)
-
-    def gpsSocket(self):
-        while True:
-            host = "192.168.1.2" 
-            port = 8080
-            BUFFER_SIZE = 4096 
-
-            Client = socket(AF_INET, SOCK_STREAM) 
-            Client.connect((host, port))
-
-            while True:
-                try:  
-                    data = Client.recv(BUFFER_SIZE)
-                    pointList = data.split(',') # DOES THIS RETURN THE PARENTHESIS ALSO?
-                    self.__gpsThread = (float(pointList[0]), float(pointList[1]))
-                except:
-                    Client.close()
-                    break
-
-    def imuThread(self):
-        self.__headingThread = getImuValue()
+        
 
     def calculateGps(self, origin, heading, distance):
         '''
@@ -166,6 +145,7 @@ class Driver:
             rad -= 200
         return spiral
 
+    '''
     def roverViewer(self):
         '''
         Description:
@@ -178,6 +158,7 @@ class Driver:
         '''
         post({"motor1": self.__motor1, "motor2": self.__motor2, "currentHeading": self.__heading, "targetDistance": self.__distance, "deltaDirection": self.__deltaDirection, "shouldCW": self.__clockwise}, "roverViz")
         time.sleep(0.04)
+    '''
 
     def setShouldTurnClockwise(self):
         '''
@@ -284,34 +265,23 @@ class Driver:
             Nothing
         '''
         try:
-            self.__gps = self.__gpsThread # '33.256985,127.256854' 
+            self.__gps = (get("gps")["lat"], get("gps")["lon"])
         except:
             print("GPS error")
 
     def setHeading(self):
         '''
         Description:
-            Sets self.__heading from self.__headingThread
+            Retrieves current heading from deepstream, sets self.__heading
         Args:
             None
         Returns:
             Nothing
         '''
         try:
-            self.__heading = self.__headingThread
+            self.__heading = get("imu")["heading"]
         except:
             print("Heading error")
-
-    def setDeltaDirection(self):
-        '''
-        Description:
-            Uses self.__headingDifference to retrieve positive representation of delta change, sets self.__deltaDirection
-        Args:
-            None
-        Returns:
-            Nothing
-        '''
-        self.__deltaDirection = abs(self.__headingDifference)
 
     def calculateMotors(self):
         '''
@@ -334,15 +304,41 @@ class Driver:
         Description:
             Used to exit the current goTo function indefinitely.
         '''
-        self.__stop = True
+        while True:
+            try:
+                val = get('stop')
+                if val is dict and val != {}:
+                    self.__stop = val["stop"]
+            except:
+                print("DS stop error")
 
     def togglePause(self):
         '''
         Description:
             Toggles between pause state.
         '''
-        self.__pause = not self.__pause
+        while True:
+            try:
+                val = get('pause')
+                if val is dict and val != {}:
+                    self.__pause = val["pause"]
+            except:
+                print("DS pause error")
     
+        def setQuit(self):
+            '''
+        Description:
+            Used to quit further autonomous traversal.
+        '''
+        while True:
+            try:
+                val = get('quit')
+                if val is dict and val != {}:
+                    self.__quit = val["quit"]
+            except:
+                print("DS quit error")
+
+    '''
     def notifyArrival(self):
         '''
         Description:
@@ -354,6 +350,7 @@ class Driver:
         '''
         self.__motor1 = self.__motor2 = 0
         self.sendMotors()
+    '''
 
         # Blink lights
         leds = [0, 1, 2]
@@ -452,10 +449,12 @@ class Driver:
             if self.__deltaDirection < CORRECTIONTHRESHOLD:
                 self.__motor2 = 0
                 self.__headingDifference = None
+            
             if self.__stop:
-                self.__stop = False
-                self.__pause = False
-                return
+                return 1
+            
+            if self.__quit:
+                return -1
 
             if not self.__paused:
                 self.sendMotors()
@@ -463,10 +462,11 @@ class Driver:
 
 
                 # Debug print
+                '''
                 print("------------------------------------------------")
                 print("destWaypoint: ", self.__nextWaypoint, "\ncurrentGPS: ", self.__gps, "\ndist(cm): ", self.__distance, "\ncurrentHeading: ", self.__heading, "\ntargetHeading: ", self.__targetHeading, "\ndeltaDirection: ", self.__deltaDirection, "\nmotor1: ", self.__motor1, "\nmotor2: ", self.__motor2, "\nclockwise: ", self.__clockwise, "\nheadingDiff: ", self.__headingDifference, "\ntime: ", int(time.time()), "\n")    
                 print("------------------------------------------------")
-
+                '''
 
             time.sleep(0.04)
             self.setGps()
@@ -474,9 +474,14 @@ class Driver:
             self.setDistance()
 
         # Debug print
+        '''
         print("--------------------END DATA--------------------")
         print("Destination Waypoint: ", self.__nextWaypoint, "\nCurrent GPS: ", self.__gps, "\nDistance(cm): ",self.__distance, "\nCurrent Heading: ", self.__heading)
         print("------------------------------------------------")
-
+        '''        
+        
+        '''
         if not self.__paused:
             self.notifyArrival()
+        '''
+        return 0
