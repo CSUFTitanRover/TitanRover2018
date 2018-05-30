@@ -19,22 +19,17 @@ except:
     
 # Loop while script is running, waiting for deepstream update sent by basestation
 while True:
-    try:
-        ser = Serial('/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0', 9600)
-    except:
-        print("cannot connect to serial device.")
-    poke = {'poke' : True}
+    # Get deepstream record named poke
+    poke = get('poke')
     if 'poke' in poke:
         # If poke is true, write poke bytes to serial
         if poke['poke'] == True:
-            #print('POKE!!')
-            for x in range(5):
-                ser.write('1')
-                print("1")
-            for y in range(5):
-                ser.write('0')
-                print("0")
-            sleep(0.05)
-            #post({ 'poke': False }, 'poke', 'localhost')
-            sleep(0.9)
-    sleep(0.05)
+            # This sequence matches poke_receive.py, acts as an enclosed buffer to prevent misfires
+            print('Writing poke sequence, finger extended')
+            ser.write('\n')
+            ser.write('p')
+            ser.write('o')
+            ser.write('k')
+            ser.write('e')
+            # Post to deepstream that the record is false to stop repeat firing of finger
+            post({ 'poke' : False }, 'poke')
