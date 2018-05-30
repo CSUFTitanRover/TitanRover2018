@@ -2,10 +2,11 @@ from socket import *
 import struct
 from time import sleep, time
 import serial
+import subprocess
 from threading import Thread
 import sys
 import os
-#from deepstream import get, post
+from deepstream import get
 from autonomousCore import *
 from leds import writeToBus
 
@@ -13,16 +14,23 @@ global myDriver
 global storedPoints
 global cmdBuffer
 global currentGpsLoc
-global connected
-global counter
+global ghzConnection
+global mhzConnection
+global ghzCountdown
+global mhzCountdown
+global countdown
 global requestStop
 global toggleSuspend
 storedPoints = []
 cmdBuffer = []
-currentGpsLoc = (None, None) # GPS tuple (lat, lon)
-counter = 10
+currentGpsLoc = (0.00, 0.00) # GPS tuple (lat, lon)
+countdown = 10
+ghzCountdown = 5
+mhzCountdown = 5
 requestStop = False
 toggleSuspend = False
+ghzConnection = False
+mhzConnection = False
 
 payload_size = 20 #size of payload in bytes 10i (10 x 2byte shorts) for full command, 2b (2 signed bytes) for mobility over mhz connection
 
@@ -30,9 +38,10 @@ payload_size = 20 #size of payload in bytes 10i (10 x 2byte shorts) for full com
 ledOff = 6 # off
 ghzLed = 1 # green
 mhzLed = 3 # purple
+drivingMode = 2 # blue
 
 # Autonomous module object
-myDriver = Driver()
+#myDriver = Driver()
 
 # Arduino address and connection
 try:
@@ -44,18 +53,20 @@ except:
 
 # MHz initialization
 try:
-    ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=None)
+    ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=None)
+    mhzConnection = True
 except:
     print("Failed socketRelay MHz init")
 
 # GHz address and connection
-baseConnData = ('192.168.1.26', 5001)
+baseConnData = ('192.168.1.121', 5001) # 192.168.1.8 for base station
 ghzSocket = socket(AF_INET, SOCK_DGRAM)
 ghzSocket.settimeout(0.5)
-connected = True
+ghzConnection = True
 ghzSocket.bind(('', 5002))
 
 def packGPS():
+    global currentGpsLoc
     currGPS = struct.pack("2f", currentGpsLoc[0], currentGpsLoc[1])
     return currGPS
 
@@ -71,64 +82,67 @@ def putRF(rf_uart, data): #arguments to make function more self-contained and fu
 def getRF(rf_uart, size_of_payload): #added argument to make it more function-like
     rf_uart.setDTR(True) #if the extra pins on the ttl usb are connected to m0 & m1 on the ebyte module
     rf_uart.setRTS(True) #then these two lines will send low logic to both which puts the module in transmit mode 0
+    n = rf_uart.read(1) #read bytes one at a time
     while True:
-        n = rf_uart.read(1) #read bytes one at a time
         if n == b's': #throw away bytes until start byte is encountered
             data = rf_uart.read(size_of_payload) #read fixed number of bytes
             n = rf_uart.read(1) #the following byte should be the stop byte
             if n == b'f':
-                print('success')
-                print(data)
+                #print(data)
+                return data
             else: #if that last byte wasn't the stop byte then something is out of sync
-                print("failure")
+                print("return bytes successful")
                 return -1
-    return data
 
-def trackConnection():
-    global counter, connected
+def trackGhzConnection():
+    global ghzCountdown, ghzConnection
     while True:
-        counter -= 1
+        if ghzConnection:
+            ghzCountdown -= 1
+            if ghzCountdown <= 0:
+                ghzConnection = False
         sleep(1)
-        if counter <= 0:
-            connected = False
-            writeToBus(6, 6) # In the event we wish to turn off lights, otherwise autonomous light active
 
 def reconnect():
-    global connected
+    global ghzConnection
     while True:
-        if not connected:
+        if not ghzConnection:
             resp = os.system("ping -c 10 " + "192.168.1.8")
             if resp == 0:
-                connected = True
+                ghzConnection = True
         sleep(5) # Try to check connection again every 5 seconds - autonomous mode active during this time
 
 def connectionLost():
-    global storedPoints, connected, myDriver
+    global storedPoints, ghzConnection, mhzConnection, myDriver
     while True:
-        while len(storedPoints) > 0 and not connected:
+        while len(storedPoints) > 0 and not ghzConnection and not mhzConnection:
             myDriver.goTo(storedPoints.pop())
             writeToBus(4, 4)
+        
+
+def dist(origin, dest):
+    a1, b1 = origin
+    a2, b2 = dest
+    radius = 6371 # km
+
+    da = math.radians(a2-a1)
+    db = math.radians(b2-b1)
+    a = math.sin(da/2) * math.sin(da/2) + math.cos(math.radians(a1)) \
+        * math.cos(math.radians(a2)) * math.sin(db/2) * math.sin(db/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = radius * c
+    return d * 100000
 
 def collectPoints():
-    global storedPoints, connected, currentGpsLoc
+    global storedPoints, ghzConnection, currentGpsLoc
+    prevPoint = (0.00, 0.00)
     while True:
-        if connected:
-            host = "192.168.1.2" 
-            port = 8080
-            BUFFER_SIZE = 4096 
-
-            Client = socket(AF_INET, SOCK_STREAM) 
-            Client.connect((host, port))
-
-            while True:
-                try:  
-                    data = Client.recv(BUFFER_SIZE)
-                    pointList = data.split(',')
-                    currentGpsLoc = (float(pointList[0]), float(pointList[1]))
-                    storedPoints.append(currentGpsLoc)
-                except:
-                    Client.close()
-                    break
+        if ghzConnection:
+            gps = get('gps')
+            currentGpsLoc = (gps['lat'], gps['lon']) 
+            if dist(prevPoint, currentGpsLoc) > 500:    
+                storedPoints.append(currentGpsLoc)
+                prevPoint = currentGpsLoc
         sleep(5)
 
 def sendToArduino():
@@ -136,88 +150,106 @@ def sendToArduino():
     while True:
         try:
             if cmdBuffer == []:
-                #ardSocket.sendto(bytes('0,0,0,0,0,0,0,0,0,1','utf-8'), ardConnectDat$
                 continue
             else:
                 outString = cmdBuffer[-1]
                 print(outString[0])
-                ardSocket.sendto(bytes(outString[0],'utf-8'), ardConnectData)
+                if outString[1] == ghzLed:
+                    ardSocket.sendto(bytes(outString[0][:-2],'utf-8'), ardConnectData)
+                elif outString[1] == mhzLed:
+                    #for i in range(2):
+                    ardSocket.sendto(bytes(outString[0], 'utf-8'), ardConnectData)
                 cmdBuffer = []
 
             re_data = ardSocket.recvfrom(512)
             while bytes.decode(re_data[0]) != "r":
                 re_data = ardSocket.recvfrom(512)
-            '''
-            if cmdBuffer == []:
-                ardSocket.sendto(bytes('0,0,0,0,0,0,0,0,0,1','utf-8'), ardConnectData)
-                continue
-            else:
-                outString = cmdBuffer[-1]
-                print(outString[0])
-                ardSocket.sendto(bytes(outString[0],'utf-8'), ardConnectData)
-                cmdBuffer = []
-            '''
+            #print("after reading r: ", re_data)
+
             try:
                 # Write to LED lights bus
-                writeToBus(int(outString[0][-1]), int(outString[1]))
+                writeToBus(int(outString[0][-1]), ghzLed) if int(outString[1]) == ghzLed else writeToBus(drivingMode, mhzLed)
             except:
                 print("LED error")
         except:
-            print("Ard fail")
+            cmdBuffer = []
+            #print("Ard fail")
             pass
 
 def stopDrv():
     global myDriver, requestStop
     while True:
-        if requestStop:
+        try:
+            stopRecord = get("stop")
+        except:
+            print("stopDrv: DS get failed")
+            continue
+        if stopRecord == True:
             myDriver.setStop()
-            pass
-        requestStop = False
+            requestStop = False
 
 def toggleDrvPause():
     global myDriver, toggleSuspend
     while True:
-        if toggleSuspend:
-            myDriver.setStop()
-            pass
-        toggleSuspend = False
+        try:
+            pauseRecord = get("pause")
+        except:
+            print("toggleDrvPause: DS get failed")
+            continue
+        if not pauseRecord == toggleSuspend:
+            myDriver.setPause()
+            toggleSuspend = not toggleSuspend
 
 def storeCmd(cmd, freq):
     global cmdBuffer
-    unpacked = struct.unpack('10h', cmd)
+    if freq == 1:
+        unpacked = struct.unpack('9h', cmd)
+    else:
+        unpacked = struct.unpack('2b', cmd)
     cmdList = list(map(str, unpacked))
     cmdBuffer.append((','.join(cmdList), freq))
 
-#Thread(target = collectPoints).start()
-#Thread(target = trackConnection).start()
-#Thread(target = reconnect).start()
-#Thread(target = stopDrv).start()
-#Thread(target = toggleDrvPause).start()
-#sleep(3) # Allow thread/port initializations
-ardSocket.sendto(bytes('0,0,0,0,0,0,0,0,0,0','utf-8'), ardConnectData)
-Thread(target=sendToArduino).start()
-try:
+def readMhz():
+    global storedPoints, mhzConnection, ghzConnection, mhzCountdown
     while True:
-        if connected:
+        if not ghzConnection:
             try:
-                data = ghzSocket.recvfrom(512)[0]
-                ghzSocket.sendto(bytes('xff', 'utf-8'), baseConnData)
-                storeCmd(data, ghzLed)
-                counter = 10
-            except:
-                print("GHz failed - trying MHz")
+                mhzData = getRF(ser, 2)
+                #print(mhzData)
+                if mhzData == -1:
+                    continue
+                storeCmd(mhzData, mhzLed)
+                mhzCountdown = 10
                 try:
-                    mhzData = getRF(ser, payload_size)
-                    print(mhzData)
-                    storeCmd(mhzData, mhzLed)
-                    counter = 10
-                    try:
-                        #Send back current GPS
-                        putRF(ser, packGPS())
-                    except:
-                        print("put rf failed")
+                    #Send back current GPS
+                    putRF(ser, packGPS())
                 except:
-                    print("failed mhz")
-except:
-    print("Keyboard Interrupt")
-    ghzSocket.close()
+                    print("put rf failed")
+            except:
+                print("failed mhz")
+
+Thread(target = collectPoints).start()
+Thread(target = trackGhzConnection).start()
+Thread(target = reconnect).start()
+Thread(target = stopDrv).start()
+Thread(target = toggleDrvPause).start()
+Thread(target = readMhz).start()
+Thread(target = connectionLost),start()
+sleep(3) # Allow thread/port initializations
+ardSocket.sendto(bytes('0,0,0,0,0,0,0,0','utf-8'), ardConnectData)
+Thread(target=sendToArduino).start()
+
+
+while True:
+    if ghzConnection:
+        try:
+            data = ghzSocket.recvfrom(512)[0]
+            ghzSocket.sendto(bytes('xff', 'utf-8'), baseConnData)
+            storeCmd(data, ghzLed)
+            ghzCountdown = 10
+        except (KeyboardInterrupt, SystemExit):
+            ghzSocket.close()
+            raise
+        except:
+            print("GHz failed - trying MHz")
+            pass
