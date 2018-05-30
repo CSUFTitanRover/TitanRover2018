@@ -88,6 +88,21 @@ async function main() {
       response.error(err.toString())
     }
   });
+
+  dsClient.rpc.provide('rotateMotor', async (data, response) => {
+    try {
+      const { address, value, direction } = data;
+      const formattedData = `${address},${direction},${Math.abs(value)}`;
+      console.log(`rotateMotor - formattedData: ${formattedData}`);
+
+      // const totalBytesSent = await tcpCoordinateClient.write(formattedData)
+      const jointName = getJointNameFromAddress(address);
+      response.send(`Successfully rotated motor for ${jointName}.`);
+    }
+    catch (err) {
+      response.error(err.toString())
+    }
+  });
 };
 
 // run the main function
