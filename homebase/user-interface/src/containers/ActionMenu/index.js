@@ -12,7 +12,8 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { withStyles } from '@material-ui/core/styles';
 import { closeActionMenu } from '../../actions/menu';
 import Poker from '../../components/Poker/';
-import MotorSpeedSwitch from '../../components/MotorSpeedSwitch';
+import MotorSpeedSwitch from '../../components/MotorSpeedSwitch/';
+import JointRotationInput from '../../components/JointRotationInput/';
 import {
   JOINT_1_ADDRESS,
   JOINT_4_ADDRESS,
@@ -92,8 +93,8 @@ class ActionMenu extends Component {
           </Tooltip>
           <Typography variant="headline">Quick Actions</Typography>
         </div>
-        <Divider light />
         <List>
+          <Divider light />
           <ListItem>
             <Poker />
           </ListItem>
@@ -110,6 +111,20 @@ class ActionMenu extends Component {
           </ListItem>
           <ListItem>
             <MotorSpeedSwitch jointName="Joint 5.2" address={JOINT_52_ADDRESS} />
+          </ListItem>
+          <Divider light />
+          <Typography variant="subheading" className={classes.motorSubheading}>Rotate Joints</Typography>
+          <ListItem>
+            <JointRotationInput jointName="Joint 1" address={JOINT_1_ADDRESS} />
+          </ListItem>
+          <ListItem>
+            <JointRotationInput jointName="Joint 4" address={JOINT_4_ADDRESS} />
+          </ListItem>
+          <ListItem>
+            <JointRotationInput jointName="Joint 5.1" address={JOINT_51_ADDRESS} />
+          </ListItem>
+          <ListItem>
+            <JointRotationInput jointName="Joint 5.2" address={JOINT_52_ADDRESS} />
           </ListItem>
         </List>
       </Drawer>
