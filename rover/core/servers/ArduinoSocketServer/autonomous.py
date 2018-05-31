@@ -1,4 +1,6 @@
 from autonomousCore import *
+from astar.Traverse import Traverse
+from astar.Coordinate import Coordinate
 from deepstream import get
 
 # Autonomous module object
@@ -42,11 +44,32 @@ def main():
         pointsToVisit = get('points')
     except:
         print("GPS points error in DS")
-
-    while len(points) > 0:
-        reply = myDriver.goTo(points.pop())
-        if reply == -1: # used to quit on the spot in case of emergency
-            break
+   
+    post({'astar' : False}, 'astar')
+    trav = Traverse()
+    astar = get('astar')
+    
+    while len(pointsToVisit) > 0:
+        if astar['astar']:
+            startDict = get('gps')
+            start = []
+            start.append(startDict['lat']
+            start.append(startDict['long']
+            goal = Coordinate(pointsToVisit[0], pointsToVisit[1])
+            trav.CreateGrid(start, goal)
+            coords = get ('coords')
+            while len(coords) > 0:
+                coord = coords[0]
+                coords.remove(coord)
+                post({ 'coords' : coords }, 'coords')
+                coords = get('coords')
+                reply = driver.goTo(coord)
+                if reply == -1: # used to quit on the spot in case of emergency
+                    break
+        else:
+            reply = myDriver.goTo(pointsToVisit.pop())
+            if reply == -1: # used to quit on the spot in case of emergency
+                break
         # update base station
 
 if __name__ == '__main__':
