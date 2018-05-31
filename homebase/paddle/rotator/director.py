@@ -202,8 +202,9 @@ while True:
 
         __antenna_heading = getAntennaHeading() #get antenna heading from imu
         print(__antenna_heading)
+        
     #take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
-        break
+        break #do it until it works and only do it once
     except:
         print("failed to get heading")
         continue
@@ -217,20 +218,26 @@ while True:
         continue
 try:
     while True:
-        print("updating in 5")
-        sleep(1)
+        print("updating in 15")
+        sleep(15)
+
         __antenna_gps = getAntennaGPS()
-        print(__antenna_gps)
         print("got antenna gps")
+        print(__antenna_gps)
+
         __rover_gps = getRoverGPS()
-        print(__rover_gps)
         print("got rover gps")
+        print(__rover_gps)
 
         __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
         print("got target heading")
+        print(__targetHeading)
         if __targetHeading > 180:
             __targetHeading -= 360
+            print("adjusted heading to negative")
+            print(__targetHeading)
         if __targetHeading > (__antenna_heading - 90) and __targetHeading < (__antenna_heading + 90):
+            print("target heading within 90 degrees of current antenna heading")
             ardOut.write(struct.pack("i", (__targetHeading * 1000))) #sending new heading for the arduino to go to using its pot as reference.
 except:
     print("error in loop")
