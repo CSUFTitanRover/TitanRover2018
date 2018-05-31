@@ -16,6 +16,16 @@ import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
 import RoverIcon from './RoverIcon';
 import QuickAddWaypointDialog from '../QuickAddWaypointDialog/';
 
+const dukesCampgroundLocation = {
+  latitude: 38.375489,
+  longitude: -110.708431,
+};
+
+const habLocation = {
+  latitude: 38.406094,
+  longitude: -110.792002,
+};
+
 const styles = theme => ({
   markerIcon: {
     width: 44,
@@ -71,8 +81,8 @@ class Map extends Component {
   }
 
   DEFAULT_VIEWPORT = {
-    latitude: 33.881932, // 33.872405,
-    longitude: -117.882843, // -117.7748628,
+    latitude: dukesCampgroundLocation.latitude,
+    longitude: dukesCampgroundLocation.longitude,
     zoom: 15,
     bearing: 0,
     pitch: 0,

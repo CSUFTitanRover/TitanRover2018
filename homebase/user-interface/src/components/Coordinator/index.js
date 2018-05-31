@@ -14,7 +14,13 @@ import cn from 'classnames';
 import { toast } from 'react-toastify';
 import { getClient } from '../../utils/deepstream';
 import CoordinateTypeSelect from '../CoordinateTypeSelect/';
-import { DecimalDegreeInput, DegreesMinutesSecondsInput, DegreesDecimalMinutesInput } from '../CoordinateInputs/';
+import {
+  DecimalDegreeInput,
+  DegreesMinutesSecondsInput,
+  DegreesDecimalMinutesInput,
+  HeadingLocationTrueNorthInput,
+  HeadingLocationOffsetHeadingInput,
+} from '../CoordinateInputs/';
 
 const styles = theme => ({
   form: {
@@ -126,17 +132,6 @@ class Coordinator extends Component {
 
       this.client.event.emit('temp/waypoints:add', data);
       this.handleReset();
-
-      // use this in the commit button on the dialog
-      // const data = `${finalLatitude},${finalLongitude}`;
-      // this.client.rpc.make('addCoordinate', data, (error, result) => {
-      //   if (error) {
-      //     toast.error(error);
-      //   }
-
-      //   toast.success(result);
-      //   this.handleReset();
-      // });
     }
   }
 
@@ -170,7 +165,20 @@ class Coordinator extends Component {
               handleChange={this.handleFinalCoordinateChange}
             />
           );
+        } else if (coordinateType === 'distance-heading-true-north') {
+          return (
+            <HeadingLocationTrueNorthInput
+              handleChange={this.handleFinalCoordinateChange}
+            />
+          );
+        } else if (coordinateType === 'distance-heading-offset-heading') {
+          return (
+            <HeadingLocationOffsetHeadingInput
+              handleChange={this.handleFinalCoordinateChange}
+            />
+          );
         }
+
         throw Error('The coordinate type must be selected in order to show the coordinate input');
 
       case 2:
@@ -230,7 +238,7 @@ class Coordinator extends Component {
             onClick={this.handleNext}
           >
               Next
-          </Button>
+            </Button>
         )}
       </div>
     </div>

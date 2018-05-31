@@ -104,6 +104,18 @@ export function getRecordList(dsClient, path) {
   });
 }
 
+export function getRecordSnapshot(dsClient, path) {
+  return new Promise((resolve, reject) => {
+    dsClient.record.snapshot(path, (error, data) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
+
 /**
  * Initializes deepstream state to match up with an initial component state and vice versa
  * @param {DeepstreamClient} dsClient - a valid, connected deepstream client

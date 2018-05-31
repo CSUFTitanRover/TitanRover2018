@@ -51,7 +51,7 @@ class CurrentWaypointsList extends Component {
 
   state = {
     data: [],
-    addWaypointsDialogOpen: false,
+    addWaypointsDialogOpen: true,
     deleteAllDialogOpen: false,
     deletingAllWaypoints: false,
   }
