@@ -8,7 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import SettingsApplicationsIcon from '@material-ui/icons/SettingsApplications';
 import { openLeftMenu, openActionMenu } from '../../actions/menu';
-import { DeepstreamStopwatch as Stopwatch } from '../../components/Stopwatch/';
+import Stopwatch from '../../components/Stopwatch/';
 
 const mapStateToProps = state => ({
   leftMenuActive: state.leftMenuActive,

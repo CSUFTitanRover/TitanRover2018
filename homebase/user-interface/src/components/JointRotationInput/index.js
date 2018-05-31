@@ -14,7 +14,7 @@ class JointRotationInput extends Component {
   state = { rotation: 0 }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handleChange = ({ target }) => {

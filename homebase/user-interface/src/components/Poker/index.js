@@ -8,7 +8,7 @@ class Poker extends Component {
   state = { pokeLoading: false }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handlePoke = () => {

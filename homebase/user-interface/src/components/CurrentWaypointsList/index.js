@@ -57,7 +57,7 @@ class CurrentWaypointsList extends Component {
   }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handleNewPayload = (data) => {

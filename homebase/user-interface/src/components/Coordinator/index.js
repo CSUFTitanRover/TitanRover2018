@@ -223,21 +223,21 @@ class Coordinator extends Component {
             Add Coordinate
           </Button>
         ) : (
-            <Button
-              variant="raised"
-              color="primary"
-              className={classes.actionButton}
-              onClick={this.handleNext}
-            >
+          <Button
+            variant="raised"
+            color="primary"
+            className={classes.actionButton}
+            onClick={this.handleNext}
+          >
               Next
-            </Button>
-          )}
+          </Button>
+        )}
       </div>
     </div>
   )
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   render() {

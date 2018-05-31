@@ -8,7 +8,6 @@ import red from '@material-ui/core/colors/red';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import { withDeepstreamState } from '../../utils/deepstream';
 
 const styles = theme => ({
   paper: {
@@ -145,11 +144,4 @@ class Stopwatch extends Component {
   }
 }
 
-const StopwatchWithStyles = withStyles(styles)(Stopwatch);
-export default StopwatchWithStyles;
-
-/** This is a class that allows Stopwatch to be synchronized
- *  across all devices connected to deepstream.  The data is stored
- *  under the record 'ui/stopwatch'.
- */
-export const DeepstreamStopwatch = withDeepstreamState(StopwatchWithStyles, 'ui/stopwatch', ['active', 'startTime', 'accTime']);
+export default withStyles(styles)(Stopwatch);

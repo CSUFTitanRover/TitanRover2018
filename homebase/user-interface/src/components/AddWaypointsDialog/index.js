@@ -84,7 +84,7 @@ class AddWaypointsDialog extends Component {
   state = { isCommiting: false }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handleCommitClick = () => {
