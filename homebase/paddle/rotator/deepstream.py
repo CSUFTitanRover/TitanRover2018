@@ -9,7 +9,7 @@ import subprocess
 from subprocess import Popen
 
 
-roverIp = "192.168.1.253"   # This ip will change periodically, 
+roverIp = "192.168.1.2"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
 '''
@@ -27,7 +27,7 @@ except:
     roverIp = "127.0.0.1"
 '''
 
-def get(recordName, ip="192.168.1.253"):
+def get(recordName, ip="192.168.1.8"):
     '''
         The get function will get the entire record "rover/" + recordName
         and returns the record as an object.
@@ -56,7 +56,7 @@ def get(recordName, ip="192.168.1.253"):
         return "NO_DEEPSTREAM"
 
 
-def post(obj, recordName, ip="192.168.1.2"):
+def post(obj, recordName, ip="192.168.1.8"):
     '''
         This function will post the object sen to the deepstream server.
 

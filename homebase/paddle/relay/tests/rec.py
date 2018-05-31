@@ -2,7 +2,7 @@
 #receives data from a uart rf module and prints what it gets
 import serial
 from time import sleep
-ser = serial.Serial('/dev/ttyUSB1', 9600, timeout=None)
+ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=None)
 def pnw(): #testing function reads all from buffer and prints its length and contents
     n = ser.read_all()
     print(len(n))
@@ -24,8 +24,9 @@ def getRF(rf_uart, size_of_payload): #added argument to make it more function-li
                 print("failure")
                 return -1
     return data
-
+print("start")
 while True:
     #pass serial object to receive from
     #and size of payload IN BYTES
-    serial_data = getRF(ser, 10) #returns a tuple of sent variables
+    serial_data = getRF(ser, 2) #returns a tuple of sent variables
+    print(serial_data)

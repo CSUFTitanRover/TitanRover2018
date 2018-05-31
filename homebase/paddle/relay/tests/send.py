@@ -19,12 +19,12 @@ def putRF(rf_uart, data): #arguments to make function more self-contained and fu
 int1, int2, int3, int4, int5, int6, int7, int8, int9, int10 = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
 
 #it is probably easiest to pack everything before you pass it to putRF()
-data = struct.pack('10b', int1, int2, int3, int4, int5, int6, int7, int8, int9, int10)
+data = struct.pack('2b', int1, int2)
 
 #now pass the data to putRF
 while True:
     putRF(ser, data) #pass serial object and data to send over it
 
     print("sent") #these two lines for testing purposes
-    sleep(0.5)
+    #sleep(0.5)
 

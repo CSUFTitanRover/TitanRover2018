@@ -195,7 +195,8 @@ print(__clockwise)
 
 __antenna_heading = getAntennaHeading() #get antenna heading from imu
 #take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
-ser.write(struct.pack("i", int(round(__antenna_heading * 1000)))) #the fidgit spinner code 'unpacks' and divides by 1000
+print(__antenna_heading)
+ardOut.write(struct.pack("i", int(round(__antenna_heading * 1000)))) #the fidgit spinner code 'unpacks' and divides by 1000
 #first value sent to arduino initializes the center of the potentiometer for direction reference
 
 #while True:

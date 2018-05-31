@@ -1,4 +1,4 @@
-print("starting director")
+print("starting director1")
 from time import sleep
 import sys
 import math
@@ -19,7 +19,7 @@ ardName = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_85439313330351D0E
 ardOut =  serial.Serial(ardName, 9600, timeout=None)
 
 # gnss connection info
-__antenna_gps_address = "192.168.1.232"
+__antenna_gps_address = "192.168.1.31"
 __antenna_gps_port = 7075
 __antenna_gps_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 __antenna_gps_socket.settimeout(0.5)
@@ -65,12 +65,17 @@ def getAntennaGPS():
         else:
             print("No valid regex data")
             __antenna_gps_socket.close()
-    except KeyboardInterrupt:
+        print("received gps data from socket")
+    except:
+        print("error receiving antenna gps from socket")
         pass
     return __antenna_gps
 
 def getRoverGPS():
-    data = get('gps')
+    print("getting rover gps")
+    data = get('gps', '192.168.1.8')
+    print("got rover gps from deepstream")
+    print(data)
     return (data["lat"], data["lon"])
 
 def getTargetHeading(__antena_gps, __rover_gps):
@@ -111,6 +116,7 @@ def getAntennaHeading():
     '''
     print("checking heading")
     data = subprocess.check_output(["python3", "IMU_Acc_Mag_Gyro.py"])
+    print("returning heading")
     return float(data)
 
  ############################################################## UNUSED
@@ -191,18 +197,41 @@ print(__clockwise)
 
     #return (get('gps')['lat'], get('gps')['lon'])
 
-
-
-
-__antenna_heading = getAntennaHeading() #get antenna heading from imu
-#take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
-ser.write(struct.pack("i", int(round(__antenna_heading * 1000)))) #the fidgit spinner code 'unpacks' and divides by 1000
-#first value sent to arduino initializes the center of the potentiometer for direction reference
-
 while True:
-    sleep(20)
-    __rover_gps = getRoverGPS()
-    __antenna_gps = getAntennaGPS()
-    __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
-    if __targetHeading > (__antenna_heading - 90) and __targetHeading < (__antenna_heading + 90):
-        ardOut.write(struct.pack("i", (__targetHeading * 1000))) #sending new heading for the arduino to go to using its pot as reference.
+    try:
+
+        __antenna_heading = getAntennaHeading() #get antenna heading from imu
+        print(__antenna_heading)
+    #take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
+        break
+    except:
+        print("failed to get heading")
+        continue
+while True:
+    try:
+        print("write initial heading to ard")
+        ardOut.write(pack('i', int((__antenna_heading * 1000))))
+        break
+    except:
+        print('failed to write initial heading to ard')
+        continue
+try:
+    while True:
+        print("updating in 5")
+        sleep(1)
+        __antenna_gps = getAntennaGPS()
+        print(__antenna_gps)
+        print("got antenna gps")
+        __rover_gps = getRoverGPS()
+        print(__rover_gps)
+        print("got rover gps")
+
+        __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
+        print("got target heading")
+        if __targetHeading > 180:
+            __targetHeading -= 360
+        if __targetHeading > (__antenna_heading - 90) and __targetHeading < (__antenna_heading + 90):
+            ardOut.write(struct.pack("i", (__targetHeading * 1000))) #sending new heading for the arduino to go to using its pot as reference.
+except:
+    print("error in loop")
+
