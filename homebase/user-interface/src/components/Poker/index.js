@@ -8,7 +8,7 @@ class Poker extends Component {
   state = { pokeLoading: false }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handlePoke = () => {
@@ -26,7 +26,7 @@ class Poker extends Component {
   render() {
     const { pokeLoading } = this.state;
     return (
-      <Button variant="raised" color="primary" onClick={this.handlePoke}>
+      <Button fullWidth variant="raised" color="primary" onClick={this.handlePoke}>
         {pokeLoading ? <CircularProgress color="default" size={20} /> : 'Poke'}
       </Button>
     );

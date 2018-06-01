@@ -33,7 +33,7 @@ class QuickAddWaypointDialog extends Component {
   state = { isAddingWaypoint: false }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handleClose = () => {

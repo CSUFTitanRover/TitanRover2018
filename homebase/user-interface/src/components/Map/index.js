@@ -8,11 +8,23 @@ import ReactMapGL, { NavigationControl, Marker, Popup } from 'react-map-gl';
 import { withStyles } from '@material-ui/core/styles';
 import amber from '@material-ui/core/colors/amber';
 import grey from '@material-ui/core/colors/grey';
+import Tooltip from '@material-ui/core/Tooltip';
 import MarkerIcon from '@material-ui/icons/LocationOn';
 import BreadcrumbIcon from '@material-ui/icons/Lens';
+import InfoIcon from '@material-ui/icons/Info';
 import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
 import RoverIcon from './RoverIcon';
 import QuickAddWaypointDialog from '../QuickAddWaypointDialog/';
+
+const dukesCampgroundLocation = {
+  latitude: 38.375489,
+  longitude: -110.708431,
+};
+
+const habLocation = {
+  latitude: 38.406094,
+  longitude: -110.792002,
+};
 
 const styles = theme => ({
   markerIcon: {
@@ -33,6 +45,10 @@ const styles = theme => ({
     width: 10,
     height: 10,
     color: grey[800],
+  },
+  infoIconContainer: {
+    marginLeft: 3,
+    marginTop: theme.spacing.unit,
   },
 });
 
@@ -65,8 +81,8 @@ class Map extends Component {
   }
 
   DEFAULT_VIEWPORT = {
-    latitude: 33.881932, // 33.872405,
-    longitude: -117.882843, // -117.7748628,
+    latitude: dukesCampgroundLocation.latitude,
+    longitude: dukesCampgroundLocation.longitude,
     zoom: 15,
     bearing: 0,
     pitch: 0,
@@ -95,10 +111,6 @@ class Map extends Component {
     const withCtrlKey = event.srcEvent.ctrlKey;
     const leftButtonClick = event.leftButton;
     const quickAddTriggered = leftButtonClick && withCtrlKey;
-
-    // //console.log(event);
-    // console.log(`Clicked on: lat=${latitude} lng=${longitude}`);
-    // console.log('CTRL pressed during left click:', quickAddTriggered);
 
     if (quickAddTriggered) {
       this.setState({ quickAddDialogOpen: true, quickAddLatitude: latitude, quickAddLongitude: longitude });
@@ -201,7 +213,7 @@ class Map extends Component {
       quickAddLatitude,
       quickAddLongitude,
     } = this.state;
-    const { width, height, mapStyle } = this.props;
+    const { width, height, mapStyle, classes } = this.props;
     // const bearing = viewport.bearing;
     // const latitude = viewport.latitude;
     // const longitude = viewport.longitude;
@@ -238,6 +250,11 @@ class Map extends Component {
         >
           <div style={{ position: 'absolute', top: 0, right: 0, padding: 10 }}>
             <NavigationControl onViewportChange={this._updateViewport} />
+            <div className={classes.infoIconContainer}>
+              <Tooltip id="map-info-icon" title="CTRL+click on the map to quick add a waypoint">
+                <InfoIcon color="primary" />
+              </Tooltip>
+            </div>
           </div>
 
           {this.renderMarkers(data)}

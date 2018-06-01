@@ -51,13 +51,13 @@ class CurrentWaypointsList extends Component {
 
   state = {
     data: [],
-    addWaypointsDialogOpen: false,
+    addWaypointsDialogOpen: true,
     deleteAllDialogOpen: false,
     deletingAllWaypoints: false,
   }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handleNewPayload = (data) => {
