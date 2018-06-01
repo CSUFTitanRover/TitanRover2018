@@ -317,7 +317,7 @@ class Map extends Component {
           <div style={{ position: 'absolute', top: 0, right: 0, padding: 10 }}>
             <NavigationControl onViewportChange={this._updateViewport} />
             <div className={classes.infoIconContainer}>
-              <Tooltip id="map-info-icon" title="CTRL+click on the map to quick add a waypoint">
+              <Tooltip id="map-info-icon" title="CTRL+click = quick waypoint. CTRL+SHIFT+click = home marker">
                 <InfoIcon color="primary" />
               </Tooltip>
             </div>
