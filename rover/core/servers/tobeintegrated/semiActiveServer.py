@@ -5,12 +5,6 @@ from time import sleep
 import smbus
 import time
 
-READ_PRESSURE = '9'
-ACTIVATE_SHOCK_WHEEL_ONE = '1'
-ACTIVATE_SHOCK_WHEEL_TWO = '2'
-ACTIVATE_SHOCK_WHEEL_THREE = '3'
-ACTIVATE_SHOCK_WHEEL_FOUR = '4'
-
 
 # for RPI version 1, use "bus = smbus.SMBus(0)"
 bus = smbus.SMBus(1)
@@ -30,16 +24,6 @@ def StringToBytes(val):
     return retVal
 
 
-# def writeToBus(addr, deg, client):
-#     #print(addr, type(int(addr)))
-#     bus.write_i2c_block_data(int(addr), 0x00, StringToBytes(deg))
-#     if deg[0] == '9':
-#         block = bus.read_word_data(addr, 0)
-#         client.send(block)
-#     else:
-#         client.send("Successful")
-
-
 def handle_reading_pressure(client, addr, value):
     block = bus.read_word_data(addr, value)
     client.send(block)
@@ -47,7 +31,7 @@ def handle_reading_pressure(client, addr, value):
 
 def handle_activating_shock(client, addr, value):
     bus.write_i2c_block_data(int(addr), 0x00, StringToBytes(value))
-    client.send('Successfully activated shock ', addr)
+    client.send('Successfully activated shock ', value)
 
 
 def handle_client(client):
@@ -57,10 +41,10 @@ def handle_client(client):
         addr = payload[0]
         value = payload[1]
 
-        if addr == READ_PRESSURE:
-            handle_reading_pressure(client, addr, value)
-        if addr in (ACTIVATE_SHOCK_WHEEL_ONE, ACTIVATE_SHOCK_WHEEL_TWO, ACTIVATE_SHOCK_WHEEL_THREE, ACTIVATE_SHOCK_WHEEL_FOUR):
-            handle_activating_shock(client, addr, value)
+        if payload[0] == '*':
+            handle_reading_pressure(client, 30, value)
+        if payload[0] == '+':
+            handle_activating_shock(client, 30, value)
 
 
 clients = {}

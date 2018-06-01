@@ -3,7 +3,7 @@ import socket
 
 
 def connect():
-    host = "localhost"
+    host = "192.168.1.2"
     port = 6789
     BUFFER_SIZE = 4096
 
