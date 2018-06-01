@@ -16,7 +16,7 @@ const styles = () => ({
   },
 });
 
-class QuickAddWaypointDialog extends Component {
+class AddHomeMarkerDialog extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
     latitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -41,19 +41,9 @@ class QuickAddWaypointDialog extends Component {
   }
 
   handleAddWaypoint = () => {
-    const { latitude, longitude } = this.state;
-    const computedDataString = `${latitude},${longitude}`;
-    this.setState({ isAddingWaypoint: true });
-
-    this.client.rpc.make('addCoordinate', computedDataString, (rpcError, result) => {
-      this.setState({ isAddingWaypoint: false });
-      if (rpcError) {
-        toast.error(rpcError);
-      } else {
-        toast.success(result);
-        this.handleClose();
-      }
-    });
+    const { latitude, longitude } = this.props;
+    this.client.record.setData('homebase/map', { homebaseMarker: latitude, longitude });
+    this.props.handleClose();
   }
 
   render() {
@@ -62,7 +52,7 @@ class QuickAddWaypointDialog extends Component {
 
     return (
       <Dialog open={isOpen} onClose={this.handleClose} aria-labelledby="quick-add-waypoint-dialog">
-        <DialogTitle id="quick-add-waypoint-dialog">Are you sure you want to quick add this waypoint?</DialogTitle>
+        <DialogTitle id="quick-add-waypoint-dialog">Are you sure you want to set the home marker?</DialogTitle>
         <DialogContent>
           <div className={classes.content}>
             <strong>Latitude:</strong>
@@ -74,7 +64,7 @@ class QuickAddWaypointDialog extends Component {
         <DialogActions>
           <Button onClick={this.handleClose}>Cancel</Button>
           <Button color="primary" variant="raised" onClick={this.handleAddWaypoint}>
-            {isAddingWaypoint ? <CircularProgress size={20} color="default" /> : 'Add Waypoint'}
+            {isAddingWaypoint ? <CircularProgress size={20} color="default" /> : 'Confirm'}
           </Button>
         </DialogActions>
       </Dialog >
@@ -82,4 +72,4 @@ class QuickAddWaypointDialog extends Component {
   }
 }
 
-export default withStyles(styles)(QuickAddWaypointDialog);
+export default withStyles(styles)(AddHomeMarkerDialog);

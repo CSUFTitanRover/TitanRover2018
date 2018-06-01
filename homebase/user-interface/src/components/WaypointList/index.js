@@ -48,7 +48,7 @@ class WaypointList extends Component {
     const { waypointListType } = this.props;
 
     if (waypointListType === 'currentPoints') {
-      this.client = await getClient();
+      this.client = await getClient('homebase');
     }
   }
 
