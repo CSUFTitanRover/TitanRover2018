@@ -348,7 +348,7 @@ class Map extends Component {
 
     // custom logic for currentGPS since it's
     // only an array that gets updated in place [lat, lon]
-    if (recordPath === 'rover/currentGPS') {
+    if (recordPath === 'rover/gps') {
       const transformedPayload = [payload.latitude, payload.longitude];
       // always add the new payload to the currentGPS
       data.currentGPS = transformedPayload;
@@ -379,7 +379,7 @@ class Map extends Component {
         recordPath={[
           'rover/currentPoints',
           'rover/previousPoints',
-          'rover/currentGPS',
+          'rover/gps',
           'rover/imu',
           'homebase/map']}
         onNewPayload={this.handleNewPayload}
