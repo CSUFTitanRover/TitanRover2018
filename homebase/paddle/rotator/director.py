@@ -250,11 +250,11 @@ while True:
 
         sleep(LONG_DELAY)
 
-        #__antenna_gps = getAntennaGPS()
+        __antenna_gps = getAntennaGPS()
         print("got antenna gps")
         print(__antenna_gps)
 
-       # __rover_gps = getRoverGPS()
+        __rover_gps = getRoverGPS()
         print("got rover gps")
         print(__rover_gps)
 
