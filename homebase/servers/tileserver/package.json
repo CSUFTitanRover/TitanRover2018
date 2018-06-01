@@ -1,15 +1,16 @@
 {
   "name": "tileserver",
   "version": "1.0.0",
-  "description": "",
+  "description": "The main purpose of this server is to serve the map tiles that will be used by the Map component of the UI.",
   "main": "main.js",
-  "dependencies": {
-    "tileserver-gl-light": "2.2.0"
-  },
-  "devDependencies": {},
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node main.js"
   },
+  "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "tileserver-gl-light": "^2.3.1"
+  }
 }

@@ -9,10 +9,12 @@ import ReactMapGL, { NavigationControl, Marker, Popup } from 'react-map-gl';
 import { withStyles } from '@material-ui/core/styles';
 import amber from '@material-ui/core/colors/amber';
 import grey from '@material-ui/core/colors/grey';
+import teal from '@material-ui/core/colors/teal';
 import Tooltip from '@material-ui/core/Tooltip';
 import MarkerIcon from '@material-ui/icons/LocationOn';
 import BreadcrumbIcon from '@material-ui/icons/Lens';
 import InfoIcon from '@material-ui/icons/Info';
+import HomeIcon from '@material-ui/icons/Home';
 import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
 import RoverIcon from './RoverIcon';
 import QuickAddWaypointDialog from '../QuickAddWaypointDialog/';
@@ -27,6 +29,8 @@ const habLocation = {
   latitude: 38.406094,
   longitude: -110.792002,
 };
+
+const initialLocation = habLocation;
 
 const styles = theme => ({
   markerIcon: {
@@ -51,6 +55,11 @@ const styles = theme => ({
   infoIconContainer: {
     marginLeft: 3,
     marginTop: theme.spacing.unit,
+  },
+  homeIcon: {
+    width: 44,
+    height: 44,
+    color: teal[400],
   },
 });
 
@@ -83,8 +92,8 @@ class Map extends Component {
   }
 
   DEFAULT_VIEWPORT = {
-    latitude: dukesCampgroundLocation.latitude,
-    longitude: dukesCampgroundLocation.longitude,
+    latitude: initialLocation.latitude,
+    longitude: initialLocation.longitude,
     zoom: 15,
     bearing: 0,
     pitch: 0,
@@ -100,7 +109,7 @@ class Map extends Component {
     },
     popupInfo: null,
     quickAddDialogOpen: false,
-    addHomeMarkerDialog: true,
+    addHomeMarkerDialogOpen: false,
   }
 
   currentGPSUpdateCountDelayed = 0;
@@ -118,37 +127,44 @@ class Map extends Component {
     const addHomeMarkerTriggered = leftButtonClick && withCtrlKey && withShiftKey;
 
     console.log(event);
-    if (quickAddTriggered) {
+    if (addHomeMarkerTriggered) {
+      this.setState({
+        addHomeMarkerDialogOpen: true,
+        addHomeMarkerDialogData: {
+          latitude,
+          longitude,
+        },
+      });
+    } else if (quickAddTriggered) {
       this.setState({
         quickAddDialogOpen: true,
         quickAddLatitude: latitude,
         quickAddLongitude: longitude,
       });
-    } else if (addHomeMarkerTriggered) {
-      this.setState({
-        addHomeMarkerDialog: true,
-        addHomeMarkerLatitude: latitude,
-        addHomeMarkerLongitude: longitude,
-      });
     }
   }
 
   renderHomeMarker = () => {
-    const { addHomeMarkerLatitude, addHomeMarkerLongitude } = this.state;
-    if (!addHomeMarkerLatitude || !addHomeMarkerLongitude) {
+    const { homebaseMarker } = this.state;
+
+    if (isEmpty(homebaseMarker)) {
       return null;
     }
+
+    const { latitude, longitude } = homebaseMarker;
+    const { classes } = this.props;
 
     return (
       <Marker
         key={shortid.generate()}
-        latitude={addHomeMarkerLatitude}
-        longitude={addHomeMarkerLongitude}
+        latitude={latitude}
+        longitude={longitude}
         offsetLeft={-22}
       >
-        <MarkerIcon
+        <HomeIcon
+          className={classes.homeIcon}
           onClick={() => this.setState({
-            popupInfo: { latitude: addHomeMarkerLatitude, longitude: addHomeMarkerLongitude },
+            popupInfo: { latitude, longitude },
           })}
         />
       </Marker>
@@ -242,11 +258,11 @@ class Map extends Component {
   }
 
   closeQuickAddWaypointDialog = () => {
-    this.setState({ quickAddDialogOpen: false, quickAddData: null });
+    this.setState({ quickAddDialogOpen: false });
   }
 
   closeAddHomeMarkerDialog = () => {
-    this.setState({ addHomeMarkerDialog: false, addHomeMarkerData: null });
+    this.setState({ addHomeMarkerDialogOpen: false });
   }
   renderMap = () => {
     const {
@@ -255,9 +271,8 @@ class Map extends Component {
       quickAddDialogOpen,
       quickAddLatitude,
       quickAddLongitude,
-      addHomeMarkerDialog,
-      addHomeMarkerLatitude,
-      addHomeMarkerLongitude,
+      addHomeMarkerDialogOpen,
+      addHomeMarkerDialogData,
     } = this.state;
     const { width, height, mapStyle, classes } = this.props;
     // const bearing = viewport.bearing;
@@ -286,10 +301,9 @@ class Map extends Component {
           longitude={quickAddLongitude}
         />
         <AddHomeMarkerDialog
-          isOpen={addHomeMarkerDialog}
+          isOpen={addHomeMarkerDialogOpen}
           handleClose={this.closeAddHomeMarkerDialog}
-          latitude={addHomeMarkerLatitude}
-          longitude={addHomeMarkerLongitude}
+          data={addHomeMarkerDialogData}
         />
         <ReactMapGL
           {...viewport}
@@ -303,7 +317,7 @@ class Map extends Component {
           <div style={{ position: 'absolute', top: 0, right: 0, padding: 10 }}>
             <NavigationControl onViewportChange={this._updateViewport} />
             <div className={classes.infoIconContainer}>
-              <Tooltip id="map-info-icon" title="CTRL+click on the map to quick add a waypoint">
+              <Tooltip id="map-info-icon" title="CTRL+click = quick waypoint. CTRL+SHIFT+click = home marker">
                 <InfoIcon color="primary" />
               </Tooltip>
             </div>
@@ -350,11 +364,7 @@ class Map extends Component {
       // finally set the new state
       this.setState({ data });
     } else if (recordPath === 'homebase/map') {
-      console.log(data);
-      // this.setState({
-      //   addHomeMarkerLatitude: data.latitude,
-      //   addHomeMarkerLongitude,
-      // });
+      this.setState(payload);
     } else {
       // let's copy the payload and overwrite any keys in currentDataPoint
       // this is done to avoid updating the currentDataPoint without losing any keys
@@ -370,7 +380,8 @@ class Map extends Component {
           'rover/currentPoints',
           'rover/previousPoints',
           'rover/currentGPS',
-          'rover/imu']}
+          'rover/imu',
+          'homebase/map']}
         onNewPayload={this.handleNewPayload}
       >
         {() => this.renderMap()}
@@ -378,5 +389,8 @@ class Map extends Component {
     );
   }
 }
+
+// imu shape:
+// imuData = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
 
 export default withStyles(styles)(Map);
