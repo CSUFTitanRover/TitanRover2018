@@ -66,7 +66,7 @@ def handle_client(client):
 clients = {}
 
 HOST = ''
-PORT = '9059'
+PORT = '6789'
 BUFSIZ = 4096
 ADDR = (HOST, PORT)
 
