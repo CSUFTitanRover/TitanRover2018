@@ -1,4 +1,3 @@
-print("starting director1")
 from time import sleep
 import sys
 import math
@@ -14,6 +13,9 @@ import re
 import requests
 import serial
 
+MAX_DEVIATION = 90
+SHORT_DELAY = 1
+LONG_DELAY = 15
 #Arduino Serial Out
 ardName = '/dev/serial/by-id/usb-Arduino__www.arduino.cc__0043_85439313330351D0E102-if00'
 ardOut =  serial.Serial(ardName, 9600, timeout=None)
@@ -36,6 +38,27 @@ __deltaDirection = 0
 __paused = False
 __stop = False
 
+def toNeg(degreeVal):
+    if degreeVal > 180:    
+            degreeVal -= 360
+            print("adjusted degreeVal to %f" % degreeVal)
+    return degreeVal
+
+def sendHeading(ardOut, newHeading, init = False):
+    if (newHeading > (initial_heading - MAX_DEVIATION) and newHeading < (initial_heading + MAX_DEVIATION)) or init == True:
+        print("target heading within %i degrees of initial antenna heading " % MAX_DEVIATION)
+        while True:
+            try:
+                print("writing %i to arduino" % newHeading)
+                ardOut.write(pack("i", (int(newHeading) * 1000))) #sending new heading for the arduino to go to using its pot as reference.
+                #take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
+                break
+            except:
+                print("error writing")
+                sleep(SHORT_DELAY)
+                continue
+        __antenna_heading = newHeading
+
 def getAntennaGPS():
     while True:
         try:
@@ -43,7 +66,7 @@ def getAntennaGPS():
             __antenna_gps_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #this needs to be re-called in a loop when attempting to reconnect
         except:
             print("failed to initialize socket.")
-            sleep(0.5)
+            sleep(SHORT_DELAY)
             continue
         try:
             print("connecting")
@@ -52,7 +75,7 @@ def getAntennaGPS():
             break
         except:
             print("Failed to connect!")
-            sleep(0.5)
+            sleep(SHORT_DELAY)
             continue
     pattern = re.compile(b'(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
     print("Waiting for GPS Lock...")
@@ -114,9 +137,7 @@ def getAntennaHeading():
     Returns:
         heading
     '''
-    print("checking heading")
     data = subprocess.check_output(["python3", "IMU_Acc_Mag_Gyro.py"])
-    print("returning heading")
     return float(data)
 
  ############################################################## UNUSED
@@ -195,50 +216,57 @@ print(__clockwise)
 '''
 
 
-    #return (get('gps')['lat'], get('gps')['lon'])
-
+#return (get('gps')['lat'], get('gps')['lon'])
+#initial heading == the very first heading of the antenna, this value is not updated
+#__antenna_heading == current antenna heading, this value gets updated after every time the antenna successfully sends a new heading to the arduino
+#__target_heading == heading to send to arduino, this is the heading the antenna needs to point at the rover
 while True:
     try:
-
-        __antenna_heading = getAntennaHeading() #get antenna heading from imu
-        print(__antenna_heading)
-        
-    #take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
-        break #do it until it works and only do it once
-    except:
-        print("failed to get heading")
-        continue
-while True:
-    try:
-        print("write initial heading to ard")
-        ardOut.write(pack('i', int((__antenna_heading * 1000))))
+        initial_heading = getAntennaHeading() #get antenna heading from imu
+        print("initial heading: %f" % initial_heading)
         break
     except:
-        print('failed to write initial heading to ard')
+        print("failed to get initial heading")
         continue
-try:
-    while True:
-        print("updating in 15")
-        sleep(15)
 
-        __antenna_gps = getAntennaGPS()
+try: 
+    initial_heading = toNeg(initial_heading)
+except:
+    print("error with toneg?")
+
+while True:    
+    try:
+        sendHeading(ardOut, initial_heading, True)
+        print("sent initial heading")
+        break #do it until it works and only do it once
+    except:
+        print("failed to send initial heading")
+        sleep(SHORT_DELAY)
+        continue
+
+while True:
+    try:
+        print("updating in: %i" % int(LONG_DELAY) )
+
+        sleep(LONG_DELAY)
+
+        #__antenna_gps = getAntennaGPS()
         print("got antenna gps")
         print(__antenna_gps)
 
-        __rover_gps = getRoverGPS()
+       # __rover_gps = getRoverGPS()
         print("got rover gps")
         print(__rover_gps)
 
-        __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
+        __targetHeading = 0 #getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
         print("got target heading")
         print(__targetHeading)
-        if __targetHeading > 180:
-            __targetHeading -= 360
-            print("adjusted heading to negative")
-            print(__targetHeading)
-        if __targetHeading > (__antenna_heading - 90) and __targetHeading < (__antenna_heading + 90):
-            print("target heading within 90 degrees of current antenna heading")
-            ardOut.write(struct.pack("i", (__targetHeading * 1000))) #sending new heading for the arduino to go to using its pot as reference.
-except:
-    print("error in loop")
+
+        __targetHeading = toNeg(__targetHeading)
+        sendHeading(ardOut, __targetHeading)
+
+    except:
+        print("error in loop")
+        sleep(SHORT_DELAY)
+        continue
 

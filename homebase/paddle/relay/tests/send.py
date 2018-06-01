@@ -25,6 +25,6 @@ data = struct.pack('2b', int1, int2)
 while True:
     putRF(ser, data) #pass serial object and data to send over it
 
-    print("sent") #these two lines for testing purposes
+    print(git "sent") #these two lines for testing purposes
     #sleep(0.5)
 
