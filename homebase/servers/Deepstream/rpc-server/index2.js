@@ -8,9 +8,9 @@ const {
     POP_COORDINATE
 } = require('./constants');
 
-const motorSpeedEndpoint = {
-    host: 'localhost',
-    port: 9999
+const armEndpoint = {
+    host: '192.168.1.2',
+    port: 9080
 };
 
 const coordinatesEndpoint = {
@@ -19,59 +19,61 @@ const coordinatesEndpoint = {
 };
 
 async function main() {
-    const tcpMotorSpeedClient = new PromiseSocket();
-    const tcpCoordinateClient = new PromiseSocket();
+    const tcpArmClient = new PromiseSocket();
+    // const tcpCoordinateClient = new PromiseSocket();
     const dsClient = await getClient('homebase');
-    await tcpCoordinateClient.connect(coordinatesEndpoint);
+    // await tcpCoordinateClient.connect(coordinatesEndpoint);
+    await tcpArmClient.connect(armEndpoint);
+    
 
     // hook up rpc providers for deepstream
-    dsClient.rpc.provide('addCoordinate', async (data, response) => {
-        try {
-            const formattedData = createDataString(ADD_COORDINATE, data);
-            console.log(`addCoordinate - formattedData: ${formattedData}`);
-            const totalBytesSent = await tcpCoordinateClient.write(formattedData)
-            response.send(`Successfully added your coordinate for: ${formattedData}`);
-        }
-        catch (err) {
-            response.error(err.toString())
-        }
-    });
+    // dsClient.rpc.provide('addCoordinate', async (data, response) => {
+    //     try {
+    //         const formattedData = createDataString(ADD_COORDINATE, data);
+    //         console.log(`addCoordinate - formattedData: ${formattedData}`);
+    //         const totalBytesSent = await tcpCoordinateClient.write(formattedData)
+    //         response.send(`Successfully added your coordinate for: ${formattedData}`);
+    //     }
+    //     catch (err) {
+    //         response.error(err.toString())
+    //     }
+    // });
 
-    dsClient.rpc.provide('popCoordinate', async (data, response) => {
-        try {
-            const formattedData = createDataString(POP_COORDINATE, data);
-            console.log(`popCoordinate - formattedData: ${formattedData}`);
-            const totalBytesSent = await tcpCoordinateClient.write(formattedData)
-            response.send(`Successfully popped off the top coordinate for: ${formattedData}`);
-        }
-        catch (err) {
-            response.error(err.toString())
-        }
-    });
+    // dsClient.rpc.provide('popCoordinate', async (data, response) => {
+    //     try {
+    //         const formattedData = createDataString(POP_COORDINATE, data);
+    //         console.log(`popCoordinate - formattedData: ${formattedData}`);
+    //         const totalBytesSent = await tcpCoordinateClient.write(formattedData)
+    //         response.send(`Successfully popped off the top coordinate for: ${formattedData}`);
+    //     }
+    //     catch (err) {
+    //         response.error(err.toString())
+    //     }
+    // });
 
-    dsClient.rpc.provide('deleteCoordinate', async (data, response) => {
-        try {
-            const formattedData = createDataString(DELETE_COORDINATE, data);
-            console.log(`deleteCoordinate - formattedData: ${formattedData}`);
-            const totalBytesSent = await tcpCoordinateClient.write(formattedData)
-            response.send(`Successfully deleted your coordinate for: ${formattedData}`);
-        }
-        catch (err) {
-            response.error(err.toString())
-        }
-    });
+    // dsClient.rpc.provide('deleteCoordinate', async (data, response) => {
+    //     try {
+    //         const formattedData = createDataString(DELETE_COORDINATE, data);
+    //         console.log(`deleteCoordinate - formattedData: ${formattedData}`);
+    //         const totalBytesSent = await tcpCoordinateClient.write(formattedData)
+    //         response.send(`Successfully deleted your coordinate for: ${formattedData}`);
+    //     }
+    //     catch (err) {
+    //         response.error(err.toString())
+    //     }
+    // });
 
-    dsClient.rpc.provide('deleteAllCoordinates', async (data, response) => {
-        try {
-            const formattedData = createDataString(DELETE_ALL_COORDINATES, data);
-            console.log(`deleteAllCoordinates - formattedData: ${formattedData}`);
-            const totalBytesSent = await tcpCoordinateClient.write(formattedData)
-            response.send(`Successfully deleted all the coordinates.`);
-        }
-        catch (err) {
-            response.error(err.toString())
-        }
-    });
+    // dsClient.rpc.provide('deleteAllCoordinates', async (data, response) => {
+    //     try {
+    //         const formattedData = createDataString(DELETE_ALL_COORDINATES, data);
+    //         console.log(`deleteAllCoordinates - formattedData: ${formattedData}`);
+    //         const totalBytesSent = await tcpCoordinateClient.write(formattedData)
+    //         response.send(`Successfully deleted all the coordinates.`);
+    //     }
+    //     catch (err) {
+    //         response.error(err.toString())
+    //     }
+    // });
 
     dsClient.rpc.provide('changeMotorSpeed', async (data, response) => {
         try {
@@ -79,7 +81,7 @@ async function main() {
             const formattedData = createDataString(address, value);
             console.log(`changeMotorSpeed - formattedData: ${formattedData}`);
 
-            const totalBytesSent = await tcpCoordinateClient.write(formattedData)
+            const totalBytesSent = await tcpArmClient.write(formattedData)
             const jointName = getJointNameFromAddress(address);
             const speedName = getSpeedNameFromValue(value);
             response.send(`Successfully changed the motor of ${jointName} to ${speedName}.`);
@@ -92,10 +94,10 @@ async function main() {
     dsClient.rpc.provide('rotateMotor', async (data, response) => {
         try {
             const { address, value, direction } = data;
-            const formattedData = `${address},${direction},${Math.abs(value)}`;
+            const formattedData = `${address},${direction}${Math.abs(value)}`;
             console.log(`rotateMotor - formattedData: ${formattedData}`);
 
-            // const totalBytesSent = await tcpCoordinateClient.write(formattedData)
+            const totalBytesSent = await tcpArmClient.write(formattedData)
             const jointName = getJointNameFromAddress(address);
             response.send(`Successfully rotated motor for ${jointName}.`);
         }

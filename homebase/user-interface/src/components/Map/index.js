@@ -2,6 +2,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import has from 'lodash.has';
+import isEmpty from 'lodash.isempty';
 import cn from 'classnames';
 import shortid from 'shortid';
 import ReactMapGL, { NavigationControl, Marker, Popup } from 'react-map-gl';
@@ -15,6 +16,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
 import RoverIcon from './RoverIcon';
 import QuickAddWaypointDialog from '../QuickAddWaypointDialog/';
+import AddHomeMarkerDialog from '../AddHomeMarkerDialog/';
 
 const dukesCampgroundLocation = {
   latitude: 38.375489,
@@ -98,6 +100,7 @@ class Map extends Component {
     },
     popupInfo: null,
     quickAddDialogOpen: false,
+    addHomeMarkerDialog: true,
   }
 
   currentGPSUpdateCountDelayed = 0;
@@ -109,12 +112,47 @@ class Map extends Component {
   handleMapClick = (event) => {
     const [longitude, latitude] = event.lngLat;
     const withCtrlKey = event.srcEvent.ctrlKey;
+    const withShiftKey = event.srcEvent.shiftKey;
     const leftButtonClick = event.leftButton;
     const quickAddTriggered = leftButtonClick && withCtrlKey;
+    const addHomeMarkerTriggered = leftButtonClick && withCtrlKey && withShiftKey;
 
+    console.log(event);
     if (quickAddTriggered) {
-      this.setState({ quickAddDialogOpen: true, quickAddLatitude: latitude, quickAddLongitude: longitude });
+      this.setState({
+        quickAddDialogOpen: true,
+        quickAddLatitude: latitude,
+        quickAddLongitude: longitude,
+      });
+    } else if (addHomeMarkerTriggered) {
+      this.setState({
+        addHomeMarkerDialog: true,
+        addHomeMarkerLatitude: latitude,
+        addHomeMarkerLongitude: longitude,
+      });
     }
+  }
+
+  renderHomeMarker = () => {
+    const { addHomeMarkerLatitude, addHomeMarkerLongitude } = this.state;
+    if (!addHomeMarkerLatitude || !addHomeMarkerLongitude) {
+      return null;
+    }
+
+    return (
+      <Marker
+        key={shortid.generate()}
+        latitude={addHomeMarkerLatitude}
+        longitude={addHomeMarkerLongitude}
+        offsetLeft={-22}
+      >
+        <MarkerIcon
+          onClick={() => this.setState({
+            popupInfo: { latitude: addHomeMarkerLatitude, longitude: addHomeMarkerLongitude },
+          })}
+        />
+      </Marker>
+    );
   }
 
   renderPopup = () => {
@@ -202,8 +240,13 @@ class Map extends Component {
 
     return null;
   }
+
   closeQuickAddWaypointDialog = () => {
     this.setState({ quickAddDialogOpen: false, quickAddData: null });
+  }
+
+  closeAddHomeMarkerDialog = () => {
+    this.setState({ addHomeMarkerDialog: false, addHomeMarkerData: null });
   }
   renderMap = () => {
     const {
@@ -212,6 +255,9 @@ class Map extends Component {
       quickAddDialogOpen,
       quickAddLatitude,
       quickAddLongitude,
+      addHomeMarkerDialog,
+      addHomeMarkerLatitude,
+      addHomeMarkerLongitude,
     } = this.state;
     const { width, height, mapStyle, classes } = this.props;
     // const bearing = viewport.bearing;
@@ -239,6 +285,12 @@ class Map extends Component {
           latitude={quickAddLatitude}
           longitude={quickAddLongitude}
         />
+        <AddHomeMarkerDialog
+          isOpen={addHomeMarkerDialog}
+          handleClose={this.closeAddHomeMarkerDialog}
+          latitude={addHomeMarkerLatitude}
+          longitude={addHomeMarkerLongitude}
+        />
         <ReactMapGL
           {...viewport}
           {...this.mapSettings}
@@ -260,6 +312,7 @@ class Map extends Component {
           {this.renderMarkers(data)}
           {this.renderBreadcrumbs(data)}
           {this.renderPopup()}
+          {this.renderHomeMarker()}
 
           <RoverIcon
             latitude={roverLatitude}
@@ -296,6 +349,12 @@ class Map extends Component {
       }
       // finally set the new state
       this.setState({ data });
+    } else if (recordPath === 'homebase/map') {
+      console.log(data);
+      // this.setState({
+      //   addHomeMarkerLatitude: data.latitude,
+      //   addHomeMarkerLongitude,
+      // });
     } else {
       // let's copy the payload and overwrite any keys in currentDataPoint
       // this is done to avoid updating the currentDataPoint without losing any keys
