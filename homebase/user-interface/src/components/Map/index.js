@@ -30,7 +30,7 @@ const habLocation = {
   longitude: -110.792002,
 };
 
-const initialLocation = habLocation;
+const initialLocation = dukesCampgroundLocation;
 
 const styles = theme => ({
   markerIcon: {
@@ -82,7 +82,7 @@ class Map extends Component {
   static defaultProps = {
     width: 500,
     height: 500,
-    currentGPSUpdateCountTarget: 5,
+    currentGPSUpdateCountTarget: 15,
     /** Free vector tile service via https://www.tilehosting.com/ */
     mapStyle: 'https://free.tilehosting.com/styles/basic/style.json?key=rheiM2CFkgsezyxOhNrX',
   }
@@ -284,8 +284,8 @@ class Map extends Component {
     let roverHeading = 0;
 
     if (has(data, 'currentGPS')) {
-      roverLatitude = data.currentGPS[0];
-      roverLongitude = data.currentGPS[1];
+      roverLatitude = data.currentGPS.lat;
+      roverLongitude = data.currentGPS.lon;
     }
 
     if (has(data, 'heading')) {
@@ -343,19 +343,17 @@ class Map extends Component {
   handleNewPayload = (payload, recordPath) => {
     const { data } = this.state;
     const { currentGPSUpdateCountTarget } = this.props;
-    // console.log(recordPath);
-    // console.log(payload);
-
+    console.log(recordPath);
+    console.log(JSON.stringify(payload, null, 4));
+    console.log('-------------------');
     // custom logic for currentGPS since it's
     // only an array that gets updated in place [lat, lon]
     if (recordPath === 'rover/gps') {
-      const transformedPayload = [payload.latitude, payload.longitude];
       // always add the new payload to the currentGPS
-      data.currentGPS = transformedPayload;
-
-      // this.setState(prevState => ({ data: {...prevState.data, currentGPS:  }  }))
+      data.currentGPS = payload;
 
       if (this.currentGPSUpdateCountDelayed === currentGPSUpdateCountTarget) {
+        const transformedPayload = [payload.lat, payload.lon];
         data.breadcrumbs = [...data.breadcrumbs, transformedPayload];
         this.currentGPSUpdateCountDelayed = 0;
       } else {

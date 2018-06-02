@@ -23,8 +23,10 @@ async function main() {
     // const tcpCoordinateClient = new PromiseSocket();
     const dsClient = await getClient('homebase');
     // await tcpCoordinateClient.connect(coordinatesEndpoint);
+
     await tcpArmClient.connect(armEndpoint);
-    
+
+    console.log('Ready to rpc provide on homebase deepstream.')
 
     // hook up rpc providers for deepstream
     // dsClient.rpc.provide('addCoordinate', async (data, response) => {
