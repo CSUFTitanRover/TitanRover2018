@@ -8,7 +8,7 @@ int pinEnable = 9;//ENA+
 
 int pinAnalog = A0;//POT DATA (black right now)
 
-float heading;//
+float heading;
 
 float newheading;
 
@@ -90,7 +90,7 @@ void loop()
   
 //  Serial.println(pot - ((heading - newheading)*(76/45)));
   
-  if(((pot - ((heading - newheading)* (76./45.))) < 256 )||((pot - ((heading - newheading)*(76./45.))) > 768))
+  if(((pot + ((heading - newheading)* (76./45.))) < 256 )||((pot + ((heading - newheading)*(76./45.))) > 768)||(abs(heading - newheading)) > 150)
   
   //76/45 represents a change in potentiometer reading of 76 when the main gear spins 45 degrees
   //the subtraction is due to that fact that to increase the potentiometer reading, you must lower your heading - turn counterclockwise
@@ -133,7 +133,7 @@ void takeSteps(float degree)
     for(y = 0;y < (degree/(1.8/51));y++)
     {
  
-      digitalWrite(pinDirection, LOW);//clockwise
+      digitalWrite(pinDirection, HIGH);//counterclockwise
 
       digitalWrite(pinPulse, HIGH);
 
@@ -143,7 +143,7 @@ void takeSteps(float degree)
 
       delayMicroseconds(500);
 
-      Serial.println(y);
+    //  Serial.println(y);
 
     }
   }
@@ -152,7 +152,7 @@ void takeSteps(float degree)
     for(y = 0;y < -1* (degree/(1.8/51));y++)
       {
  
-        digitalWrite(pinDirection, HIGH);//counterclockwise
+        digitalWrite(pinDirection, LOW);//clockwise
 
         digitalWrite(pinPulse, HIGH);
      
@@ -162,7 +162,7 @@ void takeSteps(float degree)
      
         delayMicroseconds(500);
      
-        Serial.println(y);
+    //    Serial.println(y);
       
      }
   }
@@ -186,7 +186,7 @@ void backtoStart(){
     
       delayMicroseconds(500);
     
-      Serial.println(analogRead(pinAnalog));
+    //  Serial.println(analogRead(pinAnalog));
     
     }  
  }
@@ -208,7 +208,7 @@ void backtoStart(){
     
       delayMicroseconds(500);
     
-      Serial.println(analogRead(pinAnalog));
+    //  Serial.println(analogRead(pinAnalog));
     
     }  
   } 

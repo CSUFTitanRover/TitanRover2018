@@ -12,20 +12,20 @@
  *
  */
 
-int potPin = 0;    // select the input pin for the potentiometer
-int val = 0;       // variable to store the value coming from the sensor
-float heading = 0;
+//int potPin = 0;    // select the input pin for the potentiometer
+//int val = 0;       // variable to store the value coming from the sensor
+//float heading = 0;
 
-void setup() 
-{
-    Serial.begin(9600);
+//void setup() 
+//{
+//    Serial.begin(9600);
 
-}
+//}
 
-void loop() 
-{
-  val = analogRead(potPin);    // read the value from the sensor
-  Serial.print(val);
-  delay(100);
-  Serial.print(" ");
-}
+//void loop() 
+//{
+//  val = analogRead(potPin);    // read the value from the sensor
+//  Serial.print(val);
+//  delay(100);
+//  Serial.print(" ");
+//}
