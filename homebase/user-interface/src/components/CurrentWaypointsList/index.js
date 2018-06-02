@@ -144,7 +144,7 @@ class CurrentWaypointsList extends Component {
     const { addWaypointsDialogOpen, data } = this.state;
 
     return (
-      <React.Fragment>
+      <div>
         <DeepstreamRecordProvider
           recordPath="rover/currentPoints"
           onNewPayload={this.handleNewPayload}
@@ -156,7 +156,7 @@ class CurrentWaypointsList extends Component {
           isOpen={addWaypointsDialogOpen}
           onClose={this.closeAddWaypointsDialog}
         />
-      </React.Fragment>
+      </div>
     );
   }
 }

@@ -66,7 +66,7 @@ class MotorSpeedSwitch extends Component {
     const { classes, jointName } = this.props;
     const { highSpeed } = this.state;
     return (
-      <React.Fragment>
+      <div>
         <ListItemText
           primary={`${jointName}: ${highSpeed ? 'High' : 'Low'} Speed`}
         />
@@ -77,7 +77,7 @@ class MotorSpeedSwitch extends Component {
             color="primary"
           />
         </ListItemSecondaryAction>
-      </React.Fragment>
+      </div>
 
     );
   }

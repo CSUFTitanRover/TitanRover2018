@@ -111,7 +111,7 @@ class DegreesDecimalMinutesInput extends Component {
     const { classes } = this.props;
 
     return (
-      <React.Fragment>
+      <div>
         <Paper square className={classes.coordinateInput}>
           <Typography variant="title">Latitude</Typography>
           <Typography variant="caption">(only the numerical values are required)</Typography>
@@ -185,7 +185,7 @@ class DegreesDecimalMinutesInput extends Component {
             </Select>
           </FormControl>
         </Paper>
-      </React.Fragment>
+      </div>
     );
   }
 }

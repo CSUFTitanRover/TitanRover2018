@@ -183,7 +183,7 @@ class Coordinator extends Component {
 
       case 2:
         return (
-          <React.Fragment>
+          <div>
             <Typography variant="title">Awesome, does this look correct?</Typography>
 
             <Paper square={false} className={classes.finalCoordinatePaper}>
@@ -200,7 +200,7 @@ class Coordinator extends Component {
                 Longitude: <strong>{finalLongitude}</strong>
               </Typography>
             </Paper>
-          </React.Fragment>
+          </div>
         );
       default:
         return 'Error: Unknown step.';

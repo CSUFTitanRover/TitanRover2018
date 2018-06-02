@@ -124,7 +124,7 @@ class HeadingLocationOffsetHeadingInput extends Component {
     const { classes } = this.props;
 
     return (
-      <React.Fragment>
+      <div>
         <Paper square className={classes.coordinateInput}>
           <Typography variant="title">Offset Heading</Typography>
           <FormControl>
@@ -178,7 +178,7 @@ class HeadingLocationOffsetHeadingInput extends Component {
             <Typography className={classes.result} variant="caption">Result: {this.state.convertedDistance} cm</Typography>
           )}
         </Paper>
-      </React.Fragment>
+      </div>
     );
   }
 }

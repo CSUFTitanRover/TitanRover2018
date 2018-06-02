@@ -44,7 +44,7 @@ class JointRotationInput extends Component {
     const { jointName } = this.props;
     const { rotation } = this.state;
     return (
-      <React.Fragment>
+      <div>
         <TextField
           id="rotation"
           label={`${jointName} Rotation`}
@@ -63,7 +63,7 @@ class JointRotationInput extends Component {
         >
           Apply
         </Button>
-      </React.Fragment>
+      </div>
     );
   }
 }

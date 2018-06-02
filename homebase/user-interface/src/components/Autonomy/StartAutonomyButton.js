@@ -45,7 +45,7 @@ class StartAutonomyButton extends Component {
     const { classes } = this.props;
 
     return (
-      <React.Fragment>
+      <div>
         <Button variant="raised" onClick={this.startAutonomy} color="secondary">
           Start Autonomy
         </Button>
@@ -88,7 +88,7 @@ class StartAutonomyButton extends Component {
             </Grid>
           </Modal>
         </div>
-      </React.Fragment>
+      </div>
     );
   }
 }

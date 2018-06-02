@@ -166,7 +166,7 @@ class CameraStream extends PureComponent {
         onNewPayload={this.handleNewPayload}
       >
         {() => (
-          <React.Fragment>
+          <div>
             <ContextMenuTrigger
               id={`camera-${this.generatedID}`}
               attributes={{
@@ -226,7 +226,7 @@ class CameraStream extends PureComponent {
                 </MenuList>
               </Paper>
             </ContextMenu>
-          </React.Fragment>
+          </div>
         )}
       </DeepstreamRecordProvider>
     );

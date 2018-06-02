@@ -117,7 +117,7 @@ class HeadingLocationTrueNorthInput extends Component {
     const { classes } = this.props;
 
     return (
-      <React.Fragment>
+      <div>
         <Paper square className={classes.coordinateInput}>
           <Typography variant="title">Heading</Typography>
           <FormControl>
@@ -170,7 +170,7 @@ class HeadingLocationTrueNorthInput extends Component {
             <Typography className={classes.result} variant="caption">Result: {this.state.convertedDistance} cm</Typography>
           )}
         </Paper>
-      </React.Fragment>
+      </div>
     );
   }
 }

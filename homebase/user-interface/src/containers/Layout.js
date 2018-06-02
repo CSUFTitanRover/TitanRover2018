@@ -80,7 +80,7 @@ class Layout extends Component {
         <ToastContainer position={toast.POSITION.TOP_CENTER} />
 
         <Grid item xs={12}>
-          <TopBar classNames={classNames(classes.topBar, leftMenuActive && classes.topBarShift)} />
+          {/* <TopBar classNames={classNames(classes.topBar, leftMenuActive && classes.topBarShift)} /> */}
           <LeftMenu drawerPaperClassNames={classNames(classes.drawerPaper)} />
           <ActionMenu drawerPaperClassNames={classNames(classes.drawerPaper)} />
         </Grid>

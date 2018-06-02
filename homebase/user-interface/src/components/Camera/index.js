@@ -14,10 +14,10 @@ class Camera extends PureComponent {
 
   render() {
     return (
-      <React.Fragment>
+      <div>
         <CameraSettings {...this.props} />
         <CameraStream {...this.props} />
-      </React.Fragment>
+      </div>
     );
   }
 }

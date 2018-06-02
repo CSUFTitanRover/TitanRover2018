@@ -7,12 +7,12 @@ import './App.css';
 export default class App extends Component {
   render() {
     return (
-      <React.Fragment>
+      <div>
         <CssBaseline />
         <Layout>
           <GoldenLayout />
         </Layout>
-      </React.Fragment>
+      </div>
     );
   }
 }
