@@ -67,7 +67,7 @@ class TemporaryWaypointsList extends Component {
   state = { data: [] }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
     this.client.record.snapshot('temp/waypoints', (error, data) => {
       if (data && data.length > 0) {
         this.setState({ data });

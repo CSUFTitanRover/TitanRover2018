@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import has from 'lodash.has';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
@@ -16,18 +17,19 @@ const styles = () => ({
   },
 });
 
-class QuickAddWaypointDialog extends Component {
+class AddHomeMarkerDialog extends Component {
   static propTypes = {
     isOpen: PropTypes.bool.isRequired,
-    latitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    longitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     handleClose: PropTypes.func.isRequired,
     classes: PropTypes.object.isRequired,
+    data: PropTypes.object,
   }
 
   static defaultProps = {
-    latitude: 'No latitude found.',
-    longitude: 'No longitude found.',
+    data: {
+      latitude: 'No latitude found.',
+      longitude: 'No longitude found.',
+    },
   }
 
   state = { isAddingWaypoint: false }
@@ -41,28 +43,23 @@ class QuickAddWaypointDialog extends Component {
   }
 
   handleAddWaypoint = () => {
-    const { latitude, longitude } = this.state;
-    const computedDataString = `${latitude},${longitude}`;
-    this.setState({ isAddingWaypoint: true });
-
-    this.client.rpc.make('addCoordinate', computedDataString, (rpcError, result) => {
-      this.setState({ isAddingWaypoint: false });
-      if (rpcError) {
-        toast.error(rpcError);
-      } else {
-        toast.success(result);
-        this.handleClose();
-      }
-    });
+    const { latitude, longitude } = this.props.data;
+    console.log(latitude, longitude);
+    this.client.record.setData('homebase/map', { homebaseMarker: { latitude, longitude } });
+    this.props.handleClose();
   }
 
   render() {
     const { isAddingWaypoint } = this.state;
-    const { latitude, longitude, isOpen, classes } = this.props;
+    const { data, isOpen, classes } = this.props;
+
+    const latitude = has(data, 'latitude') ? data.latitude : 'No Latitude Found.';
+    const longitude = has(data, 'longitude') ? data.longitude : 'No Longitude Found.';
+
 
     return (
       <Dialog open={isOpen} onClose={this.handleClose} aria-labelledby="quick-add-waypoint-dialog">
-        <DialogTitle id="quick-add-waypoint-dialog">Are you sure you want to quick add this waypoint?</DialogTitle>
+        <DialogTitle id="quick-add-waypoint-dialog">Are you sure you want to set the home marker?</DialogTitle>
         <DialogContent>
           <div className={classes.content}>
             <strong>Latitude:</strong>
@@ -74,7 +71,7 @@ class QuickAddWaypointDialog extends Component {
         <DialogActions>
           <Button onClick={this.handleClose}>Cancel</Button>
           <Button color="primary" variant="raised" onClick={this.handleAddWaypoint}>
-            {isAddingWaypoint ? <CircularProgress size={20} color="default" /> : 'Add Waypoint'}
+            {isAddingWaypoint ? <CircularProgress size={20} color="default" /> : 'Confirm'}
           </Button>
         </DialogActions>
       </Dialog >
@@ -82,4 +79,4 @@ class QuickAddWaypointDialog extends Component {
   }
 }
 
-export default withStyles(styles)(QuickAddWaypointDialog);
+export default withStyles(styles)(AddHomeMarkerDialog);

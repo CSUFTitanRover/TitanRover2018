@@ -62,6 +62,9 @@ class CoordinateTypeSelect extends Component {
             <MenuItem value="decimal-degrees">Decimal Degrees</MenuItem>
             <MenuItem value="degrees-minutes-seconds">Degrees, Minutes and Seconds</MenuItem>
             <MenuItem value="degrees-decimal-minutes">Degrees and Decimal Minutes</MenuItem>
+            <MenuItem value="distance-heading-true-north">Distance and Heading from True North</MenuItem>
+            <MenuItem value="distance-heading-offset-heading">Distance and Heading with Offset Heading</MenuItem>
+
           </Select>
           <FormHelperText>{this.getHelperText(value)}</FormHelperText>
         </FormControl>

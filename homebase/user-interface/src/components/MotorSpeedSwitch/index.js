@@ -34,7 +34,7 @@ class MotorSpeedSwitch extends Component {
   state = { highSpeed: true }
 
   async componentDidMount() {
-    this.client = await getClient();
+    this.client = await getClient('homebase');
   }
 
   handleChange = () => {

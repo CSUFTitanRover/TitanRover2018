@@ -1,5 +1,5 @@
 const PromiseSocket = require('promise-socket')
-const { getClient } = require('./deepstream');
+const { getClient } = require('../common/deepstream');
 const net = require('net');
 
 const endpoint = {
@@ -9,7 +9,7 @@ const endpoint = {
 
 async function main() {
     const tcpClient = new net.Socket();
-    const dsClient = await getClient();
+    const dsClient = await getClient('homebase');
 
     tcpClient.connect(endpoint.port, endpoint.address, () => {
         dsClient.rpc.provide('addCoordinate', (data, response) => {

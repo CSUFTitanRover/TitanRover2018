@@ -80,15 +80,14 @@ class CameraStream extends PureComponent {
     basePort: appSettings.cameras.basePort,
     // this below state is hooked up to deepstream
     baseIP: appSettings.cameras.baseIP,
-    protocol: 'http',
   };
 
   async componentDidMount() {
     const { computedRecordPath } = this;
     this.dsHomebaseClient = await getClient('homebase');
     try {
-      const { baseIP, protocol } = this.state;
-      const initialState = { baseIP, protocol };
+      const { baseIP } = this.state;
+      const initialState = { baseIP };
 
       // we call the function with the current "this" scope
       // in order to use this.setState correctly
@@ -152,7 +151,6 @@ class CameraStream extends PureComponent {
     const {
       basePort,
       baseIP,
-      protocol,
       resizableSize,
       resizing,
       fullsize,
@@ -193,7 +191,7 @@ class CameraStream extends PureComponent {
                 >
 
                   <img
-                    src={`${protocol}://${baseIP}:${computedPort}`}
+                    src={`http://${baseIP}:${computedPort}`}
                     alt="camera stream"
                     width="100%"
                     height="100%"

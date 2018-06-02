@@ -2,17 +2,35 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import has from 'lodash.has';
+import isEmpty from 'lodash.isempty';
 import cn from 'classnames';
 import shortid from 'shortid';
 import ReactMapGL, { NavigationControl, Marker, Popup } from 'react-map-gl';
 import { withStyles } from '@material-ui/core/styles';
 import amber from '@material-ui/core/colors/amber';
 import grey from '@material-ui/core/colors/grey';
+import teal from '@material-ui/core/colors/teal';
+import Tooltip from '@material-ui/core/Tooltip';
 import MarkerIcon from '@material-ui/icons/LocationOn';
 import BreadcrumbIcon from '@material-ui/icons/Lens';
+import InfoIcon from '@material-ui/icons/Info';
+import HomeIcon from '@material-ui/icons/Home';
 import DeepstreamRecordProvider from '../../utils/DeepstreamRecordProvider/';
 import RoverIcon from './RoverIcon';
 import QuickAddWaypointDialog from '../QuickAddWaypointDialog/';
+import AddHomeMarkerDialog from '../AddHomeMarkerDialog/';
+
+const dukesCampgroundLocation = {
+  latitude: 38.375489,
+  longitude: -110.708431,
+};
+
+const habLocation = {
+  latitude: 38.406094,
+  longitude: -110.792002,
+};
+
+const initialLocation = habLocation;
 
 const styles = theme => ({
   markerIcon: {
@@ -33,6 +51,15 @@ const styles = theme => ({
     width: 10,
     height: 10,
     color: grey[800],
+  },
+  infoIconContainer: {
+    marginLeft: 3,
+    marginTop: theme.spacing.unit,
+  },
+  homeIcon: {
+    width: 44,
+    height: 44,
+    color: teal[400],
   },
 });
 
@@ -65,8 +92,8 @@ class Map extends Component {
   }
 
   DEFAULT_VIEWPORT = {
-    latitude: 33.881932, // 33.872405,
-    longitude: -117.882843, // -117.7748628,
+    latitude: initialLocation.latitude,
+    longitude: initialLocation.longitude,
     zoom: 15,
     bearing: 0,
     pitch: 0,
@@ -82,6 +109,7 @@ class Map extends Component {
     },
     popupInfo: null,
     quickAddDialogOpen: false,
+    addHomeMarkerDialogOpen: false,
   }
 
   currentGPSUpdateCountDelayed = 0;
@@ -93,16 +121,54 @@ class Map extends Component {
   handleMapClick = (event) => {
     const [longitude, latitude] = event.lngLat;
     const withCtrlKey = event.srcEvent.ctrlKey;
+    const withShiftKey = event.srcEvent.shiftKey;
     const leftButtonClick = event.leftButton;
     const quickAddTriggered = leftButtonClick && withCtrlKey;
+    const addHomeMarkerTriggered = leftButtonClick && withCtrlKey && withShiftKey;
 
-    // //console.log(event);
-    // console.log(`Clicked on: lat=${latitude} lng=${longitude}`);
-    // console.log('CTRL pressed during left click:', quickAddTriggered);
-
-    if (quickAddTriggered) {
-      this.setState({ quickAddDialogOpen: true, quickAddLatitude: latitude, quickAddLongitude: longitude });
+    console.log(event);
+    if (addHomeMarkerTriggered) {
+      this.setState({
+        addHomeMarkerDialogOpen: true,
+        addHomeMarkerDialogData: {
+          latitude,
+          longitude,
+        },
+      });
+    } else if (quickAddTriggered) {
+      this.setState({
+        quickAddDialogOpen: true,
+        quickAddLatitude: latitude,
+        quickAddLongitude: longitude,
+      });
     }
+  }
+
+  renderHomeMarker = () => {
+    const { homebaseMarker } = this.state;
+
+    if (isEmpty(homebaseMarker)) {
+      return null;
+    }
+
+    const { latitude, longitude } = homebaseMarker;
+    const { classes } = this.props;
+
+    return (
+      <Marker
+        key={shortid.generate()}
+        latitude={latitude}
+        longitude={longitude}
+        offsetLeft={-22}
+      >
+        <HomeIcon
+          className={classes.homeIcon}
+          onClick={() => this.setState({
+            popupInfo: { latitude, longitude },
+          })}
+        />
+      </Marker>
+    );
   }
 
   renderPopup = () => {
@@ -190,8 +256,13 @@ class Map extends Component {
 
     return null;
   }
+
   closeQuickAddWaypointDialog = () => {
-    this.setState({ quickAddDialogOpen: false, quickAddData: null });
+    this.setState({ quickAddDialogOpen: false });
+  }
+
+  closeAddHomeMarkerDialog = () => {
+    this.setState({ addHomeMarkerDialogOpen: false });
   }
   renderMap = () => {
     const {
@@ -200,8 +271,10 @@ class Map extends Component {
       quickAddDialogOpen,
       quickAddLatitude,
       quickAddLongitude,
+      addHomeMarkerDialogOpen,
+      addHomeMarkerDialogData,
     } = this.state;
-    const { width, height, mapStyle } = this.props;
+    const { width, height, mapStyle, classes } = this.props;
     // const bearing = viewport.bearing;
     // const latitude = viewport.latitude;
     // const longitude = viewport.longitude;
@@ -227,6 +300,11 @@ class Map extends Component {
           latitude={quickAddLatitude}
           longitude={quickAddLongitude}
         />
+        <AddHomeMarkerDialog
+          isOpen={addHomeMarkerDialogOpen}
+          handleClose={this.closeAddHomeMarkerDialog}
+          data={addHomeMarkerDialogData}
+        />
         <ReactMapGL
           {...viewport}
           {...this.mapSettings}
@@ -238,11 +316,17 @@ class Map extends Component {
         >
           <div style={{ position: 'absolute', top: 0, right: 0, padding: 10 }}>
             <NavigationControl onViewportChange={this._updateViewport} />
+            <div className={classes.infoIconContainer}>
+              <Tooltip id="map-info-icon" title="CTRL+click = quick waypoint. CTRL+SHIFT+click = home marker">
+                <InfoIcon color="primary" />
+              </Tooltip>
+            </div>
           </div>
 
           {this.renderMarkers(data)}
           {this.renderBreadcrumbs(data)}
           {this.renderPopup()}
+          {this.renderHomeMarker()}
 
           <RoverIcon
             latitude={roverLatitude}
@@ -264,7 +348,7 @@ class Map extends Component {
 
     // custom logic for currentGPS since it's
     // only an array that gets updated in place [lat, lon]
-    if (recordPath === 'rover/currentGPS') {
+    if (recordPath === 'rover/gps') {
       const transformedPayload = [payload.latitude, payload.longitude];
       // always add the new payload to the currentGPS
       data.currentGPS = transformedPayload;
@@ -279,6 +363,8 @@ class Map extends Component {
       }
       // finally set the new state
       this.setState({ data });
+    } else if (recordPath === 'homebase/map') {
+      this.setState(payload);
     } else {
       // let's copy the payload and overwrite any keys in currentDataPoint
       // this is done to avoid updating the currentDataPoint without losing any keys
@@ -293,8 +379,9 @@ class Map extends Component {
         recordPath={[
           'rover/currentPoints',
           'rover/previousPoints',
-          'rover/currentGPS',
-          'rover/imu']}
+          'rover/gps',
+          'rover/imu',
+          'homebase/map']}
         onNewPayload={this.handleNewPayload}
       >
         {() => this.renderMap()}
@@ -302,5 +389,8 @@ class Map extends Component {
     );
   }
 }
+
+// imu shape:
+// imuData = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
 
 export default withStyles(styles)(Map);
