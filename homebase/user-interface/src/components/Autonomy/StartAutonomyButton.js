@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import Grid from 'material-ui/Grid';
-import Button from 'material-ui/Button';
-import Typography from 'material-ui/Typography';
-import CheckCircleIcon from 'material-ui-icons/CheckCircle';
-import Modal from 'material-ui/Modal';
-import { withStyles } from 'material-ui/styles';
-import green from 'material-ui/colors/green';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import Modal from '@material-ui/core/Modal';
+import { withStyles } from '@material-ui/core/styles';
+import green from '@material-ui/core/colors/green';
 import PropTypes from 'prop-types';
 
 const styles = theme => ({
@@ -74,7 +74,7 @@ class StartAutonomyButton extends Component {
                     </Grid>
 
                     <Grid item>
-                      <Typography variant="display4" id="simple-modal-description">
+                      <Typography variant="display1" id="simple-modal-description">
                         Successfully completed the autonomous task!
                       </Typography>
                     </Grid>

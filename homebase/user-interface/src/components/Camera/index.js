@@ -1,25 +1,25 @@
 import React, { PureComponent } from 'react';
-import Camera from './Camera';
-import CameraSettingControls from './CameraSettingControls';
-import appSettings from '../../app-settings.json'
-  ;
+import PropTypes from 'prop-types';
+import CameraStream from '../CameraStream/';
+import CameraSettings from '../CameraSettings';
 
-class CameraWrapper extends PureComponent {
-  state = { baseIP: appSettings.cameras.base_ip }
-
-  cameraWrapperBaseIPChange = (val) => { this.setState({ baseIP: val }); }
+/** The complete camera component composed of CameraSettings and CameraStream.
+ * Any props passed to this component will get passed on to both CameraSettings and CameraStream.
+ */
+class Camera extends PureComponent {
+  static propTypes = {
+    /** The unique camera ID */
+    cameraID: PropTypes.string.isRequired,
+  }
 
   render() {
     return (
       <React.Fragment>
-        <CameraSettingControls
-          {...this.props}
-          cameraWrapperBaseIPChange={this.cameraWrapperBaseIPChange}
-        />
-        <Camera {...this.props} baseIP={this.state.baseIP} />
+        <CameraSettings {...this.props} />
+        <CameraStream {...this.props} />
       </React.Fragment>
     );
   }
 }
 
-export default CameraWrapper;
+export default Camera;

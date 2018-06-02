@@ -9,7 +9,7 @@ import subprocess
 from subprocess import Popen
 
 
-roverIp = "192.168.1.2"   # This ip will change periodically, 
+roverIp = "192.168.1.8"   # This ip will change periodically, 
                         # for now, this is the ip of the rover on openvpn
 
 '''
@@ -70,7 +70,7 @@ def post(obj, recordName, ip="192.168.1.2"):
     if type(obj) is not dict:
         raise "Your first argument needs to be a dict setting data to deepstream"
     payload = {"body":[{"topic": "record", "action":"write", "recordName": "rover/" + recordName, "data": obj}]}
-    request = requests.post('http://' + roverIp + ':4080', json=payload)
+    request = requests.post('http://' + roverIp + ':3080', json=payload)
     if request is not None:
         if type(request) is bytes:
             request = request.decode('utf-8')    

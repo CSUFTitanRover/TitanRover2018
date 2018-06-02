@@ -3,8 +3,8 @@ import time
 ADDRESS = 0x04
 
 def writeToBus(roverMode, frequency):
-    if roverMode not in range(11) or frequency not in range(11):
-        return False
+    #if roverMode not in range(11) or frequency not in range(11):
+    #return False
     #if type(mode) != int or type(freq) != int:
     #return False
     try:

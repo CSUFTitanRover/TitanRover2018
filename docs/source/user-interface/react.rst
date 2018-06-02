@@ -31,6 +31,7 @@ The following npm commands aren't for typical use when developing the UI:
 * ``npm run build`` - transpiles and minifies a production ready application
 * ``npm run styleguide:build`` - builds a static styleguide website with our component documentation 
 * ``npm run report-coverage`` - reports code coverage to `codecov <https://codecov.io>`_
+* ``npm run serve`` - serves the built user interface locally on port 3000
 * ``npm run eject`` - ejects the project from the create-react-app configuration **DO NOT USE THIS UNLESS DIRECTED TO**
 
 create-react-app

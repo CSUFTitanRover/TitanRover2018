@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import ResizeAware from 'react-resize-aware';
-import appSettings from '../../app-settings.json';
+import appSettings from '../../appSettings.json';
 import Map from '../Map/';
 
 /** A regular map component that is responsive to width/height changes of it's parent
@@ -11,7 +11,9 @@ class ResizeAwareMap extends PureComponent {
   render() {
     return (
       <ResizeAware style={{ width: '100%', height: '100%' }}>
-        <Map mapStyle={appSettings.map.style} />
+        {({ width, height }) => (
+          <Map mapStyle={appSettings.map.style} width={width} height={height} />
+        )}
       </ResizeAware>
     );
   }

@@ -1,13 +1,18 @@
 import Camera from '../../components/Camera/';
+import StereoCamera from '../../components/StereoCamera/';
 import DefaultChart from '../../components/DefaultChart/';
 import RealtimeChart from '../../components/RealtimeChart/';
 import RoverApiSettings from '../../components/RoverApiSettings/';
 import StartAutonomyButton from '../../components/Autonomy/StartAutonomyButton';
 import ResizeAwareMap from '../../components/ResizeAwareMap/';
+import WaypointList from '../../components/WaypointList/';
+import CurrentWaypointsList from '../../components/CurrentWaypointsList/';
+import PreviousWaypointsList from '../../components/PreviousWaypointsList/';
 
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
  * @param {string} componentname - The component name must match a registered GL component
+ * @param {Object} componentprops - An optional object you can pass in as props to the component
  * @param {HTMLElement} element - The source html dom element the drag source function will bind to
  * @param {GoldenLayout} glNode
  */
@@ -45,6 +50,10 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('RoverApiSettings', RoverApiSettings);
   glNode.registerComponent('StartAutonomyButton', StartAutonomyButton);
   glNode.registerComponent('RealtimeChart', RealtimeChart);
+  glNode.registerComponent('WaypointList', WaypointList);
+  glNode.registerComponent('CurrentWaypointsList', CurrentWaypointsList);
+  glNode.registerComponent('PreviousWaypointsList', PreviousWaypointsList);
+  glNode.registerComponent('StereoCamera', StereoCamera);
 }
 
 export function initializeGL(glNode) {

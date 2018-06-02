@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withStyles } from 'material-ui/styles';
+import { withStyles } from '@material-ui/core/styles';
 import classNames from 'classnames';
-import Grid from 'material-ui/Grid';
+import Grid from '@material-ui/core/Grid';
 import { ToastContainer, toast } from 'react-toastify';
 import TopBar from './TopBar/';
 import LeftMenu from './LeftMenu/';
+import ActionMenu from './ActionMenu/';
 
 const propTypes = {
   /** Any child element that is renderable e.g. Text, HTML, etc. */
@@ -29,6 +30,7 @@ const drawerWidth = 250;
 
 const styles = theme => ({
   topBar: {
+    width: '100vw',
     height: 65,
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.sharp,
@@ -36,8 +38,8 @@ const styles = theme => ({
     }),
   },
   topBarShift: {
+    width: `calc(100vw - ${drawerWidth}px)`,
     marginLeft: drawerWidth,
-    width: '100%',
     transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen,
@@ -75,11 +77,12 @@ class Layout extends Component {
 
     return (
       <Grid container spacing={0}>
-        <ToastContainer pauseOnHover={false} position={toast.POSITION.TOP_CENTER} />
+        <ToastContainer position={toast.POSITION.TOP_CENTER} />
 
         <Grid item xs={12}>
           <TopBar classNames={classNames(classes.topBar, leftMenuActive && classes.topBarShift)} />
           <LeftMenu drawerPaperClassNames={classNames(classes.drawerPaper)} />
+          <ActionMenu drawerPaperClassNames={classNames(classes.drawerPaper)} />
         </Grid>
 
         <Grid item xs={12}>
