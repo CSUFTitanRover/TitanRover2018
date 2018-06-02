@@ -27,6 +27,11 @@ __antenna_gps_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 __antenna_gps_socket.settimeout(0.5)
 
 __rover_gps = ('', '')
+inn_gps = (38.373774, -110.708319)
+hm_gps = (38.373413, -110.704553)
+camp_gps = (38.375440, -110.708254)
+henry_gps = (38.373556, -110.713747)
+
 
 __antenna_gps = (None, None)
 __rover_gps = (None, None)
@@ -38,26 +43,26 @@ __deltaDirection = 0
 __paused = False
 __stop = False
 
-def toNeg(degreeVal):
-    if degreeVal > 180:    
-            degreeVal -= 360
-            print("adjusted degreeVal to %f" % degreeVal)
+def getOffset(degreeVal):
+    offset = 180 - degreeVal  
+    print("adjusted degreeVal to")
+    print(degreeVal)
     return degreeVal
 
 def sendHeading(ardOut, newHeading, init = False):
-    if (newHeading > (initial_heading - MAX_DEVIATION) and newHeading < (initial_heading + MAX_DEVIATION)) or init == True:
-        print("target heading within %i degrees of initial antenna heading " % MAX_DEVIATION)
-        while True:
-            try:
-                print("writing %i to arduino" % newHeading)
-                ardOut.write(pack("i", (int(newHeading) * 1000))) #sending new heading for the arduino to go to using its pot as reference.
-                #take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
-                break
-            except:
-                print("error writing")
-                sleep(SHORT_DELAY)
-                continue
-        __antenna_heading = newHeading
+    #if (newHeading > (initial_heading - MAX_DEVIATION) and newHeading < (initial_heading + MAX_DEVIATION)) or init == True:
+        #print("target heading within %i degrees of initial antenna heading " % MAX_DEVIATION)
+    while True:
+        try:
+            print("writing %i to arduino" % newHeading)
+            ardOut.write(pack("i", (int(newHeading) * 1000))) #sending new heading for the arduino to go to using its pot as reference.
+            #take the heading => multiply it by 1000 => round it off => convert it to an int => pack it into serial transmittable bytes => write those bytes to arduino
+            break
+        except:
+            print("error writing")
+            sleep(SHORT_DELAY)
+            continue
+    #__antenna_heading = newHeading
 
 def getAntennaGPS():
     while True:
@@ -182,39 +187,8 @@ def getShouldTurnClockwise():
     __clockwise = True if b > 0 else False
     return __clockwise
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^UNUSED
-
-'''
-__rover_gps = getRoverGPS()
-print("rover gps")
-print(__rover_gps)
-
-__antenna_gps = getAntennaGPS()
-print("antenna gps")
-print(__antenna_gps)
-
-__antenna_heading = getHeading()
-print("got heading")
-print(__antenna_heading)
-
-__targetHeading = getTargetHeading(__antenna_gps, __rover_gps)
-print("got target heading")
-print(__targetHeading)
-
-__headingDifference = getHeadingDifference(__antenna_heading, __targetHeading)
-print("got heading difference")
-print(__headingDifference)
-
-
-__deltaDirection = getDeltaDirection(__headingDifference)
-print("got delta direction")
-print(__deltaDirection)
-
-__clockwise = getShouldTurnClockwise()
-print("got clock direction")
-print(__clockwise)
-#call all the functions because I can
-'''
-
+#print("long pause")
+#sleep(LONG_DELAY)
 
 #return (get('gps')['lat'], get('gps')['lon'])
 #initial heading == the very first heading of the antenna, this value is not updated
@@ -223,21 +197,25 @@ print(__clockwise)
 while True:
     try:
         initial_heading = getAntennaHeading() #get antenna heading from imu
+        initial_heading += 360
+        initial_heading += 90
         print("initial heading: %f" % initial_heading)
         break
     except:
         print("failed to get initial heading")
         continue
 
-try: 
-    initial_heading = toNeg(initial_heading)
-except:
-    print("error with toneg?")
-
 while True:    
     try:
         sendHeading(ardOut, initial_heading, True)
         print("sent initial heading")
+
+
+        #__antenna_gps = getAntennaGPS()
+        print("got antenna gps")
+        __antenna_gps = camp_gps
+        print(__antenna_gps)
+
         break #do it until it works and only do it once
     except:
         print("failed to send initial heading")
@@ -250,20 +228,47 @@ while True:
 
         sleep(LONG_DELAY)
 
-        __antenna_gps = getAntennaGPS()
-        print("got antenna gps")
-        print(__antenna_gps)
-
-        __rover_gps = getRoverGPS()
+        #__rover_gps = getRoverGPS()
         print("got rover gps")
+        __rover_gps = inn_gps
         print(__rover_gps)
 
         __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
         print("got target heading")
+        __targetHeading += 360
         print(__targetHeading)
-
-        __targetHeading = toNeg(__targetHeading)
         sendHeading(ardOut, __targetHeading)
+
+        print("updating in: %i" % int(LONG_DELAY) )
+
+        sleep(LONG_DELAY)
+
+        #__rover_gps = getRoverGPS()
+        print("got rover gps")
+        __rover_gps = hm_gps
+        print(__rover_gps)
+
+        __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
+        print("got target heading")
+        __targetHeading += 360
+        print(__targetHeading)
+        sendHeading(ardOut, __targetHeading)
+
+
+        sleep(LONG_DELAY)
+
+        #__rover_gps = getRoverGPS()
+        print("got rover gps")
+        __rover_gps = henry_gps
+        print(__rover_gps)
+
+        __targetHeading = getTargetHeading(__antenna_gps, __rover_gps) #these three should always be called together to get the correct heading for the most recent position of the rover relative to the antenna, the call to the antenna can be omitted after it is called once but what if something crazy happens and the antenna moves?
+        print("got target heading")
+        __targetHeading += 360
+        print(__targetHeading)
+        sendHeading(ardOut, __targetHeading)
+
+
 
     except:
         print("error in loop")
