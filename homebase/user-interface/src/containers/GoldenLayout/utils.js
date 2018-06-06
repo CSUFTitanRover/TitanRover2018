@@ -8,6 +8,7 @@ import ResizeAwareMap from '../../components/ResizeAwareMap/';
 import WaypointList from '../../components/WaypointList/';
 import CurrentWaypointsList from '../../components/CurrentWaypointsList/';
 import PreviousWaypointsList from '../../components/PreviousWaypointsList/';
+import Rover3D from '../../components/RoverModel/';
 
 /**
  * @param {string} title - The title that will be displayed in the Playground tab
@@ -54,6 +55,7 @@ export function registerGLComponents(glNode) {
   glNode.registerComponent('CurrentWaypointsList', CurrentWaypointsList);
   glNode.registerComponent('PreviousWaypointsList', PreviousWaypointsList);
   glNode.registerComponent('StereoCamera', StereoCamera);
+  glNode.registerComponent('RoverModel', Rover3D);
 }
 
 export function initializeGL(glNode) {
