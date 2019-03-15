@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 
-import RoverModel from './RoverModel';
+// import RoverModel from './RoverModel';
 import solve from './solver';
 
 export default class Rover3D extends Component {
@@ -75,7 +75,8 @@ export default class Rover3D extends Component {
     return (
       <Grid container direction={'column'}>
         <Grid item>
-          <RoverModel
+          <span>Loading RoverModel...</span>
+          {/* <RoverModel
             handlePickCallback={this.handlePickCallback}
             handleRotation={this.handleRotation}
             j1={this.state.j1}
@@ -88,7 +89,7 @@ export default class Rover3D extends Component {
             realj4={this.props.j4 * Math.PI / 180}
             width={this.props.width}
             height={this.props.height}
-          />
+          /> */}
         </Grid>
 
         <Grid item>
@@ -115,7 +116,7 @@ Rover3D.propTypes = {
   j3: PropTypes.number.isRequired,
   j4: PropTypes.number.isRequired,
   width: PropTypes.number,
-  height: PropTypes.number,
+  // height: PropTypes.number,
 };
 
 Rover3D.defaultProps = {
