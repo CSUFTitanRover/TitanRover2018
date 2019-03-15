@@ -119,7 +119,6 @@ class CurrentWaypointsList extends Component {
 
   renderDeleteAllDialog = () => {
     const { deleteAllDialogOpen, deletingAllWaypoints } = this.state;
-    const { classes } = this.props;
 
     return (
       <Dialog

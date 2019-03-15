@@ -8,9 +8,6 @@ class ExampleSensor extends Component {
     this.client = await getClient();
 
     this.client.event.subscribe('science/decagon-5TE', (payload) => {
-      // console.log('--------');
-      // console.log('Received new payload...');
-      // console.log(payload);
       this.setState({ payload: JSON.parse(payload) });
     });
   }

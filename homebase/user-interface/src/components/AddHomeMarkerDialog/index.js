@@ -8,7 +8,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import { withStyles } from '@material-ui/core/styles';
-import { toast } from 'react-toastify';
 import { getClient } from '../../utils/deepstream';
 
 const styles = () => ({
@@ -44,7 +43,7 @@ class AddHomeMarkerDialog extends Component {
 
   handleAddWaypoint = () => {
     const { latitude, longitude } = this.props.data;
-    console.log(latitude, longitude);
+
     this.client.record.setData('homebase/map', { homebaseMarker: { latitude, longitude } });
     this.props.handleClose();
   }

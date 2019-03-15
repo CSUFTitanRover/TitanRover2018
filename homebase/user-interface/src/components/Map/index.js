@@ -25,10 +25,10 @@ const dukesCampgroundLocation = {
   longitude: -110.708431,
 };
 
-const habLocation = {
-  latitude: 38.406094,
-  longitude: -110.792002,
-};
+// const habLocation = {
+//   latitude: 38.406094,
+//   longitude: -110.792002,
+// };
 
 const initialLocation = dukesCampgroundLocation;
 
@@ -126,7 +126,7 @@ class Map extends Component {
     const quickAddTriggered = leftButtonClick && withCtrlKey;
     const addHomeMarkerTriggered = leftButtonClick && withCtrlKey && withShiftKey;
 
-    console.log(event);
+
     if (addHomeMarkerTriggered) {
       this.setState({
         addHomeMarkerDialogOpen: true,
@@ -343,9 +343,8 @@ class Map extends Component {
   handleNewPayload = (payload, recordPath) => {
     const { data } = this.state;
     const { currentGPSUpdateCountTarget } = this.props;
-    console.log(recordPath);
-    console.log(JSON.stringify(payload, null, 4));
-    console.log('-------------------');
+
+
     // custom logic for currentGPS since it's
     // only an array that gets updated in place [lat, lon]
     if (recordPath === 'rover/gps') {
@@ -389,6 +388,14 @@ class Map extends Component {
 }
 
 // imu shape:
-// imuData = { "heading":heading, "roll":roll, "pitch":pitch, "sys":sys, "gyro":gyro, "accel":accel, "mag":mag }
+// imuData = {
+//   "heading":heading,
+//   "roll":roll,
+//   "pitch":pitch,
+//   "sys":sys,
+//   "gyro":gyro,
+//   "accel":accel,
+//   "mag":mag
+//  }
 
 export default withStyles(styles)(Map);

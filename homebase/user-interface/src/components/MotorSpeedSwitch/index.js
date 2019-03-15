@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Typography from '@material-ui/core/Typography';
 import Switch from '@material-ui/core/Switch';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -28,7 +27,6 @@ class MotorSpeedSwitch extends Component {
   static propTypes = {
     address: PropTypes.string.isRequired,
     jointName: PropTypes.string,
-    classes: PropTypes.object.isRequired,
   }
 
   state = { highSpeed: true }
@@ -63,7 +61,7 @@ class MotorSpeedSwitch extends Component {
   }
 
   render() {
-    const { classes, jointName } = this.props;
+    const { jointName } = this.props;
     const { highSpeed } = this.state;
     return (
       <React.Fragment>

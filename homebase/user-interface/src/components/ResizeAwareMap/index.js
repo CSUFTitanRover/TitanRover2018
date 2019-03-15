@@ -12,10 +12,11 @@ class ResizeAwareMap extends PureComponent {
     return (
       <ResizeAware style={{ width: '100%', height: '100%' }}>
         {({ width, height }) => (
-          <Map 
-            //mapStyle={appSettings.map.style} 
+          <Map
+            // mapStyle={appSettings.map.style}
             width={width}
-            height={height} />
+            height={height}
+          />
         )}
       </ResizeAware>
     );

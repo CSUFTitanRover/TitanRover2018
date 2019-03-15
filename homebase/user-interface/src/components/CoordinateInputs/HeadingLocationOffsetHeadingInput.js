@@ -10,7 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
-import { getClient, getRecordSnapshot } from '../../utils/deepstream';
+import { getClient } from '../../utils/deepstream';
 
 const toRadians = value => value * (Math.PI / 180);
 const toDegrees = value => value * (180 / Math.PI);
@@ -81,8 +81,10 @@ class HeadingLocationOffsetHeadingInput extends Component {
     );
 
     let calculatedLongitude = currentLongitude + Math.atan2(
-      Math.sin(headingRadians) * Math.sin(computedDistance / radius) * Math.cos(currentLatitude),
-      Math.cos(computedDistance / radius) - Math.sin(currentLatitude) * Math.sin(calculatedLatitude),
+      Math.sin(headingRadians) * Math.sin(computedDistance / radius)
+      * Math.cos(currentLatitude),
+      Math.cos(computedDistance / radius) - Math.sin(currentLatitude)
+      * Math.sin(calculatedLatitude),
     );
 
     calculatedLatitude = toDegrees(calculatedLatitude);
