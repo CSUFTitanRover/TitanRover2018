@@ -43,7 +43,7 @@ const styles = theme => ({
   },
 });
 
-/** The camera settings allows you to change the current IP and protocol
+/** The camera settings allows you to change the current IP of
  * the stream is connection to. In addition, you can toggle on or off the
  * camera, save the current image onto the rover, and change the stream quality.
  */
@@ -59,14 +59,11 @@ class CameraSettings extends PureComponent {
     /** The base port of all camera strings. (e.g. 8080)
      *  Defaults to the option in appSettings.json if no prop is received */
     basePort: PropTypes.string,
-    /** Refers to the protocol transport used (e.g. http or https) */
-    protocol: PropTypes.oneOf(['http', 'https']),
   }
 
   static defaultProps = {
     baseIP: appSettings.cameras.baseIP,
     basePort: appSettings.cameras.basePort,
-    protocol: 'http',
   }
 
   generatedSettingID = shortid.generate();
@@ -77,7 +74,6 @@ class CameraSettings extends PureComponent {
     streamQuality: 'mid',
     streamIsOffline: true,
     baseIP: this.props.baseIP,
-    protocol: this.props.protocol,
   }
 
   async componentDidMount() {
@@ -109,7 +105,7 @@ class CameraSettings extends PureComponent {
 
   _modifyStreamQuality = (quality) => {
     const { basePort, cameraID } = this.props;
-    const { baseIP, protocol } = this.state;
+    const { baseIP } = this.state;
     let motionStreamQuality;
     let motionStreamMaxrate;
 
@@ -137,8 +133,8 @@ class CameraSettings extends PureComponent {
         return Promise.reject('Invalid quality setting provided to modify stream to.');
     }
     return Promise.all([
-      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_quality=${motionStreamQuality}`, { mode: 'no-cors' }),
-      fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_maxrate=${motionStreamMaxrate}`, { mode: 'no-cors' }),
+      fetch(`http://${baseIP}:${basePort}/${cameraID}/config/set?stream_quality=${motionStreamQuality}`, { mode: 'no-cors' }),
+      fetch(`http://${baseIP}:${basePort}/${cameraID}/config/set?stream_maxrate=${motionStreamMaxrate}`, { mode: 'no-cors' }),
     ]);
   }
 
@@ -154,23 +150,23 @@ class CameraSettings extends PureComponent {
 
   _toggleStreamActivity = (streamIsOffline) => {
     const { basePort, cameraID } = this.props;
-    const { baseIP, protocol } = this.state;
+    const { baseIP } = this.state;
 
     if (streamIsOffline) {
       // turn the stream on
       const newStreamPort = `${basePort.slice(0, -1)}${cameraID}`;
 
-      return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
+      return fetch(`http://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=${newStreamPort}`, { mode: 'no-cors' });
     }
     // turn the stream off
-    return fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
+    return fetch(`http://${baseIP}:${basePort}/${cameraID}/config/set?stream_port=0`, { mode: 'no-cors' });
   }
 
   handleSaveImage = async () => {
     const { basePort, cameraID } = this.props;
-    const { baseIP, protocol } = this.state;
+    const { baseIP } = this.state;
     try {
-      await fetch(`${protocol}://${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
+      await fetch(`http://${baseIP}:${basePort}/${cameraID}/action/snapshot`, { mode: 'no-cors' });
       toast.info(`Image from Camera #${cameraID} should be saved to /var/lib/motion directory.`);
     } catch (err) {
       toast.error(`${err.name}: ${err.message}. Unable to save image onto rover.`);
@@ -182,16 +178,11 @@ class CameraSettings extends PureComponent {
     this.dsHomebaseClient.record.setData(this.computedRecordPath, 'baseIP', baseIP);
   }
 
-  handleProtocolChange = ({ target }) => {
-    const protocol = target.value;
-    this.dsHomebaseClient.record.setData(this.computedRecordPath, 'protocol', protocol);
-  }
-
   handleNewPayload = (payload) => { this.setState(payload); }
 
   render() {
     const { classes } = this.props;
-    const { streamQuality, streamIsOffline, baseIP, protocol } = this.state;
+    const { streamQuality, streamIsOffline, baseIP } = this.state;
 
     return (
       <DeepstreamRecordProvider
@@ -212,19 +203,6 @@ class CameraSettings extends PureComponent {
                 onChange={this.handleBaseIPChange}
                 className={classes.formControl}
               />
-              <FormControl className={classes.formControl}>
-                <InputLabel htmlFor={`camera-protocol-${this.generatedSettingID}`}>Stream Protocol</InputLabel>
-                <Select
-                  value={protocol}
-                  onChange={this.handleProtocolChange}
-                  inputProps={{
-                    id: `camera-protocol-${this.generatedSettingID}`,
-                  }}
-                >
-                  <MenuItem value="http">http</MenuItem>
-                  <MenuItem value="https">https</MenuItem>
-                </Select>
-              </FormControl>
               <FormControl className={classes.formControl}>
                 <InputLabel htmlFor={`camera-quality-${this.generatedSettingID}`}>Stream Quality</InputLabel>
                 <Select

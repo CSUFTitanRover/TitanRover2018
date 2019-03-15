@@ -238,7 +238,7 @@ class Coordinator extends Component {
             onClick={this.handleNext}
           >
               Next
-            </Button>
+          </Button>
         )}
       </div>
     </div>

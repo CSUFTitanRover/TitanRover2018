@@ -88,7 +88,7 @@ class DeepstreamRecordProvider extends PureComponent {
     // add the generated callback by using its record name as
     // it's key for later usage when unsubscribing
     this.recordCallbacks[record.name] = callback;
-    record.subscribe(callback);
+    record.subscribe(callback, true);
   }
 
   _unsubscribe = (record) => {

@@ -51,7 +51,7 @@ class CurrentWaypointsList extends Component {
 
   state = {
     data: [],
-    addWaypointsDialogOpen: true,
+    addWaypointsDialogOpen: false,
     deleteAllDialogOpen: false,
     deletingAllWaypoints: false,
   }
@@ -119,7 +119,6 @@ class CurrentWaypointsList extends Component {
 
   renderDeleteAllDialog = () => {
     const { deleteAllDialogOpen, deletingAllWaypoints } = this.state;
-    const { classes } = this.props;
 
     return (
       <Dialog

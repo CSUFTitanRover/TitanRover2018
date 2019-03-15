@@ -29,7 +29,6 @@ class RoverIcon extends Component {
     const { latitude, longitude, heading, bearing } = this.props;
 
     const roverIconStyles = {
-      outline: '2px solid red',
       transformOrigin: 'center',
       transform: `rotate(${heading - bearing}deg)`,
     };

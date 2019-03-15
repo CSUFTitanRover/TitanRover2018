@@ -2,6 +2,8 @@ import serial
 from time import sleep
 import re
 import sys
+import socket
+import subprocess
 import requests
 global ser, nvidiaIp
 nvidiaIp = "192.168.1.2"
@@ -11,18 +13,31 @@ def reach():
     try:
         while True:
             try:
-                ser = serial.Serial('/dev/tty-emlid', baudrate=115200)
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.bind(('', 7072))
+                s.listen(5)
                 break
             except:
-                print("Not Connected to the Reach on /dev/ttyACM*")
+                subprocess.call(' sudo lsof -t -i tcp:7072 | xargs kill -9', shell = True)
+                print("Waiting For Connection")
                 sleep(5)
-            
+
+
+        while True:
+            try:
+                conn, address = s.accept()
+                print("Connection from", address)
+                break
+            except:
+                print("ERROR CONNECTING")
+                sleep(3)
             
         pattern = re.compile('(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)')
         print("Waiting for GPS Lock...")
 
         while True:
-            data = ser.readline()
+            #data = ser.readline()
+            data = conn.recv(2048)
             print(data)
             m = re.match(pattern, data)
             if m:
@@ -52,8 +67,10 @@ def reach():
                 sleep(1)
 
             print(data)
-    except:
+    except KeyboardInterrupt:
+        #s.close()
         pass
 
 while True:
     reach()
+

@@ -66,25 +66,18 @@ class ComponentMenuList extends Component {
             componentprops={{ cameraID: '1' }}
           />
           <ComponentMenuItem
-            title="Driving Camera"
+            title="Science Camera"
             componentname="Camera"
             icon={<VideocamIcon />}
             className={classes.nested}
             componentprops={{ cameraID: '2' }}
           />
           <ComponentMenuItem
-            title="Top-Down Camera"
+            title="Front Camera"
             componentname="Camera"
             icon={<VideocamIcon />}
             className={classes.nested}
             componentprops={{ cameraID: '3' }}
-          />
-          <ComponentMenuItem
-            title="Science Camera"
-            componentname="Camera"
-            icon={<VideocamIcon />}
-            className={classes.nested}
-            componentprops={{ cameraID: '4' }}
           />
           <ComponentMenuItem
             title="Decagon Realtime Chart"

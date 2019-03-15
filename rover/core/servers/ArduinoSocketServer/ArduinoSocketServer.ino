@@ -8,14 +8,14 @@
     server to receive commands and send feedback
 */
 
-#include <SPI.h>
+//#include <SPI.h>
 //#include <Servo.h>
 //#include <Stepper.h>
 
 // Joint #1
 const uint8_t joint1_pulse_pin = 2;
 const uint8_t joint1_dir_pin = 6;
-const uint8_t joint1_enab_pin = 31;
+//const uint8_t joint1_enab_pin = 31;
 
 // Joint 4
 const uint8_t joint4_pulse_pin = 3;
@@ -31,16 +31,18 @@ const uint8_t joint5b_dir_pin = 9;
 
 
 //Color Pins
-int redPin = 24;
-int bluePin = 26;
-int greenPin = 22;
+//int redPin = 24;
+//int bluePin = 26;
+//int greenPin = 22;
+
+int tx2Start = 53;
 
 //Sabertooth Communications
 #include <SoftwareSerial.h>
 #include "Sabertooth.h"
 
 //Network Sheild Ethernet2 setup
-#include <SPI.h>         // needed for Arduino versions later than 0018
+//#include <SPI.h>         // needed for Arduino versions later than 0018
 #include <Ethernet2.h>
 #include <EthernetUdp2.h>
 
@@ -55,14 +57,15 @@ byte mac[] = { 0x90, 0xA2, 0xDA, 0x10, 0x30, 0xD3 };
 byte ip[] = {192, 168, 1, 10};
 byte gateway[] = {192,168,1,1};
 byte subnet[] = {255,255,255,0};
+char returnCom[] = {'r'};
 
 // local port to listen on
 unsigned int localPort = 5000;   
 unsigned int localPortBaseStation = 6000;   
 
 //Storage for Commands and Values 
-char charToIntArray[10];
-int moveMentArray[10];
+char charToIntArray[8];
+int moveMentArray[8];
 
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
@@ -70,20 +73,14 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  //buffer to hold incoming packet,
 
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
-EthernetUDPBase Udp_Base;  //customize communication===========================================
+EthernetUDP Udp_Base;  //customize communication===========================================
 
 // Protection from loss of communication using millis()
 unsigned long interval = 500;
 unsigned long previousMillis=0;
 
-void setTheEthernetConnection() {
-  Ethernet.begin(mac, ip, gateway, subnet);
-  Udp.begin(localPort);
-  Udp.begin(localPortBaseStation);  //Do we need this???  Should this customize communication==========================
-  ledBlink(50);
-}
-
 // This function is used to blink the LED RED when lose of network occures
+/*
 void ledBlink(unsigned int blinkSpeed) {
   digitalWrite(bluePin, LOW);
   digitalWrite(greenPin, LOW); 
@@ -94,6 +91,82 @@ void ledBlink(unsigned int blinkSpeed) {
     delay(blinkSpeed);
   }
 }
+*/
+
+void setTheEthernetConnection() {
+  Ethernet.begin(mac, ip, gateway, subnet);
+  Udp.begin(localPort);
+  Udp.begin(localPortBaseStation);  //Do we need this???  Should this customize communication==========================
+  //ledBlink(50);
+}
+
+/*
+void setDirectionPin(uint8_t pinValue, uint8_t val){
+  if (val == 0x00)
+  {
+    digitalWrite(pinValue, LOW);
+  }
+  else if (val == 0x01)
+  {
+    digitalWrite(pinValue, HIGH);
+  }
+}
+
+void processLED(int red, int blue, int green) {
+  digitalWrite(redPin, red);
+  digitalWrite(bluePin, blue);
+  digitalWrite(greenPin, green);
+}
+
+//takes color code as input, and lights the corresponding LED
+void switchLEDs(int colorCode) {
+  switch(colorCode)
+  {
+    case 0:
+        //Red
+        processLED(HIGH, LOW, LOW);
+        //digitalWrite(redPin, HIGH);       
+        //digitalWrite(bluePin, LOW);
+        //digitalWrite(greenPin, LOW);            
+        
+        break;            
+    case 1:
+        //Green
+        processLED(LOW, LOW, HIGH);
+        //digitalWrite(redPin, LOW);
+        //digitalWrite(bluePin, LOW);
+        //digitalWrite(greenPin, HIGH);            
+        
+        break;    
+    case 2:
+        //Blue
+        processLED(LOW, HIGH, LOW);
+        //digitalWrite(redPin, LOW);
+        //digitalWrite(bluePin, HIGH);    
+        //digitalWrite(greenPin, LOW);
+            
+        break;
+            
+    case 3:
+        //Purple
+        processLED(HIGH, HIGH, LOW);
+        //digitalWrite(redPin, HIGH);
+        //digitalWrite(bluePin, HIGH);
+        //digitalWrite(greenPin, LOW);
+            
+        break;  
+
+    case 4:
+        //White
+        processLED(HIGH, HIGH, HIGH);
+        //digitalWrite(redPin, HIGH);
+        //digitalWrite(bluePin, HIGH);
+        //digitalWrite(greenPin, HIGH);
+            
+        break;  
+  }  
+}
+*/
 
 void setup() {
   // Software Serial Setup
@@ -115,14 +188,14 @@ void setup() {
   //setTheEthernetConnection();
   Ethernet.begin(mac, ip, gateway, subnet);
   Udp.begin(localPort);
-  Udp.begin(localPortBaseStation);
+  //Udp.begin(localPortBaseStation);
   delay(1500);
   
   // Set up Joint1
   pinMode(joint1_dir_pin, OUTPUT);
-  pinMode(joint1_enab_pin, OUTPUT);
+  //pinMode(joint1_enab_pin, OUTPUT);
   pinMode(joint1_pulse_pin, OUTPUT);
-  digitalWrite(joint1_enab_pin, LOW);
+  //digitalWrite(joint1_enab_pin, LOW);
 
   // Set up Joint4
   pinMode(joint4_dir_pin, OUTPUT);
@@ -140,10 +213,14 @@ void setup() {
 
 
   // setup the output pins for each color LED
-  pinMode(redPin, OUTPUT);  
-  pinMode(bluePin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  
+  //pinMode(redPin, OUTPUT);  
+  //pinMode(bluePin, OUTPUT);
+  //pinMode(greenPin, OUTPUT);
+
+  pinMode(tx2Start, OUTPUT);
+  digitalWrite(tx2Start, LOW);
+  delay(100);
+  digitalWrite(tx2Start, HIGH);
 }
 
 // This loop will be a command loop for each of the arduino processes
@@ -166,7 +243,7 @@ void loop() {
     ST.turn(0);
     ARM.motor(1,0);
     ARM.motor(2,0);
-    ledBlink(100);
+    //ledBlink(100);
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
     Udp.write('r');  //Change this to const array = ready
     Udp.endPacket();
@@ -203,7 +280,7 @@ void loop() {
       }
     }
     // Loop the array and match to case and apply the values
-    for(int x = 0; x < 10; x++){
+    for(int x = 0; x < 8; x++){
       switch (x){
         // drive speed
         case 0: 
@@ -288,6 +365,7 @@ void loop() {
           }
           break;
         }
+        /*
         case 9:
               {                
                 //Switch on the LEDs as per the array input number 9
@@ -301,7 +379,7 @@ void loop() {
                                 
                 break;
               }
-
+         */
         
         ////////////////////////////////////
 
@@ -314,19 +392,18 @@ void loop() {
         ////////////////////////////////////
       }  
     }
-
-    
-
-    //Sends the ready command asking for next transmittion
-    //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-    //Udp.write('r');  //Change this to const array = ready
-    //Udp.endPacket();
   }         
+  
+    // Sends the ready command asking for next transmittion
+    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+    Udp.write('r');  //Change this to const array = ready
+    Udp.endPacket();
+    
   //clears the buffer to ensure all new values
   memset(packetBuffer,0,sizeof(UDP_TX_PACKET_MAX_SIZE));
 }
 
-
+/*
 // Will switch the pin based on what byte is sent from the pi
 void setDirectionPin(uint8_t pinValue, uint8_t val)
 {
@@ -386,13 +463,5 @@ void switchLEDs(int colorCode) {
         digitalWrite(greenPin, LOW);
             
         break;  
-
-    case 4:
-        //White
-        digitalWrite(redPin, HIGH);
-        digitalWrite(bluePin, HIGH);
-        digitalWrite(greenPin, HIGH);
-            
-        break;  
   }  
-}
+*/

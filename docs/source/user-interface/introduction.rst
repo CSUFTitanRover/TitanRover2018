@@ -16,6 +16,6 @@ Abstract
 
 The user interface must be designed to be a soft real-time system. Meaning, losing some data packets being streamed from the
 rover to the UI will not hurt the application. The user interface must also update as new data is received in order to 
-display data in real-time. The maximum delay between new data packets being recieved in the UI should be less than 15ms. If
-the delay time is longer than 15ms then user experience will degrade. The user interface must be customizable by the user so that
+display data in real-time. The maximum delay between new data packets being recieved in the UI should be less than 350ms. If
+the delay time is longer than 350ms then user experience will degrade. The user interface must be customizable by the user so that
 they can configure the layout of the UI in a way that is meaningful to them.

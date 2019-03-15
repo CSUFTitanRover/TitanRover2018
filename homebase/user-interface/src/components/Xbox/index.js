@@ -30,7 +30,7 @@ export default class Xbox extends Component {
     };
     const timeCheck = () => new Date().getTime() / 1000;
     this.socketClient.on('broadcast', (d) => {
-      // console.log(d)
+
       self.setState({
         xboxData: {
           X1: zeroOut(d.X1),
@@ -134,7 +134,7 @@ export default class Xbox extends Component {
         ltVal: d.LT,
         rtVal: d.RT,
       };
-      // console.log(parsedJS);
+
       return parsedJS;
     } return { x1: cx1, y1: cy1, x2: cx2, y2: cy2 };
   }
@@ -143,7 +143,7 @@ export default class Xbox extends Component {
     if (undefined !== this.state.xboxData) {
       return this.state.xboxData.red;
     } return 'no movement';
-    console.log(this.state.xboxData.red);
+
   }
 
   xboxSkelleton() {
@@ -170,7 +170,7 @@ export default class Xbox extends Component {
       'Silver',
       'Silver',
     );
-    // console.log(  "x", parseInt(allJData.x1, 10) - 143 , "y", parseInt(allJData.y1, 10) - 211);
+
     const J1Moves =
       parseInt(allJData.x1, 10) - 143 === 0 && parseInt(allJData.y1) - 211 === 0
         ? 'Silver'
@@ -182,7 +182,7 @@ export default class Xbox extends Component {
     const LTMoves = allJData.ltVal / 7;
     const RTMoves = allJData.rtVal / 7;
 
-    // console.log("Left Trigger:", LTMoves, "Right Trigger", RTMoves);
+
     return (
       <svg
         height="500px"
