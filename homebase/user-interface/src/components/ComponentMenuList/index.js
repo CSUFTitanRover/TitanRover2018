@@ -137,6 +137,12 @@ class ComponentMenuList extends Component {
             icon={<ListIcon />}
             className={classes.nested}
           />
+          <ComponentMenuItem
+            title="Rover Model"
+            componentname="RoverModel"
+            icon={<ListIcon />}
+            className={classes.nested}
+          />
         </Collapse>
       </List>
     );
