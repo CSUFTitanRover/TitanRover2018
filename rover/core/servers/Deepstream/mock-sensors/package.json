@@ -15,6 +15,6 @@
     "deepstream.io-client-js": "2.3.0",
     "itertools": "^1.1.6",
     "js-yaml": "^3.10.0",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.3"
   }
 }
